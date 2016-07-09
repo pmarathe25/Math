@@ -8,12 +8,16 @@ MathParser::MathParser() {
 }
 
 double MathParser::parse(const std::string& expression) {
+    std::cout << expression << std::endl;
     if (!containsOperators(expression)) {
         return getDoubleValue(expression);
     }
     // If there is an expression in parentheses, evaluate it first.
     std::pair<int, int> inner = findInnermostParens(expression);
     if (inner.first != -1) {
+
+        // std::cout << "Destroyed parentheses." << std::endl;
+
         // Recursively parse the inner expression excluding the parentheses and then parse the new expression.
         return parse(expression.substr(0, inner.first) + std::to_string(parse(expression.substr(inner.first + 1, inner.second - inner.first - 1)))
             + expression.substr(inner.second + 1));
@@ -24,9 +28,9 @@ double MathParser::parse(const std::string& expression) {
             if (operatorLocation != std::string::npos) {
                 std::pair<std::pair<double, double>, std::pair<int, int> > operands = findOperands(expression, operatorLocation);
 
-                std::cout << "Operand 1: " << operands.first.first << " Operand 2: " << operands.first.second << std::endl;
-                std::cout << "Operand 1 index: " << operands.second.first << " Operand 2 index: " << operands.second.second << std::endl;
-                std::this_thread::sleep_for (std::chrono::seconds(1));
+                // std::cout << "Operand 1: " << operands.first.first << " Operand 2: " << operands.first.second << std::endl;
+                // std::cout << "Operand 1 index: " << operands.second.first << " Operand 2 index: " << operands.second.second << std::endl;
+                // std::this_thread::sleep_for (std::chrono::seconds(1));
 
                 return parse(expression.substr(0, operands.second.first) + std::to_string((*operatorFunctions.at(i))(operands.first))
                     + expression.substr(operands.second.second));
@@ -64,7 +68,7 @@ std::pair<int, int> MathParser::findInnermostParens(const std::string& expressio
         if (expression.at(i) == '(') {
             // Keep max depth updated and let maxDepthStart be the index of the innermost parenthesis so far.
             depth++;
-            if (depth > maxDepth) {
+            if (depth >= maxDepth) {
                 maxDepth = depth;
                 maxDepthStart = i;
             }
@@ -88,6 +92,10 @@ std::pair<std::pair<double, double>, std::pair<int, int> > MathParser::findOpera
     // If this is the last operand in the string, set the index to the end of the string.
     secondOperandEnd = (secondOperandEnd == std::string::npos) ? expression.length() - 1 : secondOperandEnd - 1;
     // Get the two operands as doubles.
+
+    std::cout << "First Operand: " << expression.substr(firstOperandStart, operatorLocation - firstOperandStart) << std::endl;
+    std::cout << "Second Operand: " << expression.substr(operatorLocation + 1, secondOperandEnd - operatorLocation) << std::endl;
+
     double firstOperand = std::stod(expression.substr(firstOperandStart, operatorLocation - firstOperandStart));
     double secondOperand = std::stod(expression.substr(operatorLocation + 1, secondOperandEnd - operatorLocation));
     // Make pairs.
