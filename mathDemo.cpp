@@ -3,6 +3,6 @@
 
 int main() {
     MathParser parser = MathParser();
-    std::cout << parser.parse("((5+4)/6)+5*(((1+2)))-5/7") << std::endl;
+    std::cout << parser.parse("5+4+6") << std::endl;
     return 0;
 }

@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
 #include "math.hpp"
 
 class MathParser {
@@ -10,12 +11,16 @@ class MathParser {
         MathParser();
         double parse(const std::string& expression);
     private:
-        std::string operators = "/*+-";
+        int numUnaryOperators = 1;
+        std::vector<std::string> operatorPrecedenceList = {"!", "/", "*", "+", "-"};
+        std::map<std::string, double (*)(std::pair<double, double>)> binaryOperatorFunctions = {{"/", &divide}, {"*", &multiply}, {"+", &add}, {"-", &subtract}};
+        std::map<std::string, double (*)(double)> unaryOperatorFunctions = {{"!", &factorial}};
         bool containsOperators(const std::string& expression);
         double getDoubleValue(const std::string& expression);
+        // Methods.
         std::pair<int, int> findInnermostParens(const std::string& expression);
-        std::pair<std::pair<double, double>, std::pair<int, int> > findOperands(const std::string& expression, int operatorLocation);
-        std::vector<double (*)(std::pair<double, double>)> operatorFunctions = {&divide, &multiply, &add, &subtract};
+        std::pair<std::pair<double, double>, std::pair<int, int> > findBinaryOperands(const std::string& expression, const std::string& op, int operatorLocation);
+        std::pair<double, std::pair<int, int> > findUnaryOperand(const std::string& expression, const std::string& op, int operatorLocation);
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "math.hpp"
+#include <iostream>
 
 int fibonacci(int n) {
     if (n < 2) {
@@ -14,6 +15,16 @@ int fibonacci(int n) {
         }
         return result;
     }
+}
+
+double factorial(double operand) {
+    int temp;
+    // Set to 1 if the operand is less.
+    temp = (operand < 1) ? 1 : operand;
+    for (int i = 1; i < operand; i++) {
+        temp *= i;
+    }
+    return temp;
 }
 
 double divide(std::pair<double, double> operands) {

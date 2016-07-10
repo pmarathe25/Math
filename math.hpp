@@ -3,6 +3,7 @@
 #include <utility>
 
 int fibonacci(int n);
+double factorial(double operand);
 double divide(std::pair<double, double> operands);
 double multiply(std::pair<double, double> operands);
 double add(std::pair<double, double> operands);
