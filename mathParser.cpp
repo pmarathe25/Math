@@ -1,50 +1,81 @@
 #include "mathParser.hpp"
-#include <iostream>
-#include <chrono>
-#include <thread>
+#include <algorithm>
 
 MathParser::MathParser() {
 
 }
 
-double MathParser::parse(const std::string& expression) {
+double MathParser::parse(std::string expression) {
+    // Remove spaces.
+    expression.erase(std::remove(expression.begin(), expression.end(), ' '), expression.end());
+    // Balance parentheses.
+    expression = balanceParentheses(expression);
+    return parseClean(expression);
+}
+
+void MathParser::setOperatorPrecedenceList(const std::vector<std::string>& newList) {
+    operatorPrecedenceList = newList;
+}
+
+void MathParser::addBinaryOperator(const std::string& op, double (*func)(double, double)) {
+    binaryOperatorFunctions.at(op) = func;
+    // Push the operator to the front of the precedence list.
+    operatorPrecedenceList.insert(operatorPrecedenceList.begin(), op);
+}
+
+void MathParser::addBinaryOperator(const std::map<std::string, double (*)(double, double)> ops) {
+    binaryOperatorFunctions.insert(ops.begin(), ops.end());
+    // Push all provided operators onto the front of the precedence list.
+    for (std::map<std::string, double (*)(double, double)>::const_iterator op = ops.begin(); op != ops.end(); op++) {
+        operatorPrecedenceList.insert(operatorPrecedenceList.begin(), op -> first);
+    }
+}
+
+void MathParser::addUnaryOperator(const std::string& op, double (*func)(double)) {
+    unaryOperatorFunctions[op] = func;
+    // Push the operator to the front of the precedence list.
+    operatorPrecedenceList.insert(operatorPrecedenceList.begin(), op);
+}
+
+void MathParser::addUnaryOperator(const std::map<std::string, double (*)(double)>& ops) {
+    unaryOperatorFunctions.insert(ops.begin(), ops.end());
+    // Push all provided operators onto the front of the precedence list.
+    for (std::map<std::string, double (*)(double)>::const_iterator op = ops.begin(); op != ops.end(); op++) {
+        operatorPrecedenceList.insert(operatorPrecedenceList.begin(), op -> first);
+    }
+}
+
+double MathParser::parseClean(const std::string&  expression) {
+    // If there are no operators, return the double value of the expression.
     if (!containsOperators(expression)) {
-        return getDoubleValue(expression);
+        return removeParentheses(expression);
     }
     // If there is an expression in parentheses, evaluate it first.
-    std::pair<int, int> inner = findInnermostParens(expression);
+    Indices inner = findInnermostParentheses(expression);
     if (inner.first != -1) {
         // Recursively parse the inner expression excluding the parentheses and then parse the new expression.
-        return parse(expression.substr(0, inner.first) + std::to_string(parse(expression.substr(inner.first + 1, inner.second - inner.first - 1)))
+        return parseClean(expression.substr(0, inner.first) + std::to_string(parseClean(expression.substr(inner.first + 1, inner.second - inner.first - 1)))
             + expression.substr(inner.second + 1));
     } else {
-        // Evaluate unary operators.
-        for (std::vector<std::string>::iterator op = operatorPrecedenceList.begin(); op != operatorPrecedenceList.begin() + numUnaryOperators; op++) {
-            int operatorLocation = expression.find(*op);
-            if (operatorLocation != std::string::npos) {
-                // Create a pair to hold the operator and the start and end indices of the expression.
-                std::pair<double, std::pair<int, int> > operand = findUnaryOperand(expression, *op, operatorLocation);
-
-
-                return parse(expression.substr(0, operand.second.first) + std::to_string((*unaryOperatorFunctions.at(*op))(operand.first))
-                    + expression.substr(operand.second.second));
-            }
-        }
-        // Evaluate binary operators in the order they are provided in the precedence list.
-        for (std::vector<std::string>::iterator op = operatorPrecedenceList.begin() + numUnaryOperators; op != operatorPrecedenceList.end(); op++) {
+        // Evaluate operators in the order they are provided in the precedence list.
+        for (std::vector<std::string>::iterator op = operatorPrecedenceList.begin(); op != operatorPrecedenceList.end(); op++) {
             // Find the first instance of the operator.
             int operatorLocation = expression.find(*op);
             if (operatorLocation != std::string::npos) {
-                // Create a pair to hold the two operators and the start and end indices of the expression.
-                std::pair<std::pair<double, double>, std::pair<int, int> > operands = findBinaryOperands(expression, *op, operatorLocation);
-
-                std::cout << expression.substr(0, operands.second.first) << "Value of 7!: " << std::to_string((*binaryOperatorFunctions.at(*op))(operands.first))
-                    << " Rest of string: " << expression.substr(operands.second.second) << std::endl;
-                std::this_thread::sleep_for (std::chrono::seconds(1));
-
-
-                return parse(expression.substr(0, operands.second.first) + std::to_string((*binaryOperatorFunctions.at(*op))(operands.first))
-                    + expression.substr(operands.second.second));
+                // If this is a binary operator call a binary function, otherwise call a unary function.
+                if (binaryOperatorFunctions.count(*op) > 0) {
+                    // Create a struct to hold the two operators and the start and end indices of the expression.
+                    BinaryOperands binaryOperands = findBinaryOperands(expression, *op, operatorLocation);
+                    return parseClean(expression.substr(0, binaryOperands.indices.first) +
+                        std::to_string((*binaryOperatorFunctions.at(*op))(binaryOperands.firstOperand, binaryOperands.secondOperand))
+                        + expression.substr(binaryOperands.indices.second));
+                } else if (unaryOperatorFunctions.count(*op) > 0) {
+                    // Create a struct to hold the operator and the start and end indices of the expression.
+                    UnaryOperand unaryOperand = findUnaryOperand(expression, *op, operatorLocation);
+                    return parseClean(expression.substr(0, unaryOperand.indices.first)
+                        + std::to_string((*unaryOperatorFunctions.at(*op))(unaryOperand.firstOperand))
+                        + expression.substr(unaryOperand.indices.second));
+                }
             }
         }
     }
@@ -60,18 +91,44 @@ bool MathParser::containsOperators(const std::string& expression) {
 }
 
 // Accepts a single string value and returns the double equivalent after removing extraneous parentheses.
-double MathParser::getDoubleValue(const std::string& expression) {
-    // Remove all parenthesis
-    std::string temp = expression;
-    for (std::string::iterator character = temp.begin(); character != temp.end(); character++) {
-        if ((*character) == '(' || (*character) == ')') {
-            temp.erase(character);
-        }
-    }
-    return std::stod(temp);
+double MathParser::removeParentheses(std::string expression) {
+    // Remove all parentheses
+    expression.erase(std::remove(expression.begin(), expression.end(), '('), expression.end());
+    expression.erase(std::remove(expression.begin(), expression.end(), ')'), expression.end());
+    return std::stod(expression);
 }
 
-std::pair<int, int> MathParser::findInnermostParens(const std::string& expression) {
+std::string MathParser::balanceParentheses(std::string expression) {
+    int parenthesesBalance = 0;
+    // Remove extra right parentheses.
+    for (std::string::iterator it = expression.begin(); it != expression.end(); it++) {
+        parenthesesBalance += (*it == '(');
+        parenthesesBalance -= (*it == ')');
+        // If there are more right parentheses than left as the string is traversed left to right, remove them.
+        if (parenthesesBalance < 0) {
+            expression.erase(it);
+            parenthesesBalance++;
+            it--;
+        }
+    }
+    // Remove extra left parentheses.
+    parenthesesBalance = 0;
+    for (std::string::iterator it = expression.end() - 1; it != expression.begin() - 1; it--) {
+        parenthesesBalance += (*it == '(');
+        parenthesesBalance -= (*it == ')');
+        // If there are more left parentheses than right as the string is traversed right to left, remove them.
+        if (parenthesesBalance > 0) {
+            expression.erase(it);
+            // Subtracting two, because the next iteration will once again consider the previous parenthesis.
+            parenthesesBalance -= 2;
+            it++;
+        }
+    }
+    return expression;
+}
+
+MathParser::Indices MathParser::findInnermostParentheses(const std::string& expression) {
+    Indices temp;
     int maxDepth = 0;
     int maxDepthStart = -1;
     int maxDepthEnd = -1;
@@ -92,10 +149,13 @@ std::pair<int, int> MathParser::findInnermostParens(const std::string& expressio
             depth--;
         }
     }
-    return std::make_pair(maxDepthStart, maxDepthEnd);
+    temp.first = maxDepthStart;
+    temp.second = maxDepthEnd;
+    return temp;
 }
 
-std::pair<double, std::pair<int, int> > MathParser::findUnaryOperand(const std::string& expression, const std::string& op, int operatorLocation) {
+MathParser::UnaryOperand MathParser::findUnaryOperand(const std::string& expression, const std::string& op, int operatorLocation) {
+    UnaryOperand temp;
     // Get the index of the beginning of the first operand..
     int operandStart = expression.find_last_not_of("0123456789.", operatorLocation - 1) + 1;
     // Get the index after the end of the unary operator.
@@ -104,13 +164,16 @@ std::pair<double, std::pair<int, int> > MathParser::findUnaryOperand(const std::
     operatorEnd = (operatorEnd == std::string::npos) ? expression.length() - 1 : operatorEnd;
     // Get the operand as a double.
     double operand = std::stod(expression.substr(operandStart, operatorLocation - operandStart));
-    // Make pairs.
-    std::pair<int, int> indices = std::make_pair(operandStart, operatorEnd);
-    return std::make_pair(operand, indices);
+
+    temp.indices.first = operandStart;
+    temp.indices.second = operatorEnd;
+    temp.firstOperand = operand;
+    return temp;
 }
 
 // Gives the values and locations of the operands.
-std::pair<std::pair<double, double>, std::pair<int, int> > MathParser::findBinaryOperands(const std::string& expression, const std::string& op, int operatorLocation) {
+MathParser::BinaryOperands MathParser::findBinaryOperands(const std::string& expression, const std::string& op, int operatorLocation) {
+    BinaryOperands temp;
     // Get the index of the beginning of the first operand..
     int firstOperandStart = expression.find_last_not_of("0123456789.", operatorLocation - 1) + 1;
     // Get the index after the end of the second operand.
@@ -120,8 +183,9 @@ std::pair<std::pair<double, double>, std::pair<int, int> > MathParser::findBinar
     // Get the two operands as doubles.
     double firstOperand = std::stod(expression.substr(firstOperandStart, operatorLocation - firstOperandStart));
     double secondOperand = std::stod(expression.substr(operatorLocation + op.size(), secondOperandEnd + 1 - operatorLocation));
-    // Make pairs.
-    std::pair<double, double> operands = std::make_pair(firstOperand, secondOperand);
-    std::pair<int, int> indices = std::make_pair(firstOperandStart, secondOperandEnd);
-    return std::make_pair(operands, indices);
+    temp.indices.first = firstOperandStart;
+    temp.indices.second = secondOperandEnd;
+    temp.firstOperand = firstOperand;
+    temp.secondOperand = secondOperand;
+    return temp;
 }

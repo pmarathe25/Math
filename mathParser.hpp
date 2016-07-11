@@ -1,7 +1,6 @@
 #ifndef MATH_PARSER_H
 #define MATH_PARSER_H
 #include <string>
-#include <utility>
 #include <vector>
 #include <map>
 #include "math.hpp"
@@ -9,18 +8,37 @@
 class MathParser {
     public:
         MathParser();
-        double parse(const std::string& expression);
+        double parse(std::string expression);
+        void setOperatorPrecedenceList(const std::vector<std::string>& newList);
+        void addBinaryOperator(const std::string& op, double (*func)(double, double));
+        void addBinaryOperator(const std::map<std::string, double (*)(double, double)> ops);
+        void addUnaryOperator(const std::string& op, double (*func)(double));
+        void addUnaryOperator(const std::map<std::string, double (*)(double)>& ops);
     private:
-        int numUnaryOperators = 1;
+        struct Indices {
+            int first, second;
+        };
+        struct BinaryOperands {
+            Indices indices;
+            double firstOperand, secondOperand;
+        };
+        struct UnaryOperand {
+            Indices indices;
+            double firstOperand;
+        };
+        // Order of operations.
         std::vector<std::string> operatorPrecedenceList = {"!", "/", "*", "+", "-"};
-        std::map<std::string, double (*)(std::pair<double, double>)> binaryOperatorFunctions = {{"/", &divide}, {"*", &multiply}, {"+", &add}, {"-", &subtract}};
+        // Operator functions.
+        std::map<std::string, double (*)(double, double)> binaryOperatorFunctions = {{"/", &divide}, {"*", &multiply}, {"+", &add}, {"-", &subtract}};
         std::map<std::string, double (*)(double)> unaryOperatorFunctions = {{"!", &factorial}};
-        bool containsOperators(const std::string& expression);
-        double getDoubleValue(const std::string& expression);
         // Methods.
-        std::pair<int, int> findInnermostParens(const std::string& expression);
-        std::pair<std::pair<double, double>, std::pair<int, int> > findBinaryOperands(const std::string& expression, const std::string& op, int operatorLocation);
-        std::pair<double, std::pair<int, int> > findUnaryOperand(const std::string& expression, const std::string& op, int operatorLocation);
+        double parseClean(const std::string&  expression);
+        bool containsOperators(const std::string& expression);
+        double removeParentheses(std::string expression);
+        std::string balanceParentheses(std::string expression);
+        Indices findInnermostParentheses(const std::string& expression);
+        BinaryOperands findBinaryOperands(const std::string& expression, const std::string& op, int operatorLocation);
+        UnaryOperand findUnaryOperand(const std::string& expression, const std::string& op, int operatorLocation);
 };
 
 #endif

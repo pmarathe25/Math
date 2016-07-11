@@ -17,28 +17,32 @@ int fibonacci(int n) {
     }
 }
 
+double fibonacci(double n) {
+    return fibonacci((int) n);
+}
+
 double factorial(double operand) {
     int temp;
     // Set to 1 if the operand is less.
     temp = (operand < 1) ? 1 : operand;
-    for (int i = 1; i < operand; i++) {
+    for (int i = 1; i < (int) operand; i++) {
         temp *= i;
     }
     return temp;
 }
 
-double divide(std::pair<double, double> operands) {
-    return (operands.first / operands.second);
+double divide(double operand1, double operand2) {
+    return (operand1 / operand2);
 }
 
-double multiply(std::pair<double, double> operands) {
-    return (operands.first * operands.second);
+double multiply(double operand1, double operand2) {
+    return (operand1 * operand2);
 }
 
-double add(std::pair<double, double> operands) {
-    return (operands.first + operands.second);
+double add(double operand1, double operand2) {
+    return (operand1 + operand2);
 }
 
-double subtract(std::pair<double, double> operands) {
-    return (operands.first - operands.second);
+double subtract(double operand1, double operand2) {
+    return (operand1 - operand2);
 }

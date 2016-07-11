@@ -1,12 +1,12 @@
 #ifndef MATH_H
 #define MATH_H
-#include <utility>
 
 int fibonacci(int n);
+double fibonacci(double n);
 double factorial(double operand);
-double divide(std::pair<double, double> operands);
-double multiply(std::pair<double, double> operands);
-double add(std::pair<double, double> operands);
-double subtract(std::pair<double, double> operands);
+double divide(double operand1, double operand2);
+double multiply(double operand1, double operand2);
+double add(double operand1, double operand2);
+double subtract(double operand1, double operand2);
 
 #endif
