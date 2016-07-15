@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include "math.hpp"
-#include "../Text/strmanip.hpp"
+#include "Text/strmanip.hpp"
 
 class MathParser {
     public:
