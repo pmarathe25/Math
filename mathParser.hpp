@@ -4,39 +4,36 @@
 #include <vector>
 #include <map>
 #include "math.hpp"
+#include "../Text/strmanip.hpp"
 
 class MathParser {
     public:
         MathParser();
         double parse(std::string expression);
         void setOperatorPrecedenceList(const std::vector<std::string>& newList);
+        // Add operators.
         void addBinaryOperator(const std::string& op, double (*func)(double, double));
         void addBinaryOperator(const std::map<std::string, double (*)(double, double)> ops);
         void addUnaryOperator(const std::string& op, double (*func)(double));
         void addUnaryOperator(const std::map<std::string, double (*)(double)>& ops);
     private:
-        struct Indices {
-            int first, second;
-        };
+        // Contains indices of the expression and values of operands.
         struct BinaryOperands {
-            Indices indices;
+            strmanip::Indices indices;
             double firstOperand, secondOperand;
         };
+        // Contains indices of the expression and the value of the operand.
         struct UnaryOperand {
-            Indices indices;
+            strmanip::Indices indices;
             double firstOperand;
         };
         // Order of operations.
         std::vector<std::string> operatorPrecedenceList = {"!", "/", "*", "+", "-"};
         // Operator functions.
-        std::map<std::string, double (*)(double, double)> binaryOperatorFunctions = {{"/", &divide}, {"*", &multiply}, {"+", &add}, {"-", &subtract}};
-        std::map<std::string, double (*)(double)> unaryOperatorFunctions = {{"!", &factorial}};
+        std::map<std::string, double (*)(double, double)> binaryOperatorFunctions = {{"/", &math::divide}, {"*", &math::multiply}, {"+", &math::add}, {"-", &math::subtract}};
+        std::map<std::string, double (*)(double)> unaryOperatorFunctions = {{"!", &math::factorial}};
         // Methods.
         double parseClean(const std::string&  expression);
-        bool containsOperators(const std::string& expression);
-        double removeParentheses(std::string expression);
-        std::string balanceParentheses(std::string expression);
-        Indices findInnermostParentheses(const std::string& expression);
         BinaryOperands findBinaryOperands(const std::string& expression, const std::string& op, int operatorLocation);
         UnaryOperand findUnaryOperand(const std::string& expression, const std::string& op, int operatorLocation);
 };
