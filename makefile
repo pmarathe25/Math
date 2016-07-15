@@ -4,7 +4,7 @@ CFLAGS = -c -std=c++11
 LFLAGS =
 
 MathDemo: $(OBJS)
-	$(CXX) $(LFLAGS) $(OBJS) -o MathDemo
+	$(CXX) $(LFLAGS) $(OBJS) -o ~/bin/MathDemo
 
 mathParser.o: mathParser.hpp mathParser.cpp math.hpp Text/strmanip.hpp
 	$(CXX) $(CFLAGS) mathParser.cpp
