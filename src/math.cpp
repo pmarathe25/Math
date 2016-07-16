@@ -1,4 +1,4 @@
-#include "math.hpp"
+#include "Math/math.hpp"
 #include <iostream>
 
 namespace math {

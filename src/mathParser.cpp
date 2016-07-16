@@ -1,4 +1,4 @@
-#include "mathParser.hpp"
+#include "Math/mathParser.hpp"
 #include <algorithm>
 
 MathParser::MathParser() {

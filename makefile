@@ -17,13 +17,13 @@ libmath.so: $(OBJS)
 $(TESTDIR)/MathDemo: $(OBJS) $(TESTOBJS)
 	$(CXX) $(TESTLFLAGS) $(OBJS) $(TESTOBJS) $(LIBDIR)$(LIBS) -o $(TESTDIR)/MathDemo
 
-$(BUILDDIR)/mathParser.o: $(INCLUDEDIR)/mathParser.hpp $(SRCDIR)/mathParser.cpp $(INCLUDEDIR)/math.hpp $(INCLUDEDIR)/Text/strmanip.hpp
+$(BUILDDIR)/mathParser.o: $(SRCDIR)/mathParser.cpp $(INCLUDEDIR)/Math/mathParser.hpp $(INCLUDEDIR)/Math/math.hpp $(INCLUDEDIR)/Text/strmanip.hpp
 	$(CXX) $(CFLAGS) $(SRCDIR)/mathParser.cpp -o $(BUILDDIR)/mathParser.o
 
-$(BUILDDIR)/math.o: $(INCLUDEDIR)/math.hpp $(SRCDIR)/math.cpp
+$(BUILDDIR)/math.o: $(INCLUDEDIR)/Math/math.hpp $(SRCDIR)/math.cpp
 	$(CXX) $(CFLAGS) $(SRCDIR)/math.cpp -o $(BUILDDIR)/math.o
 
-$(BUILDDIR)/mathDemo.o: $(TESTDIR)/mathDemo.cpp $(INCLUDEDIR)/mathParser.hpp $(INCLUDEDIR)/math.hpp
+$(BUILDDIR)/mathDemo.o: $(TESTDIR)/mathDemo.cpp $(INCLUDEDIR)/Math/mathParser.hpp $(INCLUDEDIR)/Math/math.hpp
 	$(CXX) $(CFLAGS) $(TESTDIR)/mathDemo.cpp -o $(BUILDDIR)/mathDemo.o
 
 clean:
