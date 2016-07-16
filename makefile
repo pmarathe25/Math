@@ -1,22 +1,33 @@
-OBJS = mathParser.o math.o mathDemo.o Text/strmanip.o
+BUILDDIR = build/
+INCLUDEDIR = include/
+OBJS = $(BUILDDIR)/mathParser.o $(BUILDDIR)/math.o
+TESTOBJS = $(BUILDDIR)/mathDemo.o
+LIBDIR = lib/
+LIBS = Text/libtext.so
+TESTDIR = test/
+SRCDIR = src/
 CXX = g++
-CFLAGS = -c -std=c++11
-LFLAGS =
+CFLAGS = -fPIC -c -std=c++11 -I./$(INCLUDEDIR)
+LFLAGS = -shared
+TESTLFLAGS =
 
-MathDemo: $(OBJS)
-	$(CXX) $(LFLAGS) $(OBJS) -o ~/bin/MathDemo
+libmath.so: $(OBJS)
+	$(CXX) $(LFLAGS) $(OBJS) $(LIBDIR)$(LIBS) -o libmath.so
 
-mathParser.o: mathParser.hpp mathParser.cpp math.hpp Text/strmanip.hpp
-	$(CXX) $(CFLAGS) mathParser.cpp
+$(TESTDIR)/MathDemo: $(OBJS) $(TESTOBJS)
+	$(CXX) $(TESTLFLAGS) $(OBJS) $(TESTOBJS) $(LIBDIR)$(LIBS) -o $(TESTDIR)/MathDemo
 
-math.o: math.hpp math.cpp
-	$(CXX) $(CFLAGS) math.cpp
+$(BUILDDIR)/mathParser.o: $(INCLUDEDIR)/mathParser.hpp $(SRCDIR)/mathParser.cpp $(INCLUDEDIR)/math.hpp $(INCLUDEDIR)/Text/strmanip.hpp
+	$(CXX) $(CFLAGS) $(SRCDIR)/mathParser.cpp -o $(BUILDDIR)/mathParser.o
 
-mathDemo.o: mathDemo.cpp mathParser.hpp math.hpp
-	$(CXX) $(CFLAGS) mathDemo.cpp
+$(BUILDDIR)/math.o: $(INCLUDEDIR)/math.hpp $(SRCDIR)/math.cpp
+	$(CXX) $(CFLAGS) $(SRCDIR)/math.cpp -o $(BUILDDIR)/math.o
 
-strmanip.o: Text/strmanip.hpp Text/strmanip.cpp
-	$(CXX) $(CFLAGS) strmanip.cpp
+$(BUILDDIR)/mathDemo.o: $(TESTDIR)/mathDemo.cpp $(INCLUDEDIR)/mathParser.hpp $(INCLUDEDIR)/math.hpp
+	$(CXX) $(CFLAGS) $(TESTDIR)/mathDemo.cpp -o $(BUILDDIR)/mathDemo.o
 
 clean:
-	rm $(OBJS) MathDemo
+	rm $(OBJS) $(TESTOBJS)
+
+test: $(TESTDIR)/MathDemo
+	$(TESTDIR)/MathDemo
