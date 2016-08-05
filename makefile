@@ -6,16 +6,16 @@ LIBDIR = lib/
 LIBS = Text/libtext.so
 TESTDIR = test/
 SRCDIR = src/
+EXECLFLAGS =
 CXX = g++
-CFLAGS = -fPIC -c -std=c++11 -I./$(INCLUDEDIR)
+CFLAGS = -fPIC -c -std=c++11 -I$(INCLUDEDIR)
 LFLAGS = -shared
-TESTLFLAGS =
 
 libmath.so: $(OBJS)
-	$(CXX) $(LFLAGS) $(OBJS) $(LIBDIR)$(LIBS) -o libmath.so
+	$(CXX) $(LFLAGS) $(OBJS) $(LIBDIR)/$(LIBS) -o libmath.so
 
 $(TESTDIR)/MathDemo: $(OBJS) $(TESTOBJS)
-	$(CXX) $(TESTLFLAGS) $(OBJS) $(TESTOBJS) $(LIBDIR)$(LIBS) -o $(TESTDIR)/MathDemo
+	$(CXX) $(EXECLFLAGS) $(OBJS) $(TESTOBJS) $(LIBDIR)$(LIBS) -o $(TESTDIR)/MathDemo
 
 $(BUILDDIR)/mathParser.o: $(SRCDIR)/mathParser.cpp $(INCLUDEDIR)/Math/mathParser.hpp $(INCLUDEDIR)/Math/math.hpp $(INCLUDEDIR)/Text/strmanip.hpp
 	$(CXX) $(CFLAGS) $(SRCDIR)/mathParser.cpp -o $(BUILDDIR)/mathParser.o

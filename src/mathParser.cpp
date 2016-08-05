@@ -18,7 +18,7 @@ void MathParser::setOperatorPrecedenceList(const std::vector<std::string>& newLi
 }
 
 void MathParser::addBinaryOperator(const std::string& op, double (*func)(double, double)) {
-    binaryOperatorFunctions.at(op) = func;
+    binaryOperatorFunctions[op] = func;
     // Push the operator to the front of the precedence list.
     operatorPrecedenceList.insert(operatorPrecedenceList.begin(), op);
 }
