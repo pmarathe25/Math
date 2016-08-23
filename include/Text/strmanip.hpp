@@ -1,3 +1,5 @@
+#ifndef STRMANIP_H
+#define STRMANIP_H
 #include <string>
 #include <vector>
 
@@ -11,3 +13,5 @@ namespace strmanip {
     std::string balance(std::string expression, char openingChar, char closingChar);
     strmanip::Indices findInnermost(const std::string& expression, char openingChar, char closingChar);
 }
+
+#endif
