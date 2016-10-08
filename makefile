@@ -4,7 +4,7 @@ INCLUDEDIR = include/
 OBJS = $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o
 TESTOBJS = $(BUILDDIR)/MathDemo.o
 EXECOBJS = $(BUILDDIR)/MathParse.o
-LIBDIR = lib/
+LIBDIR = $(CURDIR)/lib/
 TESTDIR = test/
 SRCDIR = src/
 CXX = g++
@@ -25,7 +25,7 @@ $(BUILDDIR)/MathParse.o: $(SRCDIR)/MathParse.cpp $(LIBDIR)/Math/libmath.so
 $(TESTDIR)/MathDemo: $(TESTOBJS) $(LIBDIR)/Math/libmath.so
 	$(CXX) $(TESTLFLAGS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(LIBDIR)/Text/libtext.so -o $(TESTDIR)/MathDemo
 
-$(BUILDDIR)/MathDemo.o: $(TESTDIR)/MathDemo.cpp $(LIBDIR)/Math/libmath.so
+$(BUILDDIR)/MathDemo.o: $(TESTDIR)/MathDemo.cpp $(INCLUDEDIR)/Math/Matrix.hpp $(LIBDIR)/Math/libmath.so
 	$(CXX) $(CFLAGS) $(TESTDIR)/MathDemo.cpp -o $(BUILDDIR)/MathDemo.o
 
 $(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEDIR)/Math/MathParser.hpp $(INCLUDEDIR)/Math/Math.hpp $(INCLUDEDIR)/Text/strmanip.hpp
