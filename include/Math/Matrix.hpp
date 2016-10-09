@@ -1,8 +1,8 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 #include <vector>
-#include <iostream>
 #include "Math/Math.hpp"
+
 
 namespace math {
     template <class T>
@@ -12,7 +12,7 @@ namespace math {
                 // Initialize elements with size (rows, cols).
                 elements = std::vector<std::vector<T> > (rows, std::vector<T>(cols));
             }
-            Matrix(int rows, int cols, const std::vector<T>& initialElements) {
+            Matrix(const std::vector<T>& initialElements, int rows, int cols) {
                 // Initialize elements with size (rows, cols).
                 elements = std::vector<std::vector<T> > (rows, std::vector<T>(cols));
                 for (int row = 0; row < rows; ++row) {
@@ -27,44 +27,47 @@ namespace math {
             T& at(int row, int col) {
                 return elements.at(row).at(col);
             }
-            const T& getElements() {
+            const T& getElements() const {
                 return elements;
             }
-            int getNumRows() {
+            int getNumRows() const {
                 return elements.size();
             }
-            int getNumColumns() {
+            int getNumColumns() const {
                 return elements.at(0).size();
             }
-            const std::vector<T>& getRow(int row) {
+            const std::vector<T>& getRow(int row) const {
                 return elements.at(row);
             }
-            std::vector<T> getColumn(int col) {
+            std::vector<T> getColumn(int col) const {
                 std::vector<T> temp;
                 temp.reserve(elements.size());
-                for (typename std::vector<std::vector<T> >::iterator it = elements.begin(); it != elements.end(); ++it) {
+                for (typename std::vector<std::vector<T> >::const_iterator it = elements.begin(); it != elements.end(); ++it) {
                     temp.push_back((*it).at(col));
                 }
                 return temp;
             }
-            void display(const std::vector<T>& toDisplay = std::vector<T>()) {
-                if (toDisplay.empty()) {
-                    for (typename std::vector<std::vector<T> >::const_iterator it = elements.begin(); it != elements.end(); ++it) {
-                        for (typename std::vector<T>::const_iterator itInner = (*it).begin(); itInner != (*it).end(); ++itInner) {
-                            std::cout << *itInner << " ";
-                        }
-                        std::cout << std::endl;
+            Matrix operator*(const Matrix& other) {
+                Matrix product = Matrix(getNumRows(), other.getNumColumns());
+                for (int j = 0; j < product.getNumColumns(); ++j) {
+                    std::vector<T> otherColumn = other.getColumn(j);
+                    for (int i = 0; i < product.getNumRows(); ++i) {
+                        product.at(i, j) = innerProduct(getRow(i), otherColumn);
                     }
-                } else {
-                    for (typename std::vector<T>::const_iterator itVec = toDisplay.begin(); itVec != toDisplay.end(); ++itVec) {
-                        std::cout << *itVec << " ";
-                    }
-                    std::cout << std::endl;
                 }
+                return product;
             }
+
         private:
             std::vector<std::vector<T> > elements;
     };
+    template <typename T>
+    void display(const math::Matrix<T>& toDisplay) {
+        for (int i = 0; i < toDisplay.getNumRows(); ++i) {
+            display(toDisplay.getRow(i));
+        }
+    }
+
 }
 
 #endif

@@ -10,9 +10,16 @@ int main() {
     math::MathParser parser = math::MathParser();
     parser.addUnaryOperator("++", &postIncrement);
     std::cout << parser.parse("1++*(3++!)++/9*4++-1+++++3") << std::endl;
-    math::Matrix<int> mat = math::Matrix<int>(5, 5);
-    mat.at(0, 4) = 5;
-    mat.display();
-    mat.display(mat.getRow(0));
+    math::Matrix<int> mat = math::Matrix<int>({{0, 1}, {2, 3}, {4, 5}});
+    math::Matrix<int> other = math::Matrix<int>({{0, 1, 2}, {3, 4, 5}});
+    mat.at(0, 1) = 5;
+    math::display(mat);
+    std::cout << std::endl;
+    math::display(other);
+    std::cout << std::endl;
+    math::display(mat * other);
+    std::vector<int> a = {2, 0};
+    std::vector<int> b = {2, 0};
+    std::cout << math::innerProduct(a, b) << std::endl;
     return 0;
 }
