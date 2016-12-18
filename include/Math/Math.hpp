@@ -11,17 +11,10 @@ namespace math {
     double multiply(double operand1, double operand2);
     double add(double operand1, double operand2);
     double subtract(double operand1, double operand2);
+    // Compute dot product.
     template <typename T>
-    T innerProduct(const std::vector<T>& a, const std::vector<T>& b) {
-        if (a.size() != b.size()) {
-            throw;
-        }
-        T product = T();
-        for (int i = 0; i < a.size(); i++) {
-            product += a.at(i) * b.at(i);
-        }
-        return product;
-    }
+    T innerProduct(const std::vector<T>& a, const std::vector<T>& b);
+    // Display a vector.
     template <typename T>
     void display(const std::vector<T>& toDisplay) {
         for (typename std::vector<T>::const_iterator itVec = toDisplay.begin(); itVec != toDisplay.end(); ++itVec) {
@@ -31,4 +24,5 @@ namespace math {
     }
 
 }
+
 #endif

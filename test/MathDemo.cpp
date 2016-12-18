@@ -18,8 +18,8 @@ int main() {
     math::display(other);
     std::cout << std::endl;
     math::display(mat * other);
-    std::vector<int> a = {2, 0};
-    std::vector<int> b = {2, 0};
+    std::vector<double> a {2, 0};
+    std::vector<double> b = {2, 0};
     std::cout << math::innerProduct(a, b) << std::endl;
     return 0;
 }

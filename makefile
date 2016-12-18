@@ -7,11 +7,11 @@ EXECOBJS = $(BUILDDIR)/MathParse.o
 LIBDIR = $(CURDIR)/lib/
 TESTDIR = test/
 SRCDIR = src/
-CXX = g++
-CFLAGS = -fPIC -c -std=c++11 -I$(INCLUDEDIR)
-LFLAGS = -shared
-TESTLFLAGS =
-EXECLFLAGS =
+CXX = nvcc
+CFLAGS =  -Xcompiler -fPIC -Wno-deprecated-gpu-targets -c -std=c++11 -I$(INCLUDEDIR)
+LFLAGS = -shared -Wno-deprecated-gpu-targets
+TESTLFLAGS = -Wno-deprecated-gpu-targets
+EXECLFLAGS = -Wno-deprecated-gpu-targets
 
 $(LIBDIR)/Math/libmath.so: $(OBJS)
 	$(CXX) $(LFLAGS) $(OBJS) -o $(LIBDIR)/Math/libmath.so
@@ -31,8 +31,8 @@ $(BUILDDIR)/MathDemo.o: $(TESTDIR)/MathDemo.cpp $(INCLUDEDIR)/Math/Matrix.hpp $(
 $(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEDIR)/Math/MathParser.hpp $(INCLUDEDIR)/Math/Math.hpp $(INCLUDEDIR)/Text/strmanip.hpp
 	$(CXX) $(CFLAGS) $(SRCDIR)/MathParser.cpp -o $(BUILDDIR)/MathParser.o
 
-$(BUILDDIR)/Math.o: $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Math.cpp
-	$(CXX) $(CFLAGS) $(SRCDIR)/Math.cpp -o $(BUILDDIR)/Math.o
+$(BUILDDIR)/Math.o: $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Math.cu
+	$(CXX) $(CFLAGS) $(SRCDIR)/Math.cu -o $(BUILDDIR)/Math.o
 
 clean:
 	rm $(OBJS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(TESTDIR)/MathDemo

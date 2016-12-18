@@ -21,24 +21,31 @@ namespace math {
                     }
                 }
             }
+
             Matrix(const std::vector<std::vector<T> >& initialElements) {
                 elements = initialElements;
             }
+
             T& at(int row, int col) {
                 return elements.at(row).at(col);
             }
+
             const T& getElements() const {
                 return elements;
             }
+
             int getNumRows() const {
                 return elements.size();
             }
+
             int getNumColumns() const {
                 return elements.at(0).size();
             }
+
             const std::vector<T>& getRow(int row) const {
                 return elements.at(row);
             }
+
             std::vector<T> getColumn(int col) const {
                 std::vector<T> temp;
                 temp.reserve(elements.size());
@@ -47,6 +54,7 @@ namespace math {
                 }
                 return temp;
             }
+
             Matrix operator*(const Matrix& other) {
                 Matrix product = Matrix(getNumRows(), other.getNumColumns());
                 for (int j = 0; j < product.getNumColumns(); ++j) {
