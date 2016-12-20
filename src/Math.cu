@@ -22,10 +22,6 @@ namespace math {
         }
     }
 
-    double fibonacci(double n) {
-        return fibonacci((int) n);
-    }
-
     double factorial(double operand) {
         int temp;
         // Set to 1 if the operand is less.
@@ -57,9 +53,9 @@ namespace math {
         // Memory shared across the thread block.
         __shared__ double temp[N];
         temp[threadIdx.x] = a[threadIdx.x] * b[threadIdx.x];
-        // Synchronize
+        // Synchronize.
         __syncthreads();
-        //  Final computation
+        //  Final computation.
         *result = T();
         if (threadIdx.x == 0) {
             for (int i = 0; i < *size; ++i) {

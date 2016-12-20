@@ -12,6 +12,7 @@ namespace math {
                 // Initialize elements with size (rows, cols).
                 elements = std::vector<std::vector<T> > (rows, std::vector<T>(cols));
             }
+            
             Matrix(const std::vector<T>& initialElements, int rows, int cols) {
                 // Initialize elements with size (rows, cols).
                 elements = std::vector<std::vector<T> > (rows, std::vector<T>(cols));
