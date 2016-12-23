@@ -1,14 +1,14 @@
 BUILDDIR = build/
 BINDIR = ~/bin/
 INCLUDEDIR = include/
-OBJS = $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o
+OBJS = $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o $(BUILDDIR)/Matrix.o
 TESTOBJS = $(BUILDDIR)/MathDemo.o
 EXECOBJS = $(BUILDDIR)/MathParse.o
 LIBDIR = $(CURDIR)/lib/
 TESTDIR = test/
 SRCDIR = src/
 CXX = nvcc
-CFLAGS = -Xcompiler -fPIC -Wno-deprecated-gpu-targets -c -std=c++11 -I$(INCLUDEDIR)
+CFLAGS = -arch=sm_35 -Xcompiler -fPIC -Wno-deprecated-gpu-targets -c -std=c++11 -I$(INCLUDEDIR)
 LFLAGS = -shared -Wno-deprecated-gpu-targets
 TESTLFLAGS = -Wno-deprecated-gpu-targets
 EXECLFLAGS = -Wno-deprecated-gpu-targets
@@ -33,6 +33,10 @@ $(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEDIR)/Math/MathParser
 
 $(BUILDDIR)/Math.o: $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Math.cu
 	$(CXX) $(CFLAGS) $(SRCDIR)/Math.cu -o $(BUILDDIR)/Math.o
+
+$(BUILDDIR)/Matrix.o: $(INCLUDEDIR)/Math/Matrix.hpp $(SRCDIR)/Matrix.cu
+	$(CXX) $(CFLAGS) $(SRCDIR)/Matrix.cu -o $(BUILDDIR)/Matrix.o
+
 
 clean:
 	rm $(OBJS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(TESTDIR)/MathDemo
