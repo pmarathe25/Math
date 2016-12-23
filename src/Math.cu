@@ -3,7 +3,7 @@
 #include <memory>
 #include <cuda_runtime_api.h>
 #include <cuda.h>
-#define N 512
+#define THREADS_PER_BLOCK 512
 
 namespace math {
     int fibonacci(int n) {
@@ -13,7 +13,7 @@ namespace math {
             // Only need to keep track of the previous 2 numbers in the sequence.
             int prev[2] = {0, 1};
             int result = 0;
-            for (int i = 1; i < n; i++) {
+            for (int i = 1; i < n; ++i) {
                 result = prev[0] + prev[1];
                 prev[0] = prev[1];
                 prev[1] = result;
@@ -26,7 +26,7 @@ namespace math {
         int temp;
         // Set to 1 if the operand is less.
         temp = (operand < 1) ? 1 : operand;
-        for (int i = 1; i < (int) operand; i++) {
+        for (int i = 1; i < (int) operand; ++i) {
             temp *= i;
         }
         return temp;
@@ -51,16 +51,19 @@ namespace math {
     template<typename T>
     __global__ void computeInnerProduct(T* a, T* b, int* size, T* result) {
         // Memory shared across the thread block.
-        __shared__ double temp[N];
-        temp[threadIdx.x] = a[threadIdx.x] * b[threadIdx.x];
+        __shared__ T temp[THREADS_PER_BLOCK];
+        if (threadIdx.x < *size) {
+            temp[threadIdx.x] = a[threadIdx.x] * b[threadIdx.x];
+        }
         // Synchronize.
         __syncthreads();
         //  Final computation.
-        *result = T();
+        T tempResult = T();
         if (threadIdx.x == 0) {
             for (int i = 0; i < *size; ++i) {
-                *result += temp[i];
+                tempResult += temp[i];
             }
+            *result = tempResult;
         }
     }
     // Specialization declarations.
@@ -88,7 +91,7 @@ namespace math {
         cudaMemcpy(dev_b, b.data(), vecSize * sizeof(T), cudaMemcpyHostToDevice);
         cudaMemcpy(dev_size, &vecSize, sizeof(int), cudaMemcpyHostToDevice);
         // Launch kernel.
-        computeInnerProduct<T><<<1, vecSize>>>(dev_a, dev_b, dev_size, dev_result);
+        computeInnerProduct<T><<<1, THREADS_PER_BLOCK>>>(dev_a, dev_b, dev_size, dev_result);
         // Get result.
         cudaMemcpy(&product, dev_result, sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.
