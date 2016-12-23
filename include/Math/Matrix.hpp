@@ -12,11 +12,12 @@ namespace math {
             Matrix(const std::vector<T>& initialElements, int rows, int cols);
             Matrix(const std::vector<std::vector<T> >& initialElements);
             T& at(int row, int col);
-            const std::vector<std::vector<T> >& getElements() const;
-            int getNumRows() const;
-            int getNumColumns() const;
-            const std::vector<T>& getRow(int row) const;
-            std::vector<T> getColumn(int col) const;
+            T* data();
+            int numRows() const;
+            int numColumns() const;
+            int size() const;
+            const std::vector<T>& row(int row) const;
+            std::vector<T> column(int col) const;
             Matrix operator*(const Matrix& other);
         private:
             std::vector<std::vector<T> > elements;
