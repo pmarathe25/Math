@@ -4,6 +4,7 @@
 #include <cuda_runtime_api.h>
 #include <cuda.h>
 #define THREADS_PER_BLOCK 512
+#define NUM_BLOCKS 8192
 
 namespace math {
     int fibonacci(int n) {
@@ -52,22 +53,25 @@ namespace math {
     __global__ void computeInnerProduct(T* a, T* b, int* size, T* result) {
         // Memory shared across the thread block.
         __shared__ T temp[THREADS_PER_BLOCK];
-        if (threadIdx.x < *size) {
-            temp[threadIdx.x] = a[threadIdx.x] * b[threadIdx.x];
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < *size) {
+            temp[threadIdx.x] = a[index] * b[index];
+        } else {
+            temp[threadIdx.x] = T();
         }
         // Synchronize.
         __syncthreads();
         //  Final computation.
         T tempResult = T();
         if (threadIdx.x == 0) {
-            for (int i = 0; i < *size; ++i) {
+            for (int i = 0; i < THREADS_PER_BLOCK; ++i) {
                 tempResult += temp[i];
             }
-            *result = tempResult;
+            // Add this block's result to the final.
+            atomicAdd(result, tempResult);
         }
     }
     // Specialization declarations.
-    template __global__ void computeInnerProduct<double>(double* a, double* b, int* size, double* result);
     template __global__ void computeInnerProduct<float>(float* a, float* b, int* size, float* result);
     template __global__ void computeInnerProduct<int>(int* a, int* b, int* size, int* result);
 
@@ -90,8 +94,10 @@ namespace math {
         cudaMemcpy(dev_a, a.data(), vecSize * sizeof(T), cudaMemcpyHostToDevice);
         cudaMemcpy(dev_b, b.data(), vecSize * sizeof(T), cudaMemcpyHostToDevice);
         cudaMemcpy(dev_size, &vecSize, sizeof(int), cudaMemcpyHostToDevice);
+        // Initialize output to 0.
+        cudaMemcpy(dev_result, &product, sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel.
-        computeInnerProduct<T><<<1, THREADS_PER_BLOCK>>>(dev_a, dev_b, dev_size, dev_result);
+        computeInnerProduct<T><<<NUM_BLOCKS, THREADS_PER_BLOCK>>>(dev_a, dev_b, dev_size, dev_result);
         // Get result.
         cudaMemcpy(&product, dev_result, sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.
@@ -103,7 +109,6 @@ namespace math {
         return product;
     }
     // Specialization declarations.
-    template double innerProduct(const std::vector<double>& a, const std::vector<double>& b);
     template float innerProduct(const std::vector<float>& a, const std::vector<float>& b);
     template int innerProduct(const std::vector<int>& a, const std::vector<int>& b);
 }
