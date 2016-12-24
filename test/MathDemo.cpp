@@ -12,12 +12,28 @@ int main() {
     std::cout << parser.parse("1++*(3++!)++/9*4++-1+++++3") << std::endl;
     math::Matrix<float> mat = math::Matrix<float>(20, 100000); // math::Matrix<float>({{0, 1}, {2, 3}, {4, 5}});
     math::Matrix<float> other = math::Matrix<float>(100000, 20); // math::Matrix<float>({{0, 1, 2}, {3, 4, 5}});
+    math::Matrix<float> toTranspose = math::Matrix<float>(40, 40);
+    math::Matrix<float> toTranspose2 = math::Matrix<float>(4, 4);
+    for (int i = 0; i < 1600; ++i) {
+        toTranspose.at(i) = i;
+    }
+    for (int i = 0; i < 16; ++i) {
+        toTranspose2.at(i) = i;
+    }
     mat.at(0, 1) = 5;
     // math::display(mat);
     // std::cout << std::endl;
     // math::display(other);
     // std::cout << std::endl;
-    math::display(mat * other);
+    // math::display(mat * other);
+    math::display(toTranspose);
+    std::cout << std::endl;
+    math::display(toTranspose.transpose());
+    std::cout << std::endl;
+    math::display(toTranspose2);
+    std::cout << std::endl;
+    math::display(toTranspose2.transpose());
+    std::cout << std::endl;
     std::vector<float> a {2, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};
     std::vector<float> b = {2, 0}; //, 5, 6, 7, 8, 3, 2, 4, 5, 6, 76, 54};
     std::cout << math::innerProduct(a, b) << std::endl;
