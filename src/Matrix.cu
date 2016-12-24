@@ -134,7 +134,7 @@ namespace math {
         cudaMemcpy(dev_numCols, &numCols, sizeof(int), cudaMemcpyHostToDevice);
         cudaMemcpy(dev_size, &matSize, sizeof(int), cudaMemcpyHostToDevice);
         // Launch kernel.
-        dim3 blocks(512, 512);
+        dim3 blocks(1024, 1024);
         dim3 threads(TILE_DIM, TILE_DIM);
         computeTranspose<<<blocks, threads>>>(dev_original, dev_numRows, dev_numCols, dev_size, dev_transposed);
         // Get result.
