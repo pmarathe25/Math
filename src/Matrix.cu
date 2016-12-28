@@ -151,7 +151,6 @@ namespace math {
         // Compute the coordinates of matrix C that this thread is responsible for.
         int row = blockIdx.x * BLOCK_DIM + threadIdx.x;
         int col = blockIdx.y * BLOCK_DIM + threadIdx.y;
-        int indexC = row * numColsB + col;
         bool cValid = row < numRowsA && col < numColsB;
         T Cvalue = T();
         // Iterate over the sub-matrices of A and B.
@@ -176,6 +175,7 @@ namespace math {
             __syncthreads();
             // Compute dot product only if the point is within the C matrix.
             if (cValid) {
+                #pragma unroll
                 for (int j = 0; j < BLOCK_DIM; ++j) {
                     Cvalue += tileA[threadIdx.x][j] * tileB[j][threadIdx.y];
                 }
@@ -185,7 +185,7 @@ namespace math {
         }
         // Write to output.
         if (cValid) {
-            C[indexC] = Cvalue;
+            C[row * numColsB + col] = Cvalue;
         }
     }
 
