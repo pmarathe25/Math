@@ -130,7 +130,8 @@ namespace math {
         // Copy inputs to device.
         cudaMemcpy(dev_original, const_data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel with only as many blocks as necessary.
-        dim3 blocks(std::ceil(numColumns() / (double) BLOCK_DIM), std::ceil(numRows() / (double) BLOCK_DIM));
+        int numBlocks = std::ceil(max(numColumns(), numRows()) / (double) BLOCK_DIM);
+        dim3 blocks(numBlocks, numBlocks);
         dim3 threads(BLOCK_DIM, BLOCK_DIM);
         computeTranspose<<<blocks, threads>>>(dev_original, numRows(), numColumns(), dev_transposed);
         // Get result.
