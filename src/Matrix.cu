@@ -1,6 +1,6 @@
 #include "Math/Matrix.hpp"
 #include "Math/Math.hpp"
-#define BLOCK_DIM 32
+#define BLOCK_DIM 16
 #define GRID_DIM 1024
 
 
