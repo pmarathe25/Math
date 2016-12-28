@@ -210,7 +210,8 @@ namespace math {
         cudaMemcpy(dev_C, product.const_data(), Csize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel.
         dim3 blocks(GRID_DIM, GRID_DIM);
-        dim3 threads(BLOCK_DIM, BLOCK_DIM);
+        int x = 32;
+        dim3 threads(x, x);
         computeProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns(), other.numRows(), other.numColumns(), Asize, Bsize, dev_C);
         // Get result.
         cudaMemcpy(product.data(), dev_C, Csize * sizeof(T) , cudaMemcpyDeviceToHost);
