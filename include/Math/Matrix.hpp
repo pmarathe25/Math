@@ -13,12 +13,13 @@ namespace math {
             T& at(int row, int col);
             T& at(int index);
             T* data();
+            const T* const_data() const;
             int numRows() const;
             int numColumns() const;
             int size() const;
             std::vector<T> row(int row) const;
             std::vector<T> column(int col) const;
-            Matrix transpose();
+            Matrix transpose() const;
             Matrix operator*(const Matrix& other);
         private:
             std::vector<T> elements;

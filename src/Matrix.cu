@@ -1,6 +1,8 @@
 #include "Math/Matrix.hpp"
 #include "Math/Math.hpp"
-#define TILE_DIM 32
+#define BLOCK_DIM 32
+#define GRID_DIM 1024
+
 
 namespace math {
     template <typename T>
@@ -54,7 +56,12 @@ namespace math {
 
     template <typename T>
     T* Matrix<T>::data() {
-        return &at(0, 0);
+        return elements.data();
+    }
+
+    template <typename T>
+    const T* Matrix<T>::const_data() const {
+        return elements.data();
     }
 
     template <typename T>
@@ -93,72 +100,125 @@ namespace math {
     }
 
     template<typename T>
-    __global__ void computeTranspose(T* original, int* numRows, int* numCols, int* size, T* transposed) {
-        __shared__ T tile[TILE_DIM][TILE_DIM];
+    __global__ void computeTranspose(T* original, int numRows, int numCols, T* transposed) {
+        __shared__ T tile[BLOCK_DIM][BLOCK_DIM];
         // Load a (transposed) tile into shared memory.
-        int y = blockIdx.y * TILE_DIM + threadIdx.y;
-        int x = blockIdx.x * TILE_DIM + threadIdx.x;
-        if (x < *numRows && y < *numCols) {
-            tile[threadIdx.y][threadIdx.x] = original[x * *numCols + y];
+        int x = blockIdx.x * BLOCK_DIM + threadIdx.x;
+        int y = blockIdx.y * BLOCK_DIM + threadIdx.y;
+        if (x < numRows && y < numCols) {
+            tile[threadIdx.y][threadIdx.x] = original[x * numCols + y];
         } else {
             tile[threadIdx.y][threadIdx.x] = 0;
         }
         // Synchronize.
         __syncthreads();
         // Write the tiles into the output. Switch rows and columns to handle non-square matrices.
-        y = blockIdx.x * TILE_DIM + threadIdx.y;
-        x = blockIdx.y * TILE_DIM + threadIdx.x;
-        if (x < *numCols && y < *numRows) {
-            transposed[x * *numRows + y] = tile[threadIdx.x][threadIdx.y];
+        x = blockIdx.y * BLOCK_DIM + threadIdx.x;
+        y = blockIdx.x * BLOCK_DIM + threadIdx.y;
+        if (x < numCols && y < numRows) {
+            transposed[x * numRows + y] = tile[threadIdx.x][threadIdx.y];
         }
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::transpose() {
+    Matrix<T> Matrix<T>::transpose() const {
         int matSize = size();
-        int numCols = numColumns();
-        int numRow = numRows();
-        T transpose[matSize];
+        Matrix<T> transpose = Matrix<T>(numColumns(), numRows());
         // Initialize device copies.
         T *dev_original, *dev_transposed;
-        int *dev_numCols, *dev_numRows, *dev_size;
         // Allocate memory for device ccpies.
         cudaMalloc((void**)&dev_original, matSize * sizeof(T));
         cudaMalloc((void**)&dev_transposed, matSize * sizeof(T));
-        cudaMalloc((void**)&dev_numRows, sizeof(int));
-        cudaMalloc((void**)&dev_numCols, sizeof(int));
-        cudaMalloc((void**)&dev_size, sizeof(int));
         // Copy inputs to device.
-        cudaMemcpy(dev_original, data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_numRows, &numRow, sizeof(int), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_numCols, &numCols, sizeof(int), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_size, &matSize, sizeof(int), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_original, const_data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel.
-        dim3 blocks(1024, 1024);
-        dim3 threads(TILE_DIM, TILE_DIM);
-        computeTranspose<<<blocks, threads>>>(dev_original, dev_numRows, dev_numCols, dev_size, dev_transposed);
+        dim3 blocks(GRID_DIM, GRID_DIM);
+        dim3 threads(BLOCK_DIM, BLOCK_DIM);
+        computeTranspose<<<blocks, threads>>>(dev_original, numRows(), numColumns(), dev_transposed);
         // Get result.
-        cudaMemcpy(transpose, dev_transposed, matSize * sizeof(T) , cudaMemcpyDeviceToHost);
+        cudaMemcpy(transpose.data(), dev_transposed, matSize * sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.
         cudaFree(dev_original);
         cudaFree(dev_transposed);
-        cudaFree(dev_numRows);
-        cudaFree(dev_numCols);
-        cudaFree(dev_size);
         // Return.
-        std::cout << std::endl;
-        return Matrix<T>(transpose, numColumns(), numRows());
+        return transpose;
+    }
+
+    template <typename T>
+    __global__ void computeProduct(T* A, T* B, int numRowsA, int numColsA, int numRowsB, int numColsB, T* C) {
+        __shared__ T tileA[BLOCK_DIM][BLOCK_DIM];
+        __shared__ T tileB[BLOCK_DIM][BLOCK_DIM];
+        // Compute the coordinates of matrix C that this thread is responsible for.
+        int row = blockIdx.x * BLOCK_DIM + threadIdx.x;
+        int col = blockIdx.y * BLOCK_DIM + threadIdx.y;
+        if (blockIdx.x < 2)
+            printf("Block ID: %d\n", blockIdx.x);
+        if (row < 40) {
+            printf("Row %d\n", row);
+        }
+        // if (col < 40) {
+        //     printf("Col %d\n", col);
+        // }
+        T Cvalue = T();
+        int i = 0;
+        // Iterate over the sub-matrices of A and B.
+        for (i = 0; i < (numColsA + BLOCK_DIM - 1) / BLOCK_DIM; ++i) {
+            // Load sub-matrices.
+            if (i > 0)
+            printf("HELLO\n");
+            if (row < numRowsA && i < numColsA) {
+                printf("HI\n");
+                tileA[threadIdx.x][threadIdx.y] = A[row * numColsA + i];
+            } else {
+                tileA[threadIdx.x][threadIdx.y] = 0;
+            }
+            if (i < numRowsB && col < numColsB) {
+                tileB[threadIdx.x][threadIdx.y] = B[i * numColsB + col];
+            } else {
+                tileB[threadIdx.x][threadIdx.y] = 0;
+            }
+            // Synchronize.
+            __syncthreads();
+            // Compute dot product.
+            for (int j = 0; j < BLOCK_DIM; ++j) {
+                Cvalue += tileA[row][j] * tileB[j][col];
+            }
+            // Synchronize.
+            __syncthreads();
+        }
+        // Write to output.
+        if (row < numRowsA && col < numColsB) {
+            C[row * numColsB + col] = Cvalue;
+        }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) {
         Matrix product = Matrix(numRows(), other.numColumns());
-        for (int j = 0; j < product.numColumns(); ++j) {
-            std::vector<T> otherColumn = other.column(j);
-            for (int i = 0; i < product.numRows(); ++i) {
-                product.at(i, j) = innerProduct(row(i), otherColumn);
-            }
-        }
+        int Asize = size();
+        int Bsize = other.size();
+        int Csize = product.size();
+        // Initialize device copies.
+        T *dev_A, *dev_B, *dev_C;
+        // Allocate memory for device ccpies.
+        cudaMalloc((void**)&dev_A, Asize * sizeof(T));
+        cudaMalloc((void**)&dev_B, Bsize * sizeof(T));
+        cudaMalloc((void**)&dev_C, Csize * sizeof(T));
+        // Copy inputs to device.
+        cudaMemcpy(dev_A, const_data(), Asize * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_B, other.const_data(), Bsize * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_C, product.const_data(), Csize * sizeof(T), cudaMemcpyHostToDevice);
+        // Launch kernel.
+        dim3 blocks(GRID_DIM, GRID_DIM);
+        dim3 threads(BLOCK_DIM, BLOCK_DIM);
+        computeProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns(), other.numRows(), other.numColumns(), dev_C);
+        // Get result.
+        cudaMemcpy(product.data(), dev_C, Csize * sizeof(T) , cudaMemcpyDeviceToHost);
+        // Free memory.
+        cudaFree(dev_A);
+        cudaFree(dev_B);
+        cudaFree(dev_C);
+        // Return.
         return product;
     }
 

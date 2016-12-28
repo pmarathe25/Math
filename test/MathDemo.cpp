@@ -12,7 +12,7 @@ int main() {
     std::cout << parser.parse("1++*(3++!)++/9*4++-1+++++3") << std::endl;
     math::Matrix<float> mat = math::Matrix<float>(20, 100000); // math::Matrix<float>({{0, 1}, {2, 3}, {4, 5}});
     math::Matrix<float> other = math::Matrix<float>(100000, 20); // math::Matrix<float>({{0, 1, 2}, {3, 4, 5}});
-    int testSize = 40;
+    int testSize = 32;
     math::Matrix<float> toTranspose = math::Matrix<float>(testSize, testSize);
     math::Matrix<float> toTranspose2 = math::Matrix<float>(4, 5);
     math::Matrix<float> toTranspose3 = math::Matrix<float>(5, 5);
@@ -42,6 +42,8 @@ int main() {
     math::display(toTranspose3);
     std::cout << std::endl;
     math::display(toTranspose3.transpose());
+    std::cout << std::endl;
+    // math::display(toTranspose * toTranspose);
     std::cout << std::endl;
     std::vector<float> a {2, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};
     std::vector<float> b = {2, 0}; //, 5, 6, 7, 8, 3, 2, 4, 5, 6, 76, 54};
