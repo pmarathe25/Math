@@ -156,15 +156,12 @@ namespace math {
         if (row < numRowsA && col < numColsB) {
             // Iterate over the sub-matrices of A and B.
             for (int i = 0; i < (numColsA + BLOCK_DIM - 1); i += BLOCK_DIM) {
-                // Load sub-matrices.
-                if (row < numRowsA && i < numColsA) {
-                    tileA[threadIdx.x][threadIdx.y] = A[row * numColsA + i];
+                // Load sub-matrices only if both are valid.
+                if (row < numRowsA && (i + col) < numColsA && (i + row) < numRowsB && col < numColsB) {
+                    tileA[threadIdx.x][threadIdx.y] = A[row * numColsA + (i + col)];
+                    tileB[threadIdx.x][threadIdx.y] = B[(i + row) * numColsB + col];
                 } else {
                     tileA[threadIdx.x][threadIdx.y] = 0;
-                }
-                if (i < numRowsB && col < numColsB) {
-                    tileB[threadIdx.x][threadIdx.y] = B[i * numColsB + col];
-                } else {
                     tileB[threadIdx.x][threadIdx.y] = 0;
                 }
                 // Synchronize.
