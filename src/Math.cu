@@ -4,7 +4,6 @@
 #include <cuda_runtime_api.h>
 #include <cuda.h>
 #define THREADS_PER_BLOCK 1024
-#define NUM_BLOCKS 8192
 
 namespace math {
     int fibonacci(int n) {
@@ -93,7 +92,8 @@ namespace math {
         // Initialize output to 0.
         cudaMemcpy(dev_result, &product, sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel.
-        computeInnerProduct<T><<<NUM_BLOCKS, THREADS_PER_BLOCK>>>(dev_a, dev_b, a.size(), dev_result);
+        dim3 gridDim(std::ceil(a.size() / (double) THREADS_PER_BLOCK));
+        computeInnerProduct<T><<<gridDim, THREADS_PER_BLOCK>>>(dev_a, dev_b, a.size(), dev_result);
         // Get result.
         cudaMemcpy(&product, dev_result, sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.

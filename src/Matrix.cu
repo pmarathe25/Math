@@ -1,8 +1,6 @@
 #include "Math/Matrix.hpp"
 #include "Math/Math.hpp"
 #define BLOCK_DIM 32
-#define GRID_DIM 256
-
 
 namespace math {
     template <typename T>
@@ -132,7 +130,7 @@ namespace math {
         // Copy inputs to device.
         cudaMemcpy(dev_original, const_data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel.
-        dim3 blocks(GRID_DIM, GRID_DIM);
+        dim3 blocks(std::ceil(numColumns() / (double) BLOCK_DIM), std::ceil(numRows() / (double) BLOCK_DIM));
         dim3 threads(BLOCK_DIM, BLOCK_DIM);
         computeTranspose<<<blocks, threads>>>(dev_original, numRows(), numColumns(), dev_transposed);
         // Get result.
@@ -209,9 +207,8 @@ namespace math {
         cudaMemcpy(dev_B, other.const_data(), Bsize * sizeof(T), cudaMemcpyHostToDevice);
         cudaMemcpy(dev_C, product.const_data(), Csize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel.
-        dim3 blocks(GRID_DIM, GRID_DIM);
-        int x = 32;
-        dim3 threads(x, x);
+        dim3 blocks(std::ceil(product.numRows() / (double) BLOCK_DIM), std::ceil(product.numColumns() / (double) BLOCK_DIM));
+        dim3 threads(BLOCK_DIM, BLOCK_DIM);
         computeProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns(), other.numRows(), other.numColumns(), Asize, Bsize, dev_C);
         // Get result.
         cudaMemcpy(product.data(), dev_C, Csize * sizeof(T) , cudaMemcpyDeviceToHost);

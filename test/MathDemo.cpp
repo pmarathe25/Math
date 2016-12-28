@@ -14,12 +14,12 @@ int main() {
     math::Matrix<float> other = math::Matrix<float>(100000, 20); // math::Matrix<float>({{0, 1, 2}, {3, 4, 5}});
     int testSize = 40;
     math::Matrix<float> toTranspose = math::Matrix<float>(testSize, testSize);
-    math::Matrix<float> toTranspose2 = math::Matrix<float>(4, 5);
+    math::Matrix<float> toTranspose2 = math::Matrix<float>(4, 12);
     math::Matrix<float> toTranspose3 = math::Matrix<float>(5, 5);
     for (int i = 0; i < testSize * testSize; ++i) {
         toTranspose.at(i) = 1;
     }
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < 48; ++i) {
         toTranspose2.at(i) = i;
     }
     for (int i = 0; i < 25; ++i) {
