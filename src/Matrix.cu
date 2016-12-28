@@ -1,6 +1,6 @@
 #include "Math/Matrix.hpp"
 #include "Math/Math.hpp"
-#define BLOCK_DIM 16
+#define BLOCK_DIM 32
 #define GRID_DIM 1024
 
 
@@ -151,42 +151,32 @@ namespace math {
         // Compute the coordinates of matrix C that this thread is responsible for.
         int row = blockIdx.x * BLOCK_DIM + threadIdx.x;
         int col = blockIdx.y * BLOCK_DIM + threadIdx.y;
-        // if (blockIdx.x < 2)
-        //     printf("Block ID: %d\n", blockIdx.x);
-        // if (row < 40)
-        //     printf("Row %d\n", row);
-        // if (col < 40)
-        //     printf("Col %d\n", col);
         T Cvalue = T();
-        int i = 0;
-        // Iterate over the sub-matrices of A and B.
-        for (i = 0; i < (numColsA + BLOCK_DIM - 1) / BLOCK_DIM; ++i) {
-            // Load sub-matrices.
-            // if (i > 0)
-            //     printf("HELLO\n");
-            if (row < numRowsA && i < numColsA) {
-                tileA[threadIdx.x][threadIdx.y] = A[row * numColsA + i];
-            } else {
-                tileA[threadIdx.x][threadIdx.y] = 0;
-            }
-            if (i < numRowsB && col < numColsB) {
-                tileB[threadIdx.x][threadIdx.y] = B[i * numColsB + col];
-            } else {
-                tileB[threadIdx.x][threadIdx.y] = 0;
-            }
-            // Synchronize.
-            __syncthreads();
-            // Compute dot product.
-            for (int j = 0; j < BLOCK_DIM; ++j) {
-                if (row < BLOCK_DIM && col < BLOCK_DIM) {
-                    Cvalue += tileA[row][j] * tileB[j][col];
-                }
-            }
-            // Synchronize.
-            __syncthreads();
-        }
-        // Write to output.
+        // Only compute if that value is within the C matrix.
         if (row < numRowsA && col < numColsB) {
+            // Iterate over the sub-matrices of A and B.
+            for (int i = 0; i < (numColsA + BLOCK_DIM - 1); i += BLOCK_DIM) {
+                // Load sub-matrices.
+                if (row < numRowsA && i < numColsA) {
+                    tileA[threadIdx.x][threadIdx.y] = A[row * numColsA + i];
+                } else {
+                    tileA[threadIdx.x][threadIdx.y] = 0;
+                }
+                if (i < numRowsB && col < numColsB) {
+                    tileB[threadIdx.x][threadIdx.y] = B[i * numColsB + col];
+                } else {
+                    tileB[threadIdx.x][threadIdx.y] = 0;
+                }
+                // Synchronize.
+                __syncthreads();
+                // Compute dot product.
+                for (int j = 0; j < BLOCK_DIM; ++j) {
+                    Cvalue += tileA[threadIdx.x][j] * tileB[j][threadIdx.y];
+                }
+                // Synchronize.
+                __syncthreads();
+            }
+            // Write to output.
             C[row * numColsB + col] = Cvalue;
         }
     }
