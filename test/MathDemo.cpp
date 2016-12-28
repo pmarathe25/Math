@@ -17,7 +17,7 @@ int main() {
     math::Matrix<float> toTranspose2 = math::Matrix<float>(4, 5);
     math::Matrix<float> toTranspose3 = math::Matrix<float>(5, 5);
     for (int i = 0; i < testSize * testSize; ++i) {
-        toTranspose.at(i) = i;
+        toTranspose.at(i) = 1;
     }
     for (int i = 0; i < 20; ++i) {
         toTranspose2.at(i) = i;
@@ -43,7 +43,7 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose3.transpose());
     std::cout << std::endl;
-    // math::display(toTranspose * toTranspose);
+    math::display(toTranspose * toTranspose);
     std::cout << std::endl;
     std::vector<float> a {2, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};
     std::vector<float> b = {2, 0}; //, 5, 6, 7, 8, 3, 2, 4, 5, 6, 76, 54};
