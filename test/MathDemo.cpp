@@ -43,6 +43,10 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose3.transpose());
     std::cout << std::endl;
+    math::display(toTranspose2 * toTranspose2.transpose());
+    std::cout << std::endl;
+    math::display(toTranspose2.transpose() * toTranspose2);
+    std::cout << std::endl;
     math::display(toTranspose * toTranspose);
     std::cout << std::endl;
     std::vector<float> a {2, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};

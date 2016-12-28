@@ -1,7 +1,7 @@
 #include "Math/Matrix.hpp"
 #include "Math/Math.hpp"
 #define BLOCK_DIM 32
-#define GRID_DIM 1024
+#define GRID_DIM 256
 
 
 namespace math {
@@ -145,41 +145,55 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeProduct(T* A, T* B, int numRowsA, int numColsA, int numRowsB, int numColsB, T* C) {
+    __global__ void computeProduct(T* A, T* B, int numRowsA, int numColsA, int numRowsB, int numColsB, int Asize, int Bsize, T* C) {
         __shared__ T tileA[BLOCK_DIM][BLOCK_DIM];
         __shared__ T tileB[BLOCK_DIM][BLOCK_DIM];
         // Compute the coordinates of matrix C that this thread is responsible for.
         int row = blockIdx.x * BLOCK_DIM + threadIdx.x;
         int col = blockIdx.y * BLOCK_DIM + threadIdx.y;
+        int indexC = row * numColsB + col;
+        bool cValid = row < numRowsA && col < numColsB;
         T Cvalue = T();
-        // Only compute if that value is within the C matrix.
-        if (row < numRowsA && col < numColsB) {
-            // Iterate over the sub-matrices of A and B.
-            for (int i = 0; i < (numColsA + BLOCK_DIM - 1); i += BLOCK_DIM) {
-                // Load sub-matrices only if both are valid.
-                if (row < numRowsA && (i + col) < numColsA && (i + row) < numRowsB && col < numColsB) {
-                    tileA[threadIdx.x][threadIdx.y] = A[row * numColsA + (i + col)];
-                    tileB[threadIdx.x][threadIdx.y] = B[(i + row) * numColsB + col];
-                } else {
-                    tileA[threadIdx.x][threadIdx.y] = 0;
-                    tileB[threadIdx.x][threadIdx.y] = 0;
-                }
-                // Synchronize.
-                __syncthreads();
-                // Compute dot product.
+        // Iterate over the sub-matrices of A and B.
+        int maxIterations = numColsA + BLOCK_DIM - 1;
+        for (int i = 0; i < maxIterations; i += BLOCK_DIM) {
+            // Compute indices.
+            int indexA = row * numColsA + (i + threadIdx.y);
+            int indexB = (i + threadIdx.x) * numColsB + col;
+            // Load sub-matrix A.
+            if (indexA < Asize) {
+                tileA[threadIdx.x][threadIdx.y] = A[indexA];
+            } else {
+                tileA[threadIdx.x][threadIdx.y] = 0;
+            }
+            // Load sub-matrix B.
+            if (indexB < Bsize) {
+                tileB[threadIdx.x][threadIdx.y] = B[indexB];
+            } else {
+                tileB[threadIdx.x][threadIdx.y] = 0;
+            }
+            // Synchronize.
+            __syncthreads();
+            // Compute dot product only if the point is within the C matrix.
+            if (cValid) {
                 for (int j = 0; j < BLOCK_DIM; ++j) {
                     Cvalue += tileA[threadIdx.x][j] * tileB[j][threadIdx.y];
                 }
-                // Synchronize.
-                __syncthreads();
             }
-            // Write to output.
-            C[row * numColsB + col] = Cvalue;
+            // Synchronize.
+            __syncthreads();
+        }
+        // Write to output.
+        if (cValid) {
+            C[indexC] = Cvalue;
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) {
+        if (numColumns() != other.numRows()) {
+            throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
+        }
         Matrix product = Matrix(numRows(), other.numColumns());
         int Asize = size();
         int Bsize = other.size();
@@ -197,7 +211,7 @@ namespace math {
         // Launch kernel.
         dim3 blocks(GRID_DIM, GRID_DIM);
         dim3 threads(BLOCK_DIM, BLOCK_DIM);
-        computeProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns(), other.numRows(), other.numColumns(), dev_C);
+        computeProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns(), other.numRows(), other.numColumns(), Asize, Bsize, dev_C);
         // Get result.
         cudaMemcpy(product.data(), dev_C, Csize * sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.

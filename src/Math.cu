@@ -78,7 +78,7 @@ namespace math {
     template<typename T>
     T innerProduct(const std::vector<T>& a, const std::vector<T>& b) {
         if (a.size() != b.size()) {
-            throw std::invalid_argument( "Vectors are not of the same lengths." );
+            throw std::invalid_argument("Cannot compute inner product of vectors of different lengths.");
         }
         T product = T();
         //  Initialize device copies.
