@@ -21,18 +21,11 @@ int main() {
             toTranspose.at(i, j) = 1;
         }
     }
-    // for (int i = 0; i < 4; ++i) {
-    //     for (int j = 0; j < 12; ++j) {
-    //         toTranspose2.at(i, j) = i * 12 + j;
-    //     }
-    // }
     for (int i = 0; i < 48; ++i) {
         toTranspose2.at(i) = i;
     }
-    for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 5; ++j) {
-            toTranspose3.at(i, j) = i * 5 + j;
-        }
+    for (int i = 0; i < 25; ++i) {
+        toTranspose3.at(i) = i;
     }
     mat.at(0, 1) = 5;
     std::vector<float> a {0, 0, 1, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};

@@ -54,7 +54,19 @@ namespace math {
     }
 
     template <typename T>
+    const T& Matrix<T>::at(int row, int col) const {
+        return elements.at(row * numColumnsRaw() + col);
+    }
+
+    template <typename T>
     T& Matrix<T>::at(int index) {
+        int row = index / numColumns();
+        int col = index % numColumns();
+        return at(row, col);
+    }
+
+    template <typename T>
+    const T& Matrix<T>::at(int index) const {
         int row = index / numColumns();
         int col = index % numColumns();
         return at(row, col);
@@ -66,17 +78,17 @@ namespace math {
     }
 
     template <typename T>
+    const T* Matrix<T>::data() const {
+        return elements.data();
+    }
+
+    template <typename T>
     std::vector<T>& Matrix<T>::raw() {
         return elements;
     }
 
     template <typename T>
-    const T* Matrix<T>::const_data() const {
-        return elements.data();
-    }
-
-    template <typename T>
-    const std::vector<T>& Matrix<T>::const_raw() const {
+    const std::vector<T>& Matrix<T>::raw() const {
         return elements;
     }
 
@@ -110,7 +122,7 @@ namespace math {
         std::vector<T> tempRow;
         tempRow.reserve(numColumns());
         for (int i = 0; i < numColumns(); ++i) {
-            tempRow.push_back(elements.at(row * numColumnsRaw() + i));
+            tempRow.push_back(at(row, i));
         }
         return tempRow;
     }
@@ -120,7 +132,7 @@ namespace math {
         std::vector<T> tempCol;
         tempCol.reserve(numRows());
         for (int i = 0; i < numRows(); ++i) {
-            tempCol.push_back(elements.at(i * numColumnsRaw() + col));
+            tempCol.push_back(at(i, col));
         }
         return tempCol;
     }
@@ -131,19 +143,13 @@ namespace math {
         // Load a (transposed) tile into shared memory.
         int x = blockIdx.x * BLOCK_DIM + threadIdx.x;
         int y = blockIdx.y * BLOCK_DIM + threadIdx.y;
-        if (x < numRows && y < numCols) {
-            tile[threadIdx.y][threadIdx.x] = original[x * numCols + y];
-        } else {
-            tile[threadIdx.y][threadIdx.x] = 0;
-        }
+        tile[threadIdx.y][threadIdx.x] = original[x * numCols + y];
         // Synchronize.
         __syncthreads();
         // Write the tiles into the output. Switch rowsRaw and columns to handle non-square matrices.
         x = blockIdx.y * BLOCK_DIM + threadIdx.x;
         y = blockIdx.x * BLOCK_DIM + threadIdx.y;
-        if (x < numCols && y < numRows) {
-            transposed[x * numRows + y] = tile[threadIdx.x][threadIdx.y];
-        }
+        transposed[x * numRows + y] = tile[threadIdx.x][threadIdx.y];
     }
 
     template <typename T>
@@ -156,9 +162,9 @@ namespace math {
         cudaMalloc((void**)&dev_original, matSize * sizeof(T));
         cudaMalloc((void**)&dev_transposed, matSize * sizeof(T));
         // Copy inputs to device.
-        cudaMemcpy(dev_original, const_data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_original, data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel with only as many blocks as necessary.
-        dim3 blocks(std::ceil(numRowsRaw() / (double) BLOCK_DIM), std::ceil(numColumnsRaw() / (double) BLOCK_DIM));
+        dim3 blocks(numRowsRaw() / BLOCK_DIM, numColumnsRaw() / BLOCK_DIM);
         dim3 threads(BLOCK_DIM, BLOCK_DIM);
         computeTranspose<<<blocks, threads>>>(dev_original, numRowsRaw(), numColumnsRaw(), dev_transposed);
         // Get result.
@@ -217,7 +223,7 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) {
-        if (numColumnsRaw() != other.numRowsRaw()) {
+        if (numColumns() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         }
         Matrix product = Matrix(numRows(), other.numColumns());
@@ -231,11 +237,11 @@ namespace math {
         cudaMalloc((void**)&dev_B, Bsize * sizeof(T));
         cudaMalloc((void**)&dev_C, Csize * sizeof(T));
         // Copy inputs to device.
-        cudaMemcpy(dev_A, const_data(), Asize * sizeof(T), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_B, other.const_data(), Bsize * sizeof(T), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_C, product.const_data(), Csize * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_A, data(), Asize * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_B, other.data(), Bsize * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_C, product.data(), Csize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel with only as many blocks as necessary.
-        dim3 blocks(std::ceil(product.numRowsRaw() / (double) BLOCK_DIM), std::ceil(product.numColumnsRaw() / (double) BLOCK_DIM));
+        dim3 blocks(product.numRowsRaw() / BLOCK_DIM, product.numColumnsRaw() / BLOCK_DIM);
         dim3 threads(BLOCK_DIM, BLOCK_DIM);
         computeProduct<<<blocks, threads>>>(dev_A, dev_B, numRowsRaw(), numColumnsRaw(), other.numRowsRaw(), other.numColumnsRaw(), Asize, Bsize, dev_C);
         // Get result.

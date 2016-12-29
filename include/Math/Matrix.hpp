@@ -11,11 +11,13 @@ namespace math {
             Matrix(const std::vector<T>& initialElements, int rows, int cols);
             Matrix(const std::vector<std::vector<T> >& initialElements);
             T& at(int row, int col);
+            const T& at(int row, int col) const;
             T& at(int index);
+            const T& at(int index) const;
             T* data();
+            const T* data() const;
             std::vector<T>& raw();
-            const T* const_data() const;
-            const std::vector<T>& const_raw() const;
+            const std::vector<T>& raw() const;
             int numRowsRaw() const;
             int numColumnsRaw() const;
             int numRows() const;
