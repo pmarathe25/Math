@@ -145,17 +145,16 @@ namespace math {
 
     template<typename T>
     __global__ void computeTranspose(T* original, int numRows, int numCols, T* transposed) {
+        // Avoid bank conflicts by allocating a single dummy element.
         __shared__ T tile[BLOCK_DIM][BLOCK_DIM + 1];
         // Load a (transposed) tile into shared memory.
-        int x = blockIdx.x * BLOCK_DIM + threadIdx.x;
-        int y = blockIdx.y * BLOCK_DIM + threadIdx.y;
-        tile[threadIdx.y][threadIdx.x] = original[x * numCols + y];
+        int row = blockIdx.x * BLOCK_DIM;
+        int col = blockIdx.y * BLOCK_DIM;
+        tile[threadIdx.y][threadIdx.x] = original[(row + threadIdx.x) * numCols + (col + threadIdx.y)];
         // Synchronize.
         __syncthreads();
-        // Write the tiles into the output. Switch rowsRaw and columns to handle non-square matrices.
-        x = blockIdx.y * BLOCK_DIM + threadIdx.x;
-        y = blockIdx.x * BLOCK_DIM + threadIdx.y;
-        transposed[x * numRows + y] = tile[threadIdx.x][threadIdx.y];
+        // Write the tiles into the output. Switch rows and columns to handle non-square matrices.
+        transposed[(col + threadIdx.x) * numRows + (row + threadIdx.y)] = tile[threadIdx.x][threadIdx.y];
     }
 
     template <typename T>
@@ -184,6 +183,7 @@ namespace math {
 
     template <typename T>
     __global__ void computeProduct(T* A, T* B, int numColsA, int numColsB, T* C) {
+        // Avoid bank conflicts by allocating a single dummy element.
         __shared__ T tileA[BLOCK_DIM][BLOCK_DIM + 1];
         __shared__ T tileB[BLOCK_DIM][BLOCK_DIM + 1];
         // Compute the coordinates of matrix C that this thread is responsible for.
@@ -192,13 +192,10 @@ namespace math {
         T Cvalue = T();
         // Iterate over the sub-matrices of A and B.
         for (int i = 0; i < numColsA; i += BLOCK_DIM) {
-            // Compute indices.
-            int indexA = row * numColsA + (i + threadIdx.y);
-            int indexB = (i + threadIdx.x) * numColsB + col;
             // Load sub-matrix A.
-            tileA[threadIdx.x][threadIdx.y] = A[indexA];
+            tileA[threadIdx.x][threadIdx.y] = A[row * numColsA + (i + threadIdx.y)];
             // Load sub-matrix B.
-            tileB[threadIdx.x][threadIdx.y] = B[indexB];
+            tileB[threadIdx.x][threadIdx.y] = B[(i + threadIdx.x) * numColsB + col];
             // Synchronize.
             __syncthreads();
             // Compute dot product only if the point is within the C matrix.
