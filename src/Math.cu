@@ -48,7 +48,7 @@ namespace math {
     template<typename T>
     __global__ void computeInnerProduct(T* a, T* b, int size, T* result) {
         // Memory shared across the thread block.
-        __shared__ T temp[THREADS_PER_BLOCK];
+        __shared__ T temp[THREADS_PER_BLOCK + 1];
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < size) {
             temp[threadIdx.x] = a[index] * b[index];

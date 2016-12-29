@@ -15,8 +15,8 @@ namespace math {
             std::vector<T>& raw();
             const T* const_data() const;
             const std::vector<T>& const_raw() const;
-            int numRows() const;
-            int numColumns() const;
+            int numRowsRaw() const;
+            int numColumnsRaw() const;
             int size() const;
             std::vector<T> row(int row) const;
             std::vector<T> column(int col) const;
@@ -24,7 +24,7 @@ namespace math {
             Matrix operator*(const Matrix& other);
         private:
             std::vector<T> elements;
-            int rows, cols;
+            int rowsRaw, colsRaw, rows, cols;
     };
 
     template <typename T>
