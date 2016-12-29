@@ -21,10 +21,13 @@ int main() {
             toTranspose.at(i, j) = 1;
         }
     }
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 12; ++j) {
-            toTranspose2.at(i, j) = i * 12 + j;
-        }
+    // for (int i = 0; i < 4; ++i) {
+    //     for (int j = 0; j < 12; ++j) {
+    //         toTranspose2.at(i, j) = i * 12 + j;
+    //     }
+    // }
+    for (int i = 0; i < 48; ++i) {
+        toTranspose2.at(i) = i;
     }
     for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < 5; ++j) {

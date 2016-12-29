@@ -55,7 +55,9 @@ namespace math {
 
     template <typename T>
     T& Matrix<T>::at(int index) {
-        return elements.at(index);
+        int row = index / numColumns();
+        int col = index % numColumns();
+        return at(row, col);
     }
 
     template <typename T>
