@@ -67,9 +67,7 @@ namespace math {
 
     template <typename T>
     const T& Matrix<T>::at(int index) const {
-        int row = index / numColumns();
-        int col = index % numColumns();
-        return at(row, col);
+        return at(index / numColumns(), index % numColumns());
     }
 
     template <typename T>
@@ -113,8 +111,13 @@ namespace math {
     }
 
     template <typename T>
-    int Matrix<T>::size() const {
+    int Matrix<T>::sizeRaw() const {
         return numColumnsRaw() * numRowsRaw();
+    }
+
+    template <typename T>
+    int Matrix<T>::size() const {
+        return numColumns() * numRows();
     }
 
     template <typename T>
@@ -154,7 +157,7 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::transpose() const {
-        int matSize = size();
+        int matSize = sizeRaw();
         Matrix<T> transpose = Matrix<T>(numColumns(), numRows());
         // Initialize device copies.
         T *dev_original, *dev_transposed;
@@ -177,48 +180,34 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeProduct(T* A, T* B, int numRowsA, int numColsA, int numRowsB, int numColsB, int Asize, int Bsize, T* C) {
+    __global__ void computeProduct(T* A, T* B, int numColsA, int numColsB, T* C) {
         __shared__ T tileA[BLOCK_DIM][BLOCK_DIM + 1];
         __shared__ T tileB[BLOCK_DIM][BLOCK_DIM + 1];
         // Compute the coordinates of matrix C that this thread is responsible for.
         int row = blockIdx.x * BLOCK_DIM + threadIdx.x;
         int col = blockIdx.y * BLOCK_DIM + threadIdx.y;
-        bool cValid = row < numRowsA && col < numColsB;
         T Cvalue = T();
         // Iterate over the sub-matrices of A and B.
-        int maxIterations = numColsA + BLOCK_DIM - 1;
-        for (int i = 0; i < maxIterations; i += BLOCK_DIM) {
+        for (int i = 0; i < numColsA; i += BLOCK_DIM) {
             // Compute indices.
             int indexA = row * numColsA + (i + threadIdx.y);
             int indexB = (i + threadIdx.x) * numColsB + col;
             // Load sub-matrix A.
-            if (indexA < Asize) {
-                tileA[threadIdx.x][threadIdx.y] = A[indexA];
-            } else {
-                tileA[threadIdx.x][threadIdx.y] = 0;
-            }
+            tileA[threadIdx.x][threadIdx.y] = A[indexA];
             // Load sub-matrix B.
-            if (indexB < Bsize) {
-                tileB[threadIdx.x][threadIdx.y] = B[indexB];
-            } else {
-                tileB[threadIdx.x][threadIdx.y] = 0;
-            }
+            tileB[threadIdx.x][threadIdx.y] = B[indexB];
             // Synchronize.
             __syncthreads();
             // Compute dot product only if the point is within the C matrix.
-            if (cValid) {
-                #pragma unroll
-                for (int j = 0; j < BLOCK_DIM; ++j) {
-                    Cvalue += tileA[threadIdx.x][j] * tileB[j][threadIdx.y];
-                }
+            #pragma unroll
+            for (int j = 0; j < BLOCK_DIM; ++j) {
+                Cvalue += tileA[threadIdx.x][j] * tileB[j][threadIdx.y];
             }
             // Synchronize.
             __syncthreads();
         }
         // Write to output.
-        if (cValid) {
-            C[row * numColsB + col] = Cvalue;
-        }
+        C[row * numColsB + col] = Cvalue;
     }
 
     template <typename T>
@@ -227,9 +216,9 @@ namespace math {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         }
         Matrix product = Matrix(numRows(), other.numColumns());
-        int Asize = size();
-        int Bsize = other.size();
-        int Csize = product.size();
+        int Asize = sizeRaw();
+        int Bsize = other.sizeRaw();
+        int Csize = product.sizeRaw();
         // Initialize device copies.
         T *dev_A, *dev_B, *dev_C;
         // Allocate memory for device ccpies.
@@ -243,7 +232,7 @@ namespace math {
         // Launch kernel with only as many blocks as necessary.
         dim3 blocks(product.numRowsRaw() / BLOCK_DIM, product.numColumnsRaw() / BLOCK_DIM);
         dim3 threads(BLOCK_DIM, BLOCK_DIM);
-        computeProduct<<<blocks, threads>>>(dev_A, dev_B, numRowsRaw(), numColumnsRaw(), other.numRowsRaw(), other.numColumnsRaw(), Asize, Bsize, dev_C);
+        computeProduct<<<blocks, threads>>>(dev_A, dev_B, numColumnsRaw(), other.numColumnsRaw(), dev_C);
         // Get result.
         cudaMemcpy(product.data(), dev_C, Csize * sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.

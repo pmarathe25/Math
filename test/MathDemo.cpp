@@ -41,7 +41,7 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose2);
     std::cout << std::endl;
-    math::display(toTranspose2.transpose());
+    math::display(toTranspose2.transpose().transpose());
     std::cout << std::endl;
     math::display(toTranspose3);
     std::cout << std::endl;
@@ -51,7 +51,7 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose2.transpose() * toTranspose2);
     std::cout << std::endl;
-    math::display(toTranspose * toTranspose);
+    math::display(toTranspose * toTranspose * toTranspose);
     std::cout << std::endl;
     std::cout << math::innerProduct(a, b) << std::endl;
     return 0;
