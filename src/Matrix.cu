@@ -2,7 +2,6 @@
 #include "Math/Math.hpp"
 #include <iostream>
 #define BLOCK_DIM 32
-#define THREADS_PER_BLOCK 1024
 
 namespace math {
     template <typename T>
@@ -147,9 +146,10 @@ namespace math {
     __global__ void computeTranspose(T* original, int numRows, int numCols, T* transposed) {
         // Avoid bank conflicts by allocating a single dummy element.
         __shared__ T tile[BLOCK_DIM][BLOCK_DIM + 1];
-        // Load a (transposed) tile into shared memory.
+        // Compute row and column of this block.
         int row = blockIdx.x * BLOCK_DIM;
         int col = blockIdx.y * BLOCK_DIM;
+        // Load a (transposed) tile into shared memory.
         tile[threadIdx.y][threadIdx.x] = original[(row + threadIdx.x) * numCols + (col + threadIdx.y)];
         // Synchronize.
         __syncthreads();
@@ -159,21 +159,21 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::transpose() const {
-        int matSize = sizeRaw();
+        int size = sizeRaw();
         Matrix<T> transpose = Matrix<T>(numColumns(), numRows());
         // Initialize device copies.
         T *dev_original, *dev_transposed;
         // Allocate memory for device ccpies.
-        cudaMalloc((void**)&dev_original, matSize * sizeof(T));
-        cudaMalloc((void**)&dev_transposed, matSize * sizeof(T));
+        cudaMalloc((void**)&dev_original, size * sizeof(T));
+        cudaMalloc((void**)&dev_transposed, size * sizeof(T));
         // Copy inputs to device.
-        cudaMemcpy(dev_original, data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_original, data(), size * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel with only as many blocks as necessary.
         dim3 blocks(numRowsRaw() / BLOCK_DIM, numColumnsRaw() / BLOCK_DIM);
         dim3 threads(BLOCK_DIM, BLOCK_DIM);
         computeTranspose<<<blocks, threads>>>(dev_original, numRowsRaw(), numColumnsRaw(), dev_transposed);
         // Get result.
-        cudaMemcpy(transpose.data(), dev_transposed, matSize * sizeof(T) , cudaMemcpyDeviceToHost);
+        cudaMemcpy(transpose.data(), dev_transposed, size * sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.
         cudaFree(dev_original);
         cudaFree(dev_transposed);
