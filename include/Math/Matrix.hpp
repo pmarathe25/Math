@@ -17,6 +17,7 @@ namespace math {
             T& at(int index);
             const T& at(int index) const;
             // Raw data functions.
+            T* data();
             const T* data() const;
             std::vector<T> getElements() const;
             // User-facing getter functions.
@@ -31,8 +32,6 @@ namespace math {
         private:
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols;
-            // Raw data functions.
-            T* data();
             // Getter functions for the underlying data.
             int numRowsRaw() const;
             int numColumnsRaw() const;
