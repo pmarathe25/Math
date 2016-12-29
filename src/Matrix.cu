@@ -4,6 +4,7 @@
 #define BLOCK_DIM 32
 
 namespace math {
+
     template <typename T>
     void Matrix<T>::init(int rows, int cols) {
         int rowsPadded = rows;
