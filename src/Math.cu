@@ -1,8 +1,5 @@
 #include "Math/Math.hpp"
-#include <iostream>
 #include <memory>
-#include <cuda_runtime_api.h>
-#include <cuda.h>
 #define THREADS_PER_BLOCK 1024
 
 namespace math {

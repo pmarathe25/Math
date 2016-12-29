@@ -1,6 +1,7 @@
 #include "Math/Matrix.hpp"
 #include "Math/Math.hpp"
 #define BLOCK_DIM 32
+#define THREADS_PER_BLOCK 1024
 
 namespace math {
     template <typename T>
@@ -15,17 +16,6 @@ namespace math {
     Matrix<T>::Matrix(const std::vector<T>& initialElements, int rows, int cols) {
         // Initialize elements with size (rows, cols).
         elements = initialElements;
-        this -> rows = rows;
-        this -> cols = cols;
-    }
-
-    template <typename T>
-    Matrix<T>::Matrix(const T* initialElements, int rows, int cols) {
-        // Initialize elements with size (rows, cols).
-        elements = std::vector<T> (rows * cols);
-        for (int i = 0; i < rows * cols; ++i) {
-            elements.at(i) = initialElements[i];
-        }
         this -> rows = rows;
         this -> cols = cols;
     }
@@ -58,9 +48,20 @@ namespace math {
     }
 
     template <typename T>
+    std::vector<T>& Matrix<T>::raw() {
+        return elements;
+    }
+
+    template <typename T>
     const T* Matrix<T>::const_data() const {
         return elements.data();
     }
+
+    template <typename T>
+    const std::vector<T>& Matrix<T>::const_raw() const {
+        return elements;
+    }
+
 
     template <typename T>
     int Matrix<T>::numRows() const {

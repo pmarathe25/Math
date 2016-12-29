@@ -26,6 +26,8 @@ int main() {
         toTranspose3.at(i) = i;
     }
     mat.at(0, 1) = 5;
+    std::vector<float> a {0, 0, 1, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};
+    std::vector<float> b = {2, 0, 5, 6}; //, 5, 6, 7, 8, 3, 2, 4, 5, 6, 76, 54};
     // math::display(mat);
     // std::cout << std::endl;
     // math::display(other);
@@ -49,8 +51,6 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose * toTranspose);
     std::cout << std::endl;
-    std::vector<float> a {2, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};
-    std::vector<float> b = {2, 0}; //, 5, 6, 7, 8, 3, 2, 4, 5, 6, 76, 54};
     std::cout << math::innerProduct(a, b) << std::endl;
     return 0;
 }
