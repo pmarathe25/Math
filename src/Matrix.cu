@@ -31,9 +31,12 @@ namespace math {
     template <typename T>
     Matrix<T>::Matrix(const std::vector<T>& initialElements, int rows, int cols) {
         // Initialize elements with size (rowsRaw, colsRaw).
-        // elements = initialElements;
-        // this -> rowsRaw = rows;
-        // this -> colsRaw = cols;
+        init(rows, cols);
+        for (int row = 0; row < rows; ++row) {
+            for (int col = 0; col < cols; ++col) {
+                this -> at(row, col) = initialElements.at(row * cols + col);
+            }
+        }
     }
 
     template <typename T>
