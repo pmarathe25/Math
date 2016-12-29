@@ -6,6 +6,7 @@ namespace math {
     template <typename T>
     class Matrix {
         public:
+            void init(int rows, int cols);
             Matrix(int rows, int cols);
             Matrix(const std::vector<T>& initialElements, int rows, int cols);
             Matrix(const std::vector<std::vector<T> >& initialElements);
@@ -17,6 +18,8 @@ namespace math {
             const std::vector<T>& const_raw() const;
             int numRowsRaw() const;
             int numColumnsRaw() const;
+            int numRows() const;
+            int numColumns() const;
             int size() const;
             std::vector<T> row(int row) const;
             std::vector<T> column(int col) const;

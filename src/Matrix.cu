@@ -1,33 +1,49 @@
 #include "Math/Matrix.hpp"
 #include "Math/Math.hpp"
+#include <iostream>
 #define BLOCK_DIM 32
 #define THREADS_PER_BLOCK 1024
 
 namespace math {
     template <typename T>
-    Matrix<T>::Matrix(int rowsRaw, int colsRaw) {
-        // Initialize elements with size (rowsRaw, colsRaw).
-        elements = std::vector<T> (rowsRaw * colsRaw);
-        this -> rowsRaw = rowsRaw;
-        this -> colsRaw = colsRaw;
+    void Matrix<T>::init(int rows, int cols) {
+        int rowsPadded = rows;
+        int colsPadded = cols;
+        if (rows % BLOCK_DIM != 0) {
+            rowsPadded += BLOCK_DIM - (rows % BLOCK_DIM);
+        }
+        if (cols % BLOCK_DIM != 0) {
+            colsPadded += BLOCK_DIM - (cols % BLOCK_DIM);
+        }
+        elements = std::vector<T> (rowsPadded * colsPadded);
+        this -> rowsRaw = rowsPadded;
+        this -> colsRaw = colsPadded;
+        this -> rows = rows;
+        this -> cols = cols;
     }
 
     template <typename T>
-    Matrix<T>::Matrix(const std::vector<T>& initialElements, int rowsRaw, int colsRaw) {
+    Matrix<T>::Matrix(int rows, int cols) {
         // Initialize elements with size (rowsRaw, colsRaw).
-        elements = initialElements;
-        this -> rowsRaw = rowsRaw;
-        this -> colsRaw = colsRaw;
+        init(rows, cols);
+    }
+
+    template <typename T>
+    Matrix<T>::Matrix(const std::vector<T>& initialElements, int rows, int cols) {
+        // Initialize elements with size (rowsRaw, colsRaw).
+        // elements = initialElements;
+        // this -> rowsRaw = rows;
+        // this -> colsRaw = cols;
     }
 
     template <typename T>
     Matrix<T>::Matrix(const std::vector<std::vector<T> >& initialElements) {
-        this -> rowsRaw = initialElements.size();
-        this -> colsRaw = initialElements.at(0).size();
-        elements = std::vector<T> (rowsRaw * colsRaw);
-        for (int row = 0; row < rowsRaw; ++row) {
-            for (int col = 0; col < colsRaw; ++col) {
-                elements.at(row * colsRaw + col) = initialElements.at(row).at(col);
+        this -> rows = initialElements.size();
+        this -> cols = initialElements.at(0).size();
+        init(rows, cols);
+        for (int row = 0; row < rows; ++row) {
+            for (int col = 0; col < cols; ++col) {
+                this -> at(row, col) = initialElements.at(row).at(col);
             }
         }
     }
@@ -73,6 +89,16 @@ namespace math {
     }
 
     template <typename T>
+    int Matrix<T>::numRows() const {
+        return rows;
+    }
+
+    template <typename T>
+    int Matrix<T>::numColumns() const {
+        return cols;
+    }
+
+    template <typename T>
     int Matrix<T>::size() const {
         return numColumnsRaw() * numRowsRaw();
     }
@@ -80,8 +106,8 @@ namespace math {
     template <typename T>
     std::vector<T> Matrix<T>::row(int row) const {
         std::vector<T> tempRow;
-        tempRow.reserve(numColumnsRaw());
-        for (int i = 0; i < numColumnsRaw(); ++i) {
+        tempRow.reserve(numColumns());
+        for (int i = 0; i < numColumns(); ++i) {
             tempRow.push_back(elements.at(row * numColumnsRaw() + i));
         }
         return tempRow;
@@ -90,8 +116,8 @@ namespace math {
     template <typename T>
     std::vector<T> Matrix<T>::column(int col) const {
         std::vector<T> tempCol;
-        tempCol.reserve(numRowsRaw());
-        for (int i = 0; i < numRowsRaw(); ++i) {
+        tempCol.reserve(numRows());
+        for (int i = 0; i < numRows(); ++i) {
             tempCol.push_back(elements.at(i * numColumnsRaw() + col));
         }
         return tempCol;
@@ -121,7 +147,7 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::transpose() const {
         int matSize = size();
-        Matrix<T> transpose = Matrix<T>(numColumnsRaw(), numRowsRaw());
+        Matrix<T> transpose = Matrix<T>(numColumns(), numRows());
         // Initialize device copies.
         T *dev_original, *dev_transposed;
         // Allocate memory for device ccpies.
@@ -130,8 +156,7 @@ namespace math {
         // Copy inputs to device.
         cudaMemcpy(dev_original, const_data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel with only as many blocks as necessary.
-        int numBlocks = std::ceil(max(numColumnsRaw(), numRowsRaw()) / (double) BLOCK_DIM);
-        dim3 blocks(numBlocks, numBlocks);
+        dim3 blocks(std::ceil(numRowsRaw() / (double) BLOCK_DIM), std::ceil(numColumnsRaw() / (double) BLOCK_DIM));
         dim3 threads(BLOCK_DIM, BLOCK_DIM);
         computeTranspose<<<blocks, threads>>>(dev_original, numRowsRaw(), numColumnsRaw(), dev_transposed);
         // Get result.
@@ -193,7 +218,7 @@ namespace math {
         if (numColumnsRaw() != other.numRowsRaw()) {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         }
-        Matrix product = Matrix(numRowsRaw(), other.numColumnsRaw());
+        Matrix product = Matrix(numRows(), other.numColumns());
         int Asize = size();
         int Bsize = other.size();
         int Csize = product.size();
@@ -226,7 +251,7 @@ namespace math {
 
     template <typename T>
     void display(const Matrix<T>& toDisplay) {
-        for (int i = 0; i < toDisplay.numRowsRaw(); ++i) {
+        for (int i = 0; i < toDisplay.numRows(); ++i) {
             display(toDisplay.row(i));
         }
     }
