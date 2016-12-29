@@ -32,10 +32,8 @@ namespace math {
     Matrix<T>::Matrix(const std::vector<T>& initialElements, int rows, int cols) {
         // Initialize elements with size (rowsRaw, colsRaw).
         init(rows, cols);
-        for (int row = 0; row < rows; ++row) {
-            for (int col = 0; col < cols; ++col) {
-                this -> at(row, col) = initialElements.at(row * cols + col);
-            }
+        for (int i = 0; i < size(); ++i) {
+            at(i) = initialElements.at(i);
         }
     }
 
@@ -46,7 +44,7 @@ namespace math {
         init(rows, cols);
         for (int row = 0; row < rows; ++row) {
             for (int col = 0; col < cols; ++col) {
-                this -> at(row, col) = initialElements.at(row).at(col);
+                at(row, col) = initialElements.at(row).at(col);
             }
         }
     }
@@ -84,13 +82,15 @@ namespace math {
     }
 
     template <typename T>
-    std::vector<T>& Matrix<T>::raw() {
-        return elements;
-    }
-
-    template <typename T>
-    const std::vector<T>& Matrix<T>::raw() const {
-        return elements;
+    std::vector<T> Matrix<T>::getElements() const {
+        std::vector<T> temp;
+        std::vector<T> tempRow;
+        temp.reserve(size());
+        for (int i = 0; i < numRows(); ++i) {
+            tempRow = row(i);
+            temp.insert(temp .end(), tempRow.cbegin(), tempRow.cend());
+        }
+        return temp;
     }
 
     template <typename T>

@@ -17,14 +17,9 @@ namespace math {
             T& at(int index);
             const T& at(int index) const;
             // Raw data functions.
-            T* data();
             const T* data() const;
-            std::vector<T>& raw();
-            const std::vector<T>& raw() const;
-            // Getter functions.
-            int numRowsRaw() const;
-            int numColumnsRaw() const;
-            int sizeRaw() const;
+            std::vector<T> getElements() const;
+            // User-facing getter functions.
             int numRows() const;
             int numColumns() const;
             int size() const;
@@ -36,6 +31,12 @@ namespace math {
         private:
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols;
+            // Raw data functions.
+            T* data();
+            // Getter functions for the underlying data.
+            int numRowsRaw() const;
+            int numColumnsRaw() const;
+            int sizeRaw() const;
     };
 
     template <typename T>

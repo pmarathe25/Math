@@ -2,13 +2,13 @@ BUILDDIR = build/
 BINDIR = ~/bin/
 INCLUDEDIR = include/
 OBJS = $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o $(BUILDDIR)/Matrix.o
-TESTOBJS = $(BUILDDIR)/MathDemo.o
+TESTOBJS = $(BUILDDIR)/MathTest.o
 EXECOBJS = $(BUILDDIR)/MathParse.o
 LIBDIR = $(CURDIR)/lib/
 TESTDIR = test/
 SRCDIR = src/
 CXX = nvcc
-CFLAGS = -arch=sm_35 -Xcompiler -fPIC -Wno-deprecated-gpu-targets -c -std=c++11 -I$(INCLUDEDIR) 
+CFLAGS = -arch=sm_35 -Xcompiler -fPIC -Wno-deprecated-gpu-targets -c -std=c++11 -I$(INCLUDEDIR)
 LFLAGS = -shared -Wno-deprecated-gpu-targets
 TESTLFLAGS = -Wno-deprecated-gpu-targets
 EXECLFLAGS = -Wno-deprecated-gpu-targets
@@ -22,11 +22,11 @@ $(BINDIR)/MathParse: $(EXECOBJS) $(LIBDIR)/Math/libmath.so
 $(BUILDDIR)/MathParse.o: $(SRCDIR)/MathParse.cpp $(LIBDIR)/Math/libmath.so
 	$(CXX) $(CFLAGS) $(SRCDIR)/MathParse.cpp -o $(BUILDDIR)/MathParse.o
 
-$(TESTDIR)/MathDemo: $(TESTOBJS) $(LIBDIR)/Math/libmath.so
-	$(CXX) $(TESTLFLAGS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(LIBDIR)/Text/libtext.so -o $(TESTDIR)/MathDemo
+$(TESTDIR)/MathTest: $(TESTOBJS) $(LIBDIR)/Math/libmath.so
+	$(CXX) $(TESTLFLAGS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(LIBDIR)/Text/libtext.so -o $(TESTDIR)/MathTest
 
-$(BUILDDIR)/MathDemo.o: $(TESTDIR)/MathDemo.cpp $(INCLUDEDIR)/Math/Matrix.hpp $(LIBDIR)/Math/libmath.so
-	$(CXX) $(CFLAGS) $(TESTDIR)/MathDemo.cpp -o $(BUILDDIR)/MathDemo.o
+$(BUILDDIR)/MathTest.o: $(TESTDIR)/MathTest.cpp $(INCLUDEDIR)/Math/Matrix.hpp $(LIBDIR)/Math/libmath.so
+	$(CXX) $(CFLAGS) $(TESTDIR)/MathTest.cpp -o $(BUILDDIR)/MathTest.o
 
 $(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEDIR)/Math/MathParser.hpp $(INCLUDEDIR)/Math/Math.hpp $(INCLUDEDIR)/Text/strmanip.hpp
 	$(CXX) $(CFLAGS) $(SRCDIR)/MathParser.cpp -o $(BUILDDIR)/MathParser.o
@@ -39,9 +39,9 @@ $(BUILDDIR)/Matrix.o: $(INCLUDEDIR)/Math/Matrix.hpp $(INCLUDEDIR)/Math/Math.hpp 
 
 
 clean:
-	rm $(OBJS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(TESTDIR)/MathDemo
+	rm $(OBJS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(TESTDIR)/MathTest
 
-test: $(TESTDIR)/MathDemo
-	$(TESTDIR)/MathDemo
+test: $(TESTDIR)/MathTest
+	$(TESTDIR)/MathTest
 
 exec: $(BINDIR)/MathParse
