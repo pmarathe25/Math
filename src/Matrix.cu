@@ -82,6 +82,16 @@ namespace math {
     }
 
     template <typename T>
+    std::vector<T>& Matrix<T>::raw() {
+        return elements;
+    }
+
+    template <typename T>
+    const std::vector<T>& Matrix<T>::raw() const {
+        return elements;
+    }
+
+    template <typename T>
     std::vector<T> Matrix<T>::getElements() const {
         std::vector<T> temp;
         std::vector<T> tempRow;
@@ -212,7 +222,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) {
+    Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
         if (numColumns() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         }
@@ -245,12 +255,41 @@ namespace math {
     }
 
     template <typename T>
+    __global__ void computeScalarProduct(T* A, T B, T* C) {
+        C[blockIdx.x * BLOCK_DIM + threadIdx.x] = A[blockIdx.x * BLOCK_DIM + threadIdx.x] * B;
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::operator*(T other) const {
+        Matrix product = Matrix(numRows(), numColumns());
+        int size = sizeRaw();
+        // Initialize device copies.
+        T *dev_A, *dev_C;
+        // Allocate memory for device copies.
+        cudaMalloc((void**)&dev_A, size * sizeof(T));
+        cudaMalloc((void**)&dev_C, size * sizeof(T));
+        // Copy inputs to device.
+        cudaMemcpy(dev_A, data(), size * sizeof(T), cudaMemcpyHostToDevice);
+        // Launch kernel where numThreads = size of matrix.
+        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 threads(BLOCK_DIM);
+        computeScalarProduct<<<blocks, threads>>>(dev_A, other, dev_C);
+        // Get result.
+        cudaMemcpy(product.data(), dev_C, size * sizeof(T) , cudaMemcpyDeviceToHost);
+        // Free memory.
+        cudaFree(dev_A);
+        cudaFree(dev_C);
+        // Return.
+        return product;
+    }
+
+    template <typename T>
     __global__ void computeSum(T* A, T* B, T* C) {
         C[blockIdx.x * BLOCK_DIM + threadIdx.x] = A[blockIdx.x * BLOCK_DIM + threadIdx.x] + B[blockIdx.x * BLOCK_DIM + threadIdx.x];
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) {
+    Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
         if (size() != other.size()) {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
         }
@@ -285,7 +324,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) {
+    Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
         if (size() != other.size()) {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
         }
@@ -316,15 +355,5 @@ namespace math {
 
     template class Matrix<int>;
     template class Matrix<float>;
-
-    template <typename T>
-    void display(const Matrix<T>& toDisplay) {
-        for (int i = 0; i < toDisplay.numRows(); ++i) {
-            display(toDisplay.row(i));
-        }
-    }
-
-    template void display(const Matrix<int>& toDisplay);
-    template void display(const Matrix<float>& toDisplay);
-
+    template class Matrix<double>;
 }
