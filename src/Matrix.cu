@@ -244,6 +244,76 @@ namespace math {
         return product;
     }
 
+    template <typename T>
+    __global__ void computeSum(T* A, T* B, T* C) {
+        C[blockIdx.x * BLOCK_DIM + threadIdx.x] = A[blockIdx.x * BLOCK_DIM + threadIdx.x] + B[blockIdx.x * BLOCK_DIM + threadIdx.x];
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) {
+        if (size() != other.size()) {
+            throw std::invalid_argument("Incompatible matrices cannot be added.");
+        }
+        Matrix sum = Matrix(numRows(), numColumns());
+        int size = sizeRaw();
+        // Initialize device copies.
+        T *dev_A, *dev_B, *dev_C;
+        // Allocate memory for device copies.
+        cudaMalloc((void**)&dev_A, size * sizeof(T));
+        cudaMalloc((void**)&dev_B, size * sizeof(T));
+        cudaMalloc((void**)&dev_C, size * sizeof(T));
+        // Copy inputs to device.
+        cudaMemcpy(dev_A, data(), size * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_B, other.data(), size * sizeof(T), cudaMemcpyHostToDevice);
+        // Launch kernel where numThreads = size of matrix.
+        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 threads(BLOCK_DIM);
+        computeSum<<<blocks, threads>>>(dev_A, dev_B, dev_C);
+        // Get result.
+        cudaMemcpy(sum.data(), dev_C, size * sizeof(T) , cudaMemcpyDeviceToHost);
+        // Free memory.
+        cudaFree(dev_A);
+        cudaFree(dev_B);
+        cudaFree(dev_C);
+        // Return.
+        return sum;
+    }
+
+    template <typename T>
+    __global__ void computeDifference(T* A, T* B, T* C) {
+        C[blockIdx.x * BLOCK_DIM + threadIdx.x] = A[blockIdx.x * BLOCK_DIM + threadIdx.x] - B[blockIdx.x * BLOCK_DIM + threadIdx.x];
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) {
+        if (size() != other.size()) {
+            throw std::invalid_argument("Incompatible matrices cannot be added.");
+        }
+        Matrix sum = Matrix(numRows(), numColumns());
+        int size = sizeRaw();
+        // Initialize device copies.
+        T *dev_A, *dev_B, *dev_C;
+        // Allocate memory for device copies.
+        cudaMalloc((void**)&dev_A, size * sizeof(T));
+        cudaMalloc((void**)&dev_B, size * sizeof(T));
+        cudaMalloc((void**)&dev_C, size * sizeof(T));
+        // Copy inputs to device.
+        cudaMemcpy(dev_A, data(), size * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_B, other.data(), size * sizeof(T), cudaMemcpyHostToDevice);
+        // Launch kernel where numThreads = size of matrix.
+        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 threads(BLOCK_DIM);
+        computeDifference<<<blocks, threads>>>(dev_A, dev_B, dev_C);
+        // Get result.
+        cudaMemcpy(sum.data(), dev_C, size * sizeof(T) , cudaMemcpyDeviceToHost);
+        // Free memory.
+        cudaFree(dev_A);
+        cudaFree(dev_B);
+        cudaFree(dev_C);
+        // Return.
+        return sum;
+    }
+
     template class Matrix<int>;
     template class Matrix<float>;
 

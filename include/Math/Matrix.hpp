@@ -29,6 +29,8 @@ namespace math {
             // Computation functions.
             Matrix transpose() const;
             Matrix operator*(const Matrix& other);
+            Matrix operator+(const Matrix& other);
+            Matrix operator-(const Matrix& other);
         private:
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols;
