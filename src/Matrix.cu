@@ -37,6 +37,9 @@ namespace math {
     Matrix<T>::Matrix(const std::vector<T>& initialElements, int rows, int cols) {
         // Initialize elements with size (rowsRaw, colsRaw).
         init(rows, cols);
+        if (size() != initialElements.size()) {
+            throw std::invalid_argument("Matrix initialization dimension mismatch.");
+        }
         for (int i = 0; i < size(); ++i) {
             at(i) = initialElements.at(i);
         }
