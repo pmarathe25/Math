@@ -165,6 +165,36 @@ namespace math {
     }
 
     template <typename T>
+    __global__ void randomizeMatrixNormal(unsigned int seed, T* mat, T mean, T stdDev) {
+        int index = blockIdx.x * BLOCK_DIM + threadIdx.x;
+        curandState_t state;
+        curand_init(seed, index, 0, &state);
+        mat[index] = curand_normal(&state) * stdDev + mean;
+    }
+
+    template <typename T>
+    void Matrix<T>::randomizeNormal() {
+        randomizeNormal(0, 1);
+    }
+
+    template <typename T>
+    void Matrix<T>::randomizeNormal(T mean, T stdDev) {
+        int size = sizeRaw();
+        // Initialize device copies.
+        T *dev_mat;
+        // Allocate memory for device copies.
+        cudaMalloc((void**)&dev_mat, size * sizeof(T));
+        // Launch kernel where numThreads = size of matrix.
+        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 threads(BLOCK_DIM);
+        randomizeMatrixNormal<<<blocks, threads>>>(time(NULL), dev_mat, mean, stdDev);
+        // Get result.
+        cudaMemcpy(data(), dev_mat, size * sizeof(T) , cudaMemcpyDeviceToHost);
+        // Free memory.
+        cudaFree(dev_mat);
+    }
+
+    template <typename T>
     __global__ void randomizeMatrix(unsigned int seed, T* mat, T lowerBound, T upperBound) {
         int index = blockIdx.x * BLOCK_DIM + threadIdx.x;
         curandState_t state;

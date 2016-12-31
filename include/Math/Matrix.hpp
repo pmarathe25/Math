@@ -38,6 +38,8 @@ namespace math {
             std::vector<T> row(int row) const;
             std::vector<T> column(int col) const;
             // Computation functions.
+            void randomizeNormal();
+            void randomizeNormal(T mean, T stdDev);    
             void randomize();
             void randomize(T lowerBound, T upperBound);
             Matrix transpose() const;
