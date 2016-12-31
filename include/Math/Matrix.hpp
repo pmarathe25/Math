@@ -8,6 +8,7 @@ namespace math {
         public:
             // Constructors.
             void init(int rows, int cols);
+            Matrix();
             Matrix(int rows, int cols);
             Matrix(const std::vector<T>& initialElements, int rows, int cols);
             Matrix(const std::vector<std::vector<T> >& initialElements);

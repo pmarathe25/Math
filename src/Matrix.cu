@@ -22,6 +22,12 @@ namespace math {
     }
 
     template <typename T>
+    Matrix<T>::Matrix() {
+        // Initialize elements with size (rowsRaw, colsRaw).
+        init(0, 0);
+    }
+
+    template <typename T>
     Matrix<T>::Matrix(int rows, int cols) {
         // Initialize elements with size (rowsRaw, colsRaw).
         init(rows, cols);
