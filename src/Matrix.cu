@@ -1,5 +1,5 @@
 #include "Math/Matrix.hpp"
-#include "Math/Math.hpp"
+#include <iostream>
 #define BLOCK_DIM 32
 
 namespace math {
