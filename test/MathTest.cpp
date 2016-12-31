@@ -28,6 +28,8 @@ int main() {
         toTranspose3.at(i) = i;
     }
     math::Matrix<double> test = toTranspose2;
+    math::Matrix<double> rnd = math::Matrix<double>(5, 5);
+    rnd.randomize();
     mat.at(0, 1) = 5;
     std::vector<float> a {0, 0, 1, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};
     std::vector<float> b = {2, 0, 5, 6}; //, 5, 6, 7, 8, 3, 2, 4, 5, 6, 76, 54};
@@ -62,6 +64,8 @@ int main() {
     math::display(1.5 * test + toTranspose2);
     std::cout << std::endl;
     math::display(toTranspose2 + 1.5 * test);
+    std::cout << std::endl;
+    math::display(rnd);
     std::cout << std::endl;
     std::cout << math::innerProduct(a, b) << std::endl;
     return 0;

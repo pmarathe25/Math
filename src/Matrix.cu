@@ -1,5 +1,8 @@
 #include "Math/Matrix.hpp"
 #include <iostream>
+#include <curand.h>
+#include <curand_kernel.h>
+#include <time.h>
 #define BLOCK_DIM 32
 
 namespace math {
@@ -161,7 +164,37 @@ namespace math {
         return tempCol;
     }
 
-    template<typename T>
+    template <typename T>
+    __global__ void randomizeMatrix(unsigned int seed, T* mat, T lowerBound, T upperBound) {
+        int index = blockIdx.x * BLOCK_DIM + threadIdx.x;
+        curandState_t state;
+        curand_init(seed, index, 0, &state);
+        mat[index] = curand_uniform(&state) * (upperBound - lowerBound) + lowerBound;
+    }
+
+    template <typename T>
+    void Matrix<T>::randomize() {
+        randomize(0, 1);
+    }
+
+    template <typename T>
+    void Matrix<T>::randomize(T lowerBound, T upperBound) {
+        int size = sizeRaw();
+        // Initialize device copies.
+        T *dev_mat;
+        // Allocate memory for device copies.
+        cudaMalloc((void**)&dev_mat, size * sizeof(T));
+        // Launch kernel where numThreads = size of matrix.
+        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 threads(BLOCK_DIM);
+        randomizeMatrix<<<blocks, threads>>>(time(NULL), dev_mat, lowerBound, upperBound);
+        // Get result.
+        cudaMemcpy(data(), dev_mat, size * sizeof(T) , cudaMemcpyDeviceToHost);
+        // Free memory.
+        cudaFree(dev_mat);
+    }
+
+    template <typename T>
     __global__ void computeTranspose(T* original, int numRows, int numCols, T* transposed) {
         // Avoid bank conflicts by allocating a single dummy element.
         __shared__ T tile[BLOCK_DIM][BLOCK_DIM + 1];
