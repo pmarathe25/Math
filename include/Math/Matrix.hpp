@@ -13,7 +13,9 @@ namespace math {
             // Constructors.
             void init(int rows, int cols);
             Matrix();
+            Matrix(T elem);
             Matrix(int rows, int cols);
+            Matrix(const std::vector<T>& initialElements);
             Matrix(const std::vector<T>& initialElements, int rows, int cols);
             Matrix(const std::vector<std::vector<T> >& initialElements);
             template <typename O>
@@ -42,6 +44,7 @@ namespace math {
             int numRows() const;
             int numColumns() const;
             int size() const;
+            bool isVector() const;
             std::vector<T> row(int row) const;
             std::vector<T> column(int col) const;
             // File I/O.
@@ -50,17 +53,17 @@ namespace math {
             // Computation functions.
             void randomizeNormal();
             void randomizeNormal(T mean, T stdDev);
-            void randomize();
-            void randomize(T lowerBound, T upperBound);
-            Matrix transpose() const;
+            void randomizeUniform();
+            void randomizeUniform(T lowerBound, T upperBound);
+            Matrix& transpose();
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;
             Matrix operator+(const Matrix& other) const;
             Matrix operator-(const Matrix& other) const;
-            bool operator==(const Matrix& other) const;
         private:
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols;
+            bool isVec = false;
     };
 
     template <typename T>
@@ -74,6 +77,17 @@ namespace math {
     Matrix<T> operator*(O other, const Matrix<T>& A) {
         return A * other;
     }
+
+    template <typename T>
+    bool operator==(const Matrix<T>& A, const Matrix<T>& B) {
+        return (A.numRows() == B.numRows() && A.numColumns() == B.numColumns() && A.getElements() == B.getElements());
+    }
+
+    template <typename T, typename O>
+    bool operator==(const Matrix<T>& A, const Matrix<O>& B) {
+        return false;
+    }
+
 }
 
 #endif

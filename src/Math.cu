@@ -1,4 +1,5 @@
 #include "Math/Math.hpp"
+#include <typeinfo>
 #include <memory>
 #define THREADS_PER_BLOCK 1024
 
@@ -64,12 +65,13 @@ namespace math {
                 tempResult += temp[i];
             }
             // Add this block's result to the final.
-            atomicAdd(result, tempResult);
+            atomicAdd((float*) result, (float) tempResult);
         }
     }
     // Specialization declarations.
-    template __global__ void computeInnerProduct<float>(float* a, float* b, int size, float* result);
-    template __global__ void computeInnerProduct<int>(int* a, int* b, int size, int* result);
+    template __global__ void computeInnerProduct(double* a, double* b, int size, double* result);
+    template __global__ void computeInnerProduct(float* a, float* b, int size, float* result);
+    template __global__ void computeInnerProduct(int* a, int* b, int size, int* result);
 
     template<typename T>
     T innerProduct(const std::vector<T>& a, const std::vector<T>& b) {
@@ -90,9 +92,9 @@ namespace math {
         cudaMemcpy(dev_result, &product, sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel.
         dim3 gridDim(std::ceil(a.size() / (double) THREADS_PER_BLOCK));
-        computeInnerProduct<T><<<gridDim, THREADS_PER_BLOCK>>>(dev_a, dev_b, a.size(), dev_result);
+        computeInnerProduct<<<gridDim, THREADS_PER_BLOCK>>>(dev_a, dev_b, a.size(), dev_result);
         // Get result.
-        cudaMemcpy(&product, dev_result, sizeof(T) , cudaMemcpyDeviceToHost);
+        cudaMemcpy(&product, dev_result, sizeof(T), cudaMemcpyDeviceToHost);
         // Free memory.
         cudaFree(dev_a);
         cudaFree(dev_b);
@@ -101,6 +103,7 @@ namespace math {
         return product;
     }
     // Specialization declarations.
-    template float innerProduct(const std::vector<float>& a, const std::vector<float>& b);
     template int innerProduct(const std::vector<int>& a, const std::vector<int>& b);
+    template float innerProduct(const std::vector<float>& a, const std::vector<float>& b);
+    template double innerProduct(const std::vector<double>& a, const std::vector<double>& b);
 }
