@@ -1,6 +1,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 #include "Math/Math.hpp"
+#include <fstream>
 #include <vector>
 
 const int BLOCK_DIM = 32;
@@ -43,6 +44,9 @@ namespace math {
             int size() const;
             std::vector<T> row(int row) const;
             std::vector<T> column(int col) const;
+            // File I/O.
+            void write(std::ofstream& outFile) const;
+            void read(std::ifstream& inFile);
             // Computation functions.
             void randomizeNormal();
             void randomizeNormal(T mean, T stdDev);
@@ -53,6 +57,7 @@ namespace math {
             Matrix operator*(T other) const;
             Matrix operator+(const Matrix& other) const;
             Matrix operator-(const Matrix& other) const;
+            bool operator==(const Matrix& other) const;
         private:
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols;

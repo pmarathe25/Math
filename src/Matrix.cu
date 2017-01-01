@@ -1,4 +1,5 @@
 #include "Math/Matrix.hpp"
+#include "Text/strmanip.hpp"
 #include <iostream>
 #include <curand.h>
 #include <curand_kernel.h>
@@ -161,6 +162,43 @@ namespace math {
             tempCol.push_back(at(i, col));
         }
         return tempCol;
+    }
+
+    template <typename T>
+    void Matrix<T>::write(std::ofstream& outFile) const {
+        if (outFile.is_open()) {
+            outFile << numRows() << "," << numColumns() << std::endl;
+            for (int i = 0; i < elements.size() - 1; ++i) {
+                outFile << elements.at(i) << ",";
+            }
+            outFile << elements.back() << std::endl;
+        } else {
+            throw std::invalid_argument("Could not open file.");
+        }
+    }
+
+    template <typename T>
+    void Matrix<T>::read(std::ifstream& inFile) {
+        if (inFile.is_open()) {
+            // Declare temp variables.
+            std::vector<std::string> tempElements;
+            std::string temp;
+            // Get size information.
+            inFile >> temp;
+            tempElements = strmanip::split(temp, ',');
+            int rows = std::stoi(tempElements.at(0));
+            int cols = std::stoi(tempElements.at(1));
+            init(rows, cols);
+            // Get elements.
+            inFile >> temp;
+            tempElements = strmanip::split(temp, ',');
+            // Modify this matrix.
+            for (int i = 0; i < tempElements.size(); ++i) {
+                elements.at(i) = (T) std::stod(tempElements.at(i));
+            }
+        } else {
+            throw std::invalid_argument("Could not open file.");
+        }
     }
 
     template <typename T>
@@ -421,6 +459,11 @@ namespace math {
         cudaFree(dev_C);
         // Return.
         return sum;
+    }
+
+    template <typename T>
+    bool Matrix<T>::operator==(const Matrix<T>& other) const {
+        return (numRows() == other.numRows() && numColumns() == other.numColumns() && raw() == other.raw());
     }
 
     template class Matrix<int>;

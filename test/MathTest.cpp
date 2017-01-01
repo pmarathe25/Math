@@ -68,5 +68,20 @@ int main() {
     math::display(rnd);
     std::cout << std::endl;
     std::cout << math::innerProduct(a, b) << std::endl;
+    // Test File I/O.
+    std::ofstream saveFile("test/matrix");
+    rnd.write(saveFile);
+    saveFile.close();
+    math::Matrix<int> rndRead;
+    std::ifstream readFile("test/matrix");
+    rndRead.read(readFile);
+    readFile.close();
+    math::display(rndRead);
+    // Equality test.
+    math::Matrix<int> equalTest = math::Matrix<int>(4, 4);
+    math::Matrix<int> equalTest2 = math::Matrix<int>(4, 4);
+    if (equalTest2 == equalTest) {
+        std::cout << "Success! Matrices are equal!" << std::endl;
+    }
     return 0;
 }

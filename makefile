@@ -37,7 +37,6 @@ $(BUILDDIR)/Math.o: $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Math.cu
 $(BUILDDIR)/Matrix.o: $(INCLUDEDIR)/Math/Matrix.hpp $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Matrix.cu
 	$(CXX) $(CFLAGS) $(SRCDIR)/Matrix.cu -o $(BUILDDIR)/Matrix.o
 
-
 clean:
 	rm $(OBJS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(TESTDIR)/MathTest
 
