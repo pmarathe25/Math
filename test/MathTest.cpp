@@ -30,11 +30,7 @@ int main() {
     }
     math::Matrix<double> test = toTranspose2;
     math::Matrix<double> rnd = math::Matrix<double>(1, 15);
-    std::cout << "Finished creating vector matrix." << std::endl;
-    rnd.randomizeNormal(5, 0.1);
-    std::cout << "Finished normal randomization." << std::endl;
-    std::cout << rnd.numColumnsRaw() << std::endl;
-    std::cout << rnd.numColumns() << std::endl;
+    math::Matrix<double> rnd2 = math::Matrix<double>(1, 15);
     std::vector<float> a = {0, 0, 1, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};
     std::vector<float> b = {2, 0, 5, 6}; //, 5, 6, 7, 8, 3, 2, 4, 5, 6, 76, 54};
     // math::display(mat);
@@ -86,12 +82,19 @@ int main() {
     }
     std::cout << std::endl;
     // Vector testing.
-    math::Matrix<float> vec = math::Matrix<float>({0, 1, 2, 3, 4});
+    math::Matrix<float> vec = math::Matrix<float>({0, 1, 2, 3, 4}, 5, 1);
     math::Matrix<float> vec2 = math::Matrix<float>({0, 1, 2, 3, 4});
     math::display(vec);
     // toTranspose2 = math::Matrix<int>(5, 30);
-    math::display(toTranspose2);
     std::cout << std::endl;
-    math::display(vec * toTranspose2);
+    math::display(toTranspose3.transpose());
+    std::cout << std::endl;
+    math::display(toTranspose3 * vec);
+    rnd.randomizeUniform();
+    std::cout << std::endl;
+    math::display(rnd);
+    rnd2.randomizeUniform();
+    std::cout << std::endl;
+    math::display(rnd2);
     return 0;
 }
