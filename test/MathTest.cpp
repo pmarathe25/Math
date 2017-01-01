@@ -29,7 +29,6 @@ int main() {
         toTranspose3.at(i) = i;
     }
     math::Matrix<double> test = toTranspose2;
-    math::Matrix<double> rnd = math::Matrix<double>(1, 15);
     math::Matrix<double> rnd2 = math::Matrix<double>(1, 15);
     std::vector<float> a = {0, 0, 1, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};
     std::vector<float> b = {2, 0, 5, 6}; //, 5, 6, 7, 8, 3, 2, 4, 5, 6, 76, 54};
@@ -61,17 +60,18 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose2 + 1.5 * test);
     std::cout << std::endl;
-    math::display(rnd);
-    std::cout << std::endl;
     std::cout << math::innerProduct(a, b) << std::endl;
     // Test File I/O.
+    math::Matrix<double> rnd = math::Matrix<double>(1, 15);
+    rnd.randomizeUniform(-100, 100);
     std::ofstream saveFile("test/matrix");
     rnd.write(saveFile);
     saveFile.close();
-    math::Matrix<int> rndRead;
+    math::Matrix<double> rndRead;
     std::ifstream readFile("test/matrix");
     rndRead.read(readFile);
     readFile.close();
+    math::display(rnd);
     math::display(rndRead);
     // Equality test.
     math::Matrix<int> equalTest = math::Matrix<int>(4, 4);
@@ -90,9 +90,7 @@ int main() {
     math::display(toTranspose3.transpose());
     std::cout << std::endl;
     math::display(toTranspose3 * vec);
-    rnd.randomizeUniform();
     std::cout << std::endl;
-    math::display(rnd);
     rnd2.randomizeUniform();
     std::cout << std::endl;
     math::display(rnd2);

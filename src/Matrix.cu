@@ -4,7 +4,8 @@
 #include <curand.h>
 #include <curand_kernel.h>
 #include <chrono>
-#include <time.h>
+#include <iomanip>
+#include <typeinfo>
 
 namespace math {
 
@@ -203,8 +204,15 @@ namespace math {
     void Matrix<T>::write(std::ofstream& outFile) const {
         if (outFile.is_open()) {
             outFile << numRows() << "," << numColumns() << std::endl;
+            int precision = 1;
+            if (typeid(T) == typeid(double)) {
+                precision = 15;
+            } else if (typeid(T) == typeid(float)) {
+                precision = 7;
+            }
             for (int i = 0; i < elements.size() - 1; ++i) {
-                outFile << elements.at(i) << ",";
+                outFile << std::fixed << std::setprecision(precision) << elements.at(i);
+                outFile << ",";
             }
             outFile << elements.back() << std::endl;
         } else {
