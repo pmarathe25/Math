@@ -3,6 +3,8 @@
 #include "Math/Math.hpp"
 #include <vector>
 
+const int BLOCK_DIM = 32;
+
 namespace math {
     template <typename T>
     class Matrix {
@@ -31,6 +33,10 @@ namespace math {
             std::vector<T>& raw();
             const std::vector<T>& raw() const;
             std::vector<T> getElements() const;
+            // Getter functions for the underlying data.
+            int numRowsRaw() const;
+            int numColumnsRaw() const;
+            int sizeRaw() const;
             // User-facing getter functions.
             int numRows() const;
             int numColumns() const;
@@ -39,7 +45,7 @@ namespace math {
             std::vector<T> column(int col) const;
             // Computation functions.
             void randomizeNormal();
-            void randomizeNormal(T mean, T stdDev);    
+            void randomizeNormal(T mean, T stdDev);
             void randomize();
             void randomize(T lowerBound, T upperBound);
             Matrix transpose() const;
@@ -50,10 +56,6 @@ namespace math {
         private:
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols;
-            // Getter functions for the underlying data.
-            int numRowsRaw() const;
-            int numColumnsRaw() const;
-            int sizeRaw() const;
     };
 
     template <typename T>

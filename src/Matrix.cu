@@ -3,7 +3,6 @@
 #include <curand.h>
 #include <curand_kernel.h>
 #include <time.h>
-#define BLOCK_DIM 32
 
 namespace math {
 
@@ -185,7 +184,7 @@ namespace math {
         // Allocate memory for device copies.
         cudaMalloc((void**)&dev_mat, size * sizeof(T));
         // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 blocks(size / BLOCK_DIM);
         dim3 threads(BLOCK_DIM);
         randomizeMatrixNormal<<<blocks, threads>>>(time(NULL), dev_mat, mean, stdDev);
         // Get result.
@@ -215,7 +214,7 @@ namespace math {
         // Allocate memory for device copies.
         cudaMalloc((void**)&dev_mat, size * sizeof(T));
         // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 blocks(size / BLOCK_DIM);
         dim3 threads(BLOCK_DIM);
         randomizeMatrix<<<blocks, threads>>>(time(NULL), dev_mat, lowerBound, upperBound);
         // Get result.
@@ -342,7 +341,7 @@ namespace math {
         // Copy inputs to device.
         cudaMemcpy(dev_A, data(), size * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 blocks(size / BLOCK_DIM);
         dim3 threads(BLOCK_DIM);
         computeScalarProduct<<<blocks, threads>>>(dev_A, other, dev_C);
         // Get result.
@@ -376,7 +375,7 @@ namespace math {
         cudaMemcpy(dev_A, data(), size * sizeof(T), cudaMemcpyHostToDevice);
         cudaMemcpy(dev_B, other.data(), size * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 blocks(size / BLOCK_DIM);
         dim3 threads(BLOCK_DIM);
         computeSum<<<blocks, threads>>>(dev_A, dev_B, dev_C);
         // Get result.
@@ -411,7 +410,7 @@ namespace math {
         cudaMemcpy(dev_A, data(), size * sizeof(T), cudaMemcpyHostToDevice);
         cudaMemcpy(dev_B, other.data(), size * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(sizeRaw() / BLOCK_DIM);
+        dim3 blocks(size / BLOCK_DIM);
         dim3 threads(BLOCK_DIM);
         computeDifference<<<blocks, threads>>>(dev_A, dev_B, dev_C);
         // Get result.
