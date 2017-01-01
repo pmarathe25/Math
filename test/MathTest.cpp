@@ -84,8 +84,8 @@ int main() {
     // Vector testing.
     math::Matrix<double> vec = math::Matrix<double>({0.0, 0.1, 0.2});
     math::Matrix<double> vec2 = math::Matrix<double>({0.0, 0.1, 0.2});
-    vec.randomizeNormal();
-    vec2.randomizeNormal();
+    vec.randomizeNormal(5, 0.1);
+    vec2.randomizeNormal(10, 2.5);
     math::display(vec);
     std::cout << std::endl;
     math::display(vec2);

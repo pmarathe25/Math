@@ -244,15 +244,6 @@ namespace math {
         }
     }
 
-    template <typename T>
-    __global__ void randomizeMatrixNormal(unsigned long seed, T* mat, T mean, T stdDev, int cols, int colsRaw, int unpaddedSize) {
-        int index = blockIdx.x * blockDim.x + threadIdx.x;
-        curandState_t state;
-        curand_init(seed, index, 0, &state);
-        if (index < unpaddedSize && (index % colsRaw) < cols) {
-            mat[index] = curand_normal(&state) * stdDev + mean;
-        }
-    }
 
     template <typename T>
     void Matrix<T>::randomizeNormal() {
@@ -261,32 +252,9 @@ namespace math {
 
     template <typename T>
     void Matrix<T>::randomizeNormal(T mean, T stdDev) {
-        int size = sizeRaw();
-        // Get time in nanoseconds.
-        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
-        // Initialize device copies.
-        T *dev_mat;
-        // Allocate memory for device copies.
-        cudaMalloc((void**)&dev_mat, size * sizeof(T));
-        // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(std::ceil(size / (float) BLOCK_DIM));
-        dim3 threads(BLOCK_DIM);
-        randomizeMatrixNormal<<<blocks, threads>>>(value.count(), dev_mat, mean, stdDev, numColumns(), numColumnsRaw(), numColumnsRaw() * numRows());
-        // Get result.
-        cudaMemcpy(data(), dev_mat, size * sizeof(T) , cudaMemcpyDeviceToHost);
-        // Free memory.
-        cudaFree(dev_mat);
+        randomize(mean, stdDev, NORMAL);
     }
 
-    template <typename T>
-    __global__ void randomizeMatrix(unsigned long seed, T* mat, T lowerBound, T upperBound, int cols, int colsRaw, int unpaddedSize) {
-        int index = blockIdx.x * blockDim.x + threadIdx.x;
-        curandState_t state;
-        curand_init(seed, index, index, &state);
-        if (index < unpaddedSize && (index % colsRaw) < cols) {
-            mat[index] = curand_uniform(&state) * (upperBound - lowerBound) + lowerBound;
-        }
-    }
 
     template <typename T>
     void Matrix<T>::randomizeUniform() {
@@ -295,6 +263,36 @@ namespace math {
 
     template <typename T>
     void Matrix<T>::randomizeUniform(T lowerBound, T upperBound) {
+        randomize(lowerBound, upperBound, UNIFORM);
+    }
+
+    template <typename T>
+    __global__ void randomizeMatrixNormal(unsigned long seed, T* mat, T mean, T stdDev, int cols, int colsRaw, int unpaddedSize) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        curandState_t state;
+        curand_init(seed, index, 0, &state);
+        if (index < unpaddedSize && (index % colsRaw) < cols) {
+            printf("%d\n", index);
+            mat[index] = curand_normal(&state) * stdDev + mean;
+        } else {
+            mat[index] = 0;
+        }
+    }
+
+    template <typename T>
+    __global__ void randomizeMatrixUniform(unsigned long seed, T* mat, T lowerBound, T upperBound, int cols, int colsRaw, int unpaddedSize) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        curandState_t state;
+        curand_init(seed, index, index, &state);
+        if (index < unpaddedSize && (index % colsRaw) < cols) {
+            mat[index] = curand_uniform(&state) * (upperBound - lowerBound) + lowerBound;
+        } else{
+            mat[index] = 0;
+        }
+    }
+
+    template <typename T>
+    void Matrix<T>::randomize(T param1, T param2, randMode mode) {
         int size = sizeRaw();
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         // Initialize device copies.
@@ -304,7 +302,14 @@ namespace math {
         // Launch kernel where numThreads = size of matrix.
         dim3 blocks(std::ceil(size / (float) BLOCK_DIM));
         dim3 threads(BLOCK_DIM);
-        randomizeMatrix<<<blocks, threads>>>(value.count(), dev_mat, lowerBound, upperBound, numColumns(), numColumnsRaw(), numColumnsRaw() * numRows());
+        switch (mode) {
+            case UNIFORM:
+                randomizeMatrixUniform<<<blocks, threads>>>(value.count(), dev_mat, param1, param2, numColumns(), numColumnsRaw(), numColumnsRaw() * numRows());
+                break;
+            case NORMAL:
+                randomizeMatrixNormal<<<blocks, threads>>>(value.count(), dev_mat, param1, param2, numColumns(), numColumnsRaw(), numColumnsRaw() * numRows());
+                break;
+        }
         // Get result.
         cudaMemcpy(data(), dev_mat, size * sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.
@@ -457,7 +462,7 @@ namespace math {
             return *this * other.at(0);
         } else if (isVector() && other.isVector()) {
             // If both are vectors, we just need to return the dot product.
-            return Matrix<T>(math::innerProduct(getElements(), other.getElements()));
+            return Matrix<T>(math::innerProduct(raw(), other.raw()));
         } else if (numColumns() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         } else {

@@ -10,6 +10,10 @@ namespace math {
     template <typename T>
     class Matrix {
         public:
+            enum randMode {
+                UNIFORM = 0,
+                NORMAL,
+            };
             // Constructors.
             void init(int rows, int cols);
             Matrix();
@@ -55,6 +59,7 @@ namespace math {
             void randomizeNormal(T mean, T stdDev);
             void randomizeUniform();
             void randomizeUniform(T lowerBound, T upperBound);
+            void randomize(T param1, T param2, randMode mode);
             Matrix& transpose();
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;
