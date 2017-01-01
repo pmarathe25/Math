@@ -82,17 +82,17 @@ int main() {
     }
     std::cout << std::endl;
     // Vector testing.
-    math::Matrix<float> vec = math::Matrix<float>({0, 1, 2, 3, 4}, 5, 1);
-    math::Matrix<float> vec2 = math::Matrix<float>({0, 1, 2, 3, 4});
-    math::display(vec);
+    math::Matrix<double> vec = math::Matrix<double>({0.0, 0.1, 0.2, 0.3, 0.4}, 5, 1);
+    math::Matrix<double> vec2 = math::Matrix<double>({0.0, 0.1, 0.2, 0.3, 0.4});
+    math::display(vec * vec2);
     // toTranspose2 = math::Matrix<int>(5, 30);
     std::cout << std::endl;
-    math::display(toTranspose3.transpose());
-    std::cout << std::endl;
-    math::display(toTranspose3 * vec);
-    std::cout << std::endl;
-    rnd2.randomizeUniform();
-    std::cout << std::endl;
-    math::display(rnd2);
+    // math::display(toTranspose3.transpose());
+    // std::cout << std::endl;
+    // math::display(vec * vec2);
+    // std::cout << std::endl;
+    // rnd2.randomizeUniform();
+    // std::cout << std::endl;
+    // math::display(rnd2);
     return 0;
 }

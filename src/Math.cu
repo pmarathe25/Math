@@ -69,7 +69,6 @@ namespace math {
         }
     }
     // Specialization declarations.
-    template __global__ void computeInnerProduct(double* a, double* b, int size, double* result);
     template __global__ void computeInnerProduct(float* a, float* b, int size, float* result);
     template __global__ void computeInnerProduct(int* a, int* b, int size, int* result);
 
@@ -79,28 +78,35 @@ namespace math {
             throw std::invalid_argument("Cannot compute inner product of vectors of different lengths.");
         }
         T product = T();
-        //  Initialize device copies.
-        T *dev_a, *dev_b, *dev_result;
-        //  Allocate memory for device copies.
-        cudaMalloc((void**)&dev_a, a.size() * sizeof(T));
-        cudaMalloc((void**)&dev_b, b.size() * sizeof(T));
-        cudaMalloc((void**)&dev_result, sizeof(T));
-        // Copy inputs to device.
-        cudaMemcpy(dev_a, a.data(), a.size() * sizeof(T), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_b, b.data(), b.size() * sizeof(T), cudaMemcpyHostToDevice);
-        // Initialize output to 0.
-        cudaMemcpy(dev_result, &product, sizeof(T), cudaMemcpyHostToDevice);
-        // Launch kernel.
-        dim3 gridDim(std::ceil(a.size() / (double) THREADS_PER_BLOCK));
-        computeInnerProduct<<<gridDim, THREADS_PER_BLOCK>>>(dev_a, dev_b, a.size(), dev_result);
-        // Get result.
-        cudaMemcpy(&product, dev_result, sizeof(T), cudaMemcpyDeviceToHost);
-        // Free memory.
-        cudaFree(dev_a);
-        cudaFree(dev_b);
-        cudaFree(dev_result);
-        // Return.
-        return product;
+        if (typeid(T) == typeid(double)) {
+            for (int i = 0; i < a.size(); ++i) {
+                product += a.at(i) * b.at(i);
+            }
+            return product;
+        } else {
+            //  Initialize device copies.
+            T *dev_a, *dev_b, *dev_result;
+            //  Allocate memory for device copies.
+            cudaMalloc((void**)&dev_a, a.size() * sizeof(T));
+            cudaMalloc((void**)&dev_b, b.size() * sizeof(T));
+            cudaMalloc((void**)&dev_result, sizeof(T));
+            // Copy inputs to device.
+            cudaMemcpy(dev_a, a.data(), a.size() * sizeof(T), cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_b, b.data(), b.size() * sizeof(T), cudaMemcpyHostToDevice);
+            // Initialize output to 0.
+            cudaMemcpy(dev_result, &product, sizeof(T), cudaMemcpyHostToDevice);
+            // Launch kernel.
+            dim3 gridDim(std::ceil(a.size() / (double) THREADS_PER_BLOCK));
+            computeInnerProduct<<<gridDim, THREADS_PER_BLOCK>>>(dev_a, dev_b, a.size(), dev_result);
+            // Get result.
+            cudaMemcpy(&product, dev_result, sizeof(T), cudaMemcpyDeviceToHost);
+            // Free memory.
+            cudaFree(dev_a);
+            cudaFree(dev_b);
+            cudaFree(dev_result);
+            // Return.
+            return product;
+        }
     }
     // Specialization declarations.
     template int innerProduct(const std::vector<int>& a, const std::vector<int>& b);
