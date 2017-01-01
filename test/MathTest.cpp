@@ -59,7 +59,7 @@ int main() {
     math::display(1.5 * test + toTranspose2);
     std::cout << std::endl;
     math::display(toTranspose2 + 1.5 * test);
-    std::cout << std::endl;
+    std::cout << "Dot product." << std::endl;
     std::cout << math::innerProduct(a, b) << std::endl;
     // Test File I/O.
     math::Matrix<double> rnd = math::Matrix<double>(1, 15);
@@ -82,8 +82,14 @@ int main() {
     }
     std::cout << std::endl;
     // Vector testing.
-    math::Matrix<double> vec = math::Matrix<double>({0.0, 0.1, 0.2, 0.3, 0.4}, 5, 1);
-    math::Matrix<double> vec2 = math::Matrix<double>({0.0, 0.1, 0.2, 0.3, 0.4});
+    math::Matrix<double> vec = math::Matrix<double>({0.0, 0.1, 0.2});
+    math::Matrix<double> vec2 = math::Matrix<double>({0.0, 0.1, 0.2});
+    vec.randomizeNormal();
+    vec2.randomizeNormal();
+    math::display(vec);
+    std::cout << std::endl;
+    math::display(vec2);
+    std::cout << std::endl;
     math::display(vec * vec2);
     // toTranspose2 = math::Matrix<int>(5, 30);
     std::cout << std::endl;
