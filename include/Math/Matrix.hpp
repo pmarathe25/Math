@@ -75,9 +75,9 @@ namespace math {
             int rowsRaw, colsRaw, rows, cols;
             bool isVec = false;
             // Internal functions.
-            Matrix CPUScalarProduct(T other) const;
             Matrix CPUSum(const Matrix& other) const;
             Matrix CPUDifference(const Matrix& other) const;
+            Matrix CPUScalarProduct(T other) const;
             Matrix matrxArithmetic(const Matrix<T>& other, opMode mode) const;
             Matrix scalarArithmetic(T other, opMode mode) const;
     };
