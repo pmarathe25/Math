@@ -39,7 +39,7 @@ namespace math {
     Matrix<T>::Matrix(T elem) {
         // Initialize elements with size (rowsRaw, colsRaw).
         init(1, 1);
-        elements.at(0) = elem;
+        elements[0] = elem;
     }
 
     template <typename T>
@@ -87,7 +87,7 @@ namespace math {
     template <typename T>
     T& Matrix<T>::at(int row, int col) {
         if (row < numRows() && col < numColumns()) {
-            return elements.at(row * numColumnsRaw() + col);
+            return elements[row * numColumnsRaw() + col];
         } else {
             throw std::out_of_range("Index out of range.");
         }
@@ -96,7 +96,7 @@ namespace math {
     template <typename T>
     const T& Matrix<T>::at(int row, int col) const {
         if (row < numRows() && col < numColumns()) {
-            return elements.at(row * numColumnsRaw() + col);
+            return elements[row * numColumnsRaw() + col];
         } else {
             throw std::out_of_range("Index out of range.");
         }
@@ -212,7 +212,7 @@ namespace math {
                 precision = 7;
             }
             for (int i = 0; i < elements.size() - 1; ++i) {
-                outFile << std::fixed << std::setprecision(precision) << elements.at(i);
+                outFile << std::fixed << std::setprecision(precision) << elements[i];
                 outFile << ",";
             }
             outFile << elements.back() << std::endl;
@@ -238,7 +238,7 @@ namespace math {
             tempElements = strmanip::split(temp, ',');
             // Modify this matrix.
             for (int i = 0; i < tempElements.size(); ++i) {
-                elements.at(i) = (T) std::stod(tempElements.at(i));
+                elements[i] = (T) std::stod(tempElements[i]);
             }
         } else {
             throw std::invalid_argument("Could not open file.");
@@ -405,13 +405,13 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
         if (size() == 1) {
-            // If there is only one element in on the matrices, do scalar multiplication instead.
+            // If there is only one element in one of the matrices, do scalar multiplication instead.
             return other * at(0);
         } else if (other.size() == 1) {
             return *this * other.at(0);
         } else if (isVector() && other.isVector()) {
             // If both are vectors, we just need to return the dot product.
-            return Matrix<T>(math::innerProduct(raw(), other.raw()));
+            return Matrix<T>(dot(other));
         } else if (numColumns() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         } else {
@@ -465,39 +465,120 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator*(T other) const {
-        Matrix product = Matrix(numRows(), numColumns());
-        int rawSize = sizeRaw();
-        // Initialize device copies.
-        T *dev_A;
-        // Allocate memory for device copies.
-        cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
-        // Copy inputs to device.
-        cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
-        // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
-        dim3 threads(THREADS_PER_BLOCK);
+    Matrix<T> Matrix<T>::CPUScalarProduct(T other) const {
+        Matrix output = Matrix(numRows(), numColumns());
         if (isVector()) {
-            computeVectorScalarProduct<<<blocks, threads>>>(dev_A, other, size());
+            for (int i = 0; i < sizeRaw(); i += BLOCK_DIM) {
+                #pragma unroll
+                for (int j = 0; j < BLOCK_DIM; ++j) {
+                    output.data()[i + j] = data()[i + j] * other;
+                }
+            }
         } else {
-            computeScalarProduct<<<blocks, threads>>>(dev_A, other);
+            for (int i = 0; i < sizeRaw(); i += THREADS_PER_BLOCK) {
+                #pragma unroll
+                for (int j = 0; j < THREADS_PER_BLOCK; ++j) {
+                    output.data()[i + j] = data()[i + j] * other;
+                }
+            }
         }
-        // Get result.
-        cudaMemcpy(product.data(), dev_A, rawSize * sizeof(T) , cudaMemcpyDeviceToHost);
-        // Free memory.
-        cudaFree(dev_A);
-        // Return.
-        return product;
+        return output;
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::operator*(T other) const  {
+        if (isVector() && sizeRaw() < CPU_SATURATION_LIMIT) {
+            // For small vectors, use CPU.
+            return CPUScalarProduct(other);
+        } else {
+            // For large vectors and matrices, use CUDA.
+            return scalarArithmetic(other, SCALAR_PRODUCT);
+        }
+    }
+
+    template <typename T>
+    __global__ void computeDotProduct(T* A, T* B, int numRows, int numColsRaw) {
+        int row = blockIdx.x * blockDim.x + threadIdx.x;
+        if (row < numRows) {
+            int rowIndex = row * numColsRaw;
+            int index = 0;
+            T Cvalue = T();
+            // numColsRaw is guaranteed to be a multiple of 32.
+            for (int i = 0; i < numColsRaw; i += BLOCK_DIM) {
+                index = rowIndex + i;
+                #pragma unroll
+                for (int j = 0; j < BLOCK_DIM; ++j) {
+                    index += j;
+                    Cvalue += A[index] * B[index];
+                }
+            }
+            A[row] = Cvalue;
+        }
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::dot(const Matrix& other) const {
+        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
+            throw std::invalid_argument("Incompatible matrices cannot be added.");
+        } else if ((sizeRaw() < CPU_SATURATION_LIMIT || typeid(T) == typeid(double)) && isVector()) {
+            // For small vectors, compute CPU dot product.
+            T product = T();
+            // numColumnsRaw is guaranteed to be a multiple of 32.
+            for (int i = 0; i < sizeRaw(); i += BLOCK_DIM) {
+                #pragma unroll
+                for (int j = 0; j < BLOCK_DIM; ++j) {
+                    product += data()[i + j] * other.data()[i + j];
+                }
+            }
+            return Matrix<T>(product);
+        } else if (isVector()) {
+            // For large vectors, use CUDA.
+            return math::innerProduct(raw(), other.raw());
+        } else {
+            // For matrices, also use CUDA.
+            Matrix output = Matrix(numRows(), 1);
+            int rawSize = sizeRaw();
+            // Initialize device copies.
+            T *dev_A, *dev_B;
+            // Allocate memory for device copies.
+            cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
+            cudaMalloc((void**)&dev_B, rawSize * sizeof(T));
+            // Copy inputs to device.
+            cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_B, other.data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+            // Launch kernel where numThreads = size of matrix.
+            dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
+            dim3 threads(THREADS_PER_BLOCK);
+            computeDotProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumnsRaw());
+            cudaMemcpy(output.data(), dev_A, output.size() * sizeof(T) , cudaMemcpyDeviceToHost);
+            // Free memory.
+            cudaFree(dev_A);
+            cudaFree(dev_B);
+            // Return.
+            return output;
+        }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
-        return arithmetic(other, SUM);
+        if (isVector() && sizeRaw() < CPU_SATURATION_LIMIT) {
+            // For small vectors, use CPU.
+            return CPUSum(other);
+        } else {
+            // For large vectors and matrices, use CUDA.
+            return matrxArithmetic(other, SUM);
+        }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
-        return arithmetic(other, DIFFERENCE);
+        if (isVector() && sizeRaw() < CPU_SATURATION_LIMIT) {
+            // For small vectors, use CPU.
+            return CPUDifference(other);
+        } else {
+            // For large vectors and matrices, use CUDA.
+            return matrxArithmetic(other, DIFFERENCE);
+        }
     }
 
     template <typename T>
@@ -529,47 +610,121 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::arithmetic(const Matrix<T>& other, opMode mode) const {
+    Matrix<T> Matrix<T>::CPUSum(const Matrix<T>& other) const {
+        Matrix output = Matrix(numRows(), numColumns());
+        if (isVector()) {
+            for (int i = 0; i < sizeRaw(); i += BLOCK_DIM) {
+                #pragma unroll
+                for (int j = 0; j < BLOCK_DIM; ++j) {
+                    output.data()[i + j] = data()[i + j] + other.data()[i + j];
+                }
+            }
+        } else {
+            for (int i = 0; i < sizeRaw(); i += THREADS_PER_BLOCK) {
+                #pragma unroll
+                for (int j = 0; j < THREADS_PER_BLOCK; ++j) {
+                    output.data()[i + j] = data()[i + j] + other.data()[i + j];
+                }
+            }
+        }
+        return output;
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::CPUDifference(const Matrix<T>& other) const {
+        Matrix output = Matrix(numRows(), numColumns());
+        if (isVector()) {
+            for (int i = 0; i < sizeRaw(); i += BLOCK_DIM) {
+                #pragma unroll
+                for (int j = 0; j < BLOCK_DIM; ++j) {
+                    output.data()[i + j] = data()[i + j] + other.data()[i + j];
+                }
+            }
+        } else {
+            for (int i = 0; i < sizeRaw(); i += THREADS_PER_BLOCK) {
+                #pragma unroll
+                for (int j = 0; j < THREADS_PER_BLOCK; ++j) {
+                    output.data()[i + j] = data()[i + j] + other.data()[i + j];
+                }
+            }
+        }
+        return output;
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::matrxArithmetic(const Matrix<T>& other, opMode mode) const {
         if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
+        } else {
+            Matrix output = Matrix(numRows(), numColumns());
+            int rawSize = sizeRaw();
+            // Initialize device copies.
+            T *dev_A, *dev_B;
+            // Allocate memory for device copies.
+            cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
+            cudaMalloc((void**)&dev_B, rawSize * sizeof(T));
+            // Copy inputs to device.
+            cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_B, other.data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+            // Launch kernel where numThreads = size of matrix.
+            dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
+            dim3 threads(THREADS_PER_BLOCK);
+            switch (mode) {
+                case SUM:
+                    if (isVector()) {
+                        computeVectorSum<<<blocks, threads>>>(dev_A, dev_B, size());
+                    } else {
+                        computeSum<<<blocks, threads>>>(dev_A, dev_B);
+                    }
+                    break;
+                case DIFFERENCE:
+                    if (isVector()) {
+                        computeVectorDifference<<<blocks, threads>>>(dev_A, dev_B, size());
+                    } else {
+                        computeDifference<<<blocks, threads>>>(dev_A, dev_B);
+                    }
+                    break;
+            }
+            // Get result.
+            cudaMemcpy(output.data(), dev_A, rawSize * sizeof(T) , cudaMemcpyDeviceToHost);
+            // Free memory.
+            cudaFree(dev_A);
+            cudaFree(dev_B);
+            // Return.
+            return output;
         }
-        Matrix output = Matrix(numRows(), numColumns());
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::scalarArithmetic(T other, opMode mode) const {
+        Matrix product = Matrix(numRows(), numColumns());
         int rawSize = sizeRaw();
         // Initialize device copies.
-        T *dev_A, *dev_B;
+        T *dev_A;
         // Allocate memory for device copies.
         cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
-        cudaMalloc((void**)&dev_B, rawSize * sizeof(T));
         // Copy inputs to device.
         cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_B, other.data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel where numThreads = size of matrix.
         dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
         switch (mode) {
-            case SUM:
+            case SCALAR_PRODUCT:
                 if (isVector()) {
-                    computeVectorSum<<<blocks, threads>>>(dev_A, dev_B, size());
+                    computeVectorScalarProduct<<<blocks, threads>>>(dev_A, other, size());
                 } else {
-                    computeSum<<<blocks, threads>>>(dev_A, dev_B);
+                    computeScalarProduct<<<blocks, threads>>>(dev_A, other);
                 }
-                break;
-            case DIFFERENCE:
-                if (isVector()) {
-                    computeVectorDifference<<<blocks, threads>>>(dev_A, dev_B, size());
-                } else {
-                    computeDifference<<<blocks, threads>>>(dev_A, dev_B);
-                }
-                break;
+            break;
         }
         // Get result.
-        cudaMemcpy(output.data(), dev_A, rawSize * sizeof(T) , cudaMemcpyDeviceToHost);
+        cudaMemcpy(product.data(), dev_A, rawSize * sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.
         cudaFree(dev_A);
-        cudaFree(dev_B);
         // Return.
-        return output;
+        return product;
     }
+
 
     template class Matrix<int>;
     template class Matrix<float>;

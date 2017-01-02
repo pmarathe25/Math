@@ -1,6 +1,7 @@
 #include "Math/MathParser.hpp"
 #include "Math/Matrix.hpp"
 #include <iostream>
+#include <chrono>
 
 double postIncrement(double operand) {
     return operand + 1;
@@ -30,8 +31,6 @@ int main() {
     }
     math::Matrix<double> test = toTranspose2;
     math::Matrix<double> rnd2 = math::Matrix<double>(1, 15);
-    std::vector<float> a = {0, 0, 1, 0}; //, 4, 5, 6, 7, 2, 3, 4, 5, 4, 5, 6};
-    std::vector<float> b = {2, 0, 5, 6}; //, 5, 6, 7, 8, 3, 2, 4, 5, 6, 76, 54};
     // math::display(mat);
     // std::cout << std::endl;
     // math::display(other);
@@ -58,9 +57,8 @@ int main() {
     std::cout << std::endl;
     math::display(1.5 * test + toTranspose2);
     std::cout << std::endl;
-    math::display(toTranspose2 + 1.5 * test);
+    math::display(toTranspose2 - 1.5 * test);
     std::cout << "Dot product." << std::endl;
-    std::cout << math::innerProduct(a, b) << std::endl;
     // Test File I/O.
     math::Matrix<double> rnd = math::Matrix<double>(1, 15);
     rnd.randomizeUniform(-100, 100);
@@ -109,5 +107,30 @@ int main() {
     // rnd2.randomizeUniform();
     // std::cout << std::endl;
     // math::display(rnd2);
-    return 0;
+    std::cout << std::endl;
+    // Test dot product speed.
+    math::Matrix<float> dotTest = math::Matrix<float>(1024 * 16, 1);
+    dotTest.randomizeNormal();
+    math::Matrix<float> dotTest2 = dotTest;
+    // Begin timing.
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+    math::display(vec + vec);
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    // End timing
+    std::cout << std::endl;
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+    std::cout << duration << std::endl;
+    // CUDA based dot product.
+    std::cout << std::endl;
+    // Begin timing.
+    toTranspose.at(0) = 3;
+    math::display(toTranspose);
+    t1 = std::chrono::high_resolution_clock::now();
+    math::display(toTranspose.dot(toTranspose));
+    t2 = std::chrono::high_resolution_clock::now();
+    // End timing
+    std::cout << std::endl;
+    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+    std::cout << duration << std::endl;
+
 }
