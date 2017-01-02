@@ -244,21 +244,9 @@ namespace math {
         }
     }
 
-
-    template <typename T>
-    void Matrix<T>::randomizeNormal() {
-        randomizeNormal(0, 1);
-    }
-
     template <typename T>
     void Matrix<T>::randomizeNormal(T mean, T stdDev) {
         randomize(mean, stdDev, NORMAL);
-    }
-
-
-    template <typename T>
-    void Matrix<T>::randomizeUniform() {
-        randomizeUniform(0, 1);
     }
 
     template <typename T>
@@ -274,8 +262,6 @@ namespace math {
         if (index < unpaddedSize && (index % colsRaw) < cols) {
             printf("%d\n", index);
             mat[index] = curand_normal(&state) * stdDev + mean;
-        } else {
-            mat[index] = 0;
         }
     }
 
@@ -286,8 +272,6 @@ namespace math {
         curand_init(seed, index, index, &state);
         if (index < unpaddedSize && (index % colsRaw) < cols) {
             mat[index] = curand_uniform(&state) * (upperBound - lowerBound) + lowerBound;
-        } else{
-            mat[index] = 0;
         }
     }
 
@@ -299,9 +283,11 @@ namespace math {
         T *dev_mat;
         // Allocate memory for device copies.
         cudaMalloc((void**)&dev_mat, size * sizeof(T));
+        // Copy inputs.
+        cudaMemcpy(dev_mat, data(), size * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(std::ceil(size / (float) BLOCK_DIM));
-        dim3 threads(BLOCK_DIM);
+        dim3 blocks(std::ceil(size / (float) THREADS_PER_BLOCK));
+        dim3 threads(THREADS_PER_BLOCK);
         switch (mode) {
             case UNIFORM:
                 randomizeMatrixUniform<<<blocks, threads>>>(value.count(), dev_mat, param1, param2, numColumns(), numColumnsRaw(), numColumnsRaw() * numRows());
@@ -502,102 +488,124 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeScalarProduct(T* A, T B, T* C) {
-        C[blockIdx.x * blockDim.x + threadIdx.x] = A[blockIdx.x * blockDim.x + threadIdx.x] * B;
+    __global__ void computeScalarProduct(T* A, T B) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        A[index] = A[index] * B;
+    }
+
+    template <typename T>
+    __global__ void computeVectorScalarProduct(T* A, T B, int size) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < size) {
+            A[index] = A[index] * B;
+        }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator*(T other) const {
         Matrix product = Matrix(numRows(), numColumns());
-        int size = sizeRaw();
+        int rawSize = sizeRaw();
         // Initialize device copies.
-        T *dev_A, *dev_C;
+        T *dev_A;
         // Allocate memory for device copies.
-        cudaMalloc((void**)&dev_A, size * sizeof(T));
-        cudaMalloc((void**)&dev_C, size * sizeof(T));
+        cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
         // Copy inputs to device.
-        cudaMemcpy(dev_A, data(), size * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(std::ceil(size / (float) BLOCK_DIM));
-        dim3 threads(BLOCK_DIM);
-        computeScalarProduct<<<blocks, threads>>>(dev_A, other, dev_C);
+        dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
+        dim3 threads(THREADS_PER_BLOCK);
+        if (isVector()) {
+            computeVectorScalarProduct<<<blocks, threads>>>(dev_A, other, size());
+        } else {
+            computeScalarProduct<<<blocks, threads>>>(dev_A, other);
+        }
         // Get result.
-        cudaMemcpy(product.data(), dev_C, size * sizeof(T) , cudaMemcpyDeviceToHost);
+        cudaMemcpy(product.data(), dev_A, rawSize * sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.
         cudaFree(dev_A);
-        cudaFree(dev_C);
         // Return.
         return product;
     }
 
     template <typename T>
-    __global__ void computeSum(T* A, T* B, T* C) {
-        C[blockIdx.x * blockDim.x + threadIdx.x] = A[blockIdx.x * blockDim.x + threadIdx.x] + B[blockIdx.x * blockDim.x + threadIdx.x];
-    }
-
-    template <typename T>
     Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
-        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be added.");
-        }
-        Matrix sum = Matrix(numRows(), numColumns());
-        int size = sizeRaw();
-        // Initialize device copies.
-        T *dev_A, *dev_B, *dev_C;
-        // Allocate memory for device copies.
-        cudaMalloc((void**)&dev_A, size * sizeof(T));
-        cudaMalloc((void**)&dev_B, size * sizeof(T));
-        cudaMalloc((void**)&dev_C, size * sizeof(T));
-        // Copy inputs to device.
-        cudaMemcpy(dev_A, data(), size * sizeof(T), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_B, other.data(), size * sizeof(T), cudaMemcpyHostToDevice);
-        // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(std::ceil(size / (float) BLOCK_DIM));
-        dim3 threads(BLOCK_DIM);
-        computeSum<<<blocks, threads>>>(dev_A, dev_B, dev_C);
-        // Get result.
-        cudaMemcpy(sum.data(), dev_C, size * sizeof(T) , cudaMemcpyDeviceToHost);
-        // Free memory.
-        cudaFree(dev_A);
-        cudaFree(dev_B);
-        cudaFree(dev_C);
-        // Return.
-        return sum;
-    }
-
-    template <typename T>
-    __global__ void computeDifference(T* A, T* B, T* C) {
-        C[blockIdx.x * blockDim.x + threadIdx.x] = A[blockIdx.x * blockDim.x + threadIdx.x] - B[blockIdx.x * blockDim.x + threadIdx.x];
+        return arithmetic(other, SUM);
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
+        return arithmetic(other, DIFFERENCE);
+    }
+
+    template <typename T>
+    __global__ void computeSum(T* A, T* B) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        A[index] = A[index] + B[index];
+    }
+
+    template <typename T>
+    __global__ void computeVectorSum(T* A, T* B, int size) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < size) {
+            A[index] = A[index] + B[index];
+        }
+    }
+
+    template <typename T>
+    __global__ void computeDifference(T* A, T* B) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        A[index] = A[index] - B[index];
+    }
+
+    template <typename T>
+    __global__ void computeVectorDifference(T* A, T* B, int size) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < size) {
+            A[index] = A[index] - B[index];
+        }
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::arithmetic(const Matrix<T>& other, opMode mode) const {
         if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
         }
-        Matrix sum = Matrix(numRows(), numColumns());
-        int size = sizeRaw();
+        Matrix output = Matrix(numRows(), numColumns());
+        int rawSize = sizeRaw();
         // Initialize device copies.
-        T *dev_A, *dev_B, *dev_C;
+        T *dev_A, *dev_B;
         // Allocate memory for device copies.
-        cudaMalloc((void**)&dev_A, size * sizeof(T));
-        cudaMalloc((void**)&dev_B, size * sizeof(T));
-        cudaMalloc((void**)&dev_C, size * sizeof(T));
+        cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
+        cudaMalloc((void**)&dev_B, rawSize * sizeof(T));
         // Copy inputs to device.
-        cudaMemcpy(dev_A, data(), size * sizeof(T), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_B, other.data(), size * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_B, other.data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(std::ceil(size / (float) BLOCK_DIM));
-        dim3 threads(BLOCK_DIM);
-        computeDifference<<<blocks, threads>>>(dev_A, dev_B, dev_C);
+        dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
+        dim3 threads(THREADS_PER_BLOCK);
+        switch (mode) {
+            case SUM:
+                if (isVector()) {
+                    computeVectorSum<<<blocks, threads>>>(dev_A, dev_B, size());
+                } else {
+                    computeSum<<<blocks, threads>>>(dev_A, dev_B);
+                }
+                break;
+            case DIFFERENCE:
+                if (isVector()) {
+                    computeVectorDifference<<<blocks, threads>>>(dev_A, dev_B, size());
+                } else {
+                    computeDifference<<<blocks, threads>>>(dev_A, dev_B);
+                }
+                break;
+        }
         // Get result.
-        cudaMemcpy(sum.data(), dev_C, size * sizeof(T) , cudaMemcpyDeviceToHost);
+        cudaMemcpy(output.data(), dev_A, rawSize * sizeof(T) , cudaMemcpyDeviceToHost);
         // Free memory.
         cudaFree(dev_A);
         cudaFree(dev_B);
-        cudaFree(dev_C);
         // Return.
-        return sum;
+        return output;
     }
 
     template class Matrix<int>;

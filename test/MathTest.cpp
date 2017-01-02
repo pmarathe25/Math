@@ -54,7 +54,7 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose2.getElements());
     std::cout << std::endl;
-    math::display(toTranspose2 + toTranspose2);
+    math::display(toTranspose2 - toTranspose2);
     std::cout << std::endl;
     math::display(1.5 * test + toTranspose2);
     std::cout << std::endl;
@@ -88,11 +88,17 @@ int main() {
     vec2.randomizeNormal(10, 2.5);
     math::display(vec);
     std::cout << std::endl;
+    math::display(vec.raw());
+    std::cout << std::endl;
     math::display(vec2);
     std::cout << std::endl;
     math::display(vec * vec2);
     // toTranspose2 = math::Matrix<int>(5, 30);
     std::cout << std::endl;
+    math::display((2 * vec).raw());
+    std::cout << std::endl;
+    math::display((vec + vec2).raw());
+    math::display((vec - vec2).raw());
     // math::display(toTranspose3.transpose());
     // std::cout << std::endl;
     // math::display(vec * vec2);

@@ -5,6 +5,7 @@
 #include <vector>
 
 const int BLOCK_DIM = 32;
+const int THREADS_PER_BLOCK = 1024;
 
 namespace math {
     template <typename T>
@@ -13,6 +14,10 @@ namespace math {
             enum randMode {
                 UNIFORM = 0,
                 NORMAL,
+            };
+            enum opMode {
+                SUM = 0,
+                DIFFERENCE,
             };
             // Constructors.
             void init(int rows, int cols);
@@ -55,11 +60,8 @@ namespace math {
             void write(std::ofstream& outFile) const;
             void read(std::ifstream& inFile);
             // Computation functions.
-            void randomizeNormal();
-            void randomizeNormal(T mean, T stdDev);
-            void randomizeUniform();
-            void randomizeUniform(T lowerBound, T upperBound);
-            void randomize(T param1, T param2, randMode mode);
+            void randomizeNormal(T mean = 0, T stdDev = 1);
+            void randomizeUniform(T lowerBound = 0, T upperBound = 1);
             Matrix& transpose();
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;
@@ -69,6 +71,9 @@ namespace math {
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols;
             bool isVec = false;
+            // Internal functions.
+            void randomize(T param1, T param2, randMode mode);
+            Matrix arithmetic(const Matrix<T>& other, opMode mode) const;
     };
 
     template <typename T>
