@@ -1,8 +1,7 @@
 #include "Math/Matrix.hpp"
 #include "Text/strmanip.hpp"
+#include "MatrixCUDAFunctions.cu"
 #include <iostream>
-#include <curand.h>
-#include <curand_kernel.h>
 #include <iomanip>
 #include <typeinfo>
 #include <random>
@@ -263,21 +262,6 @@ namespace math {
         for (int i = 0; i < size(); ++i) {
             at(i) = uniformDistribution(generator);
         }
-    }
-
-    template <typename T>
-    __global__ void computeTranspose(T* original, int numRows, int numCols, T* transposed) {
-        // Avoid bank conflicts by allocating a single dummy element.
-        __shared__ T tile[BLOCK_DIM][BLOCK_DIM + 1];
-        // Compute row and column of this block.
-        int row = blockIdx.x * blockDim.x;
-        int col = blockIdx.y * blockDim.y;
-        // Load a (transposed) tile into shared memory.
-        tile[threadIdx.y][threadIdx.x] = original[(row + threadIdx.x) * numCols + (col + threadIdx.y)];
-        // Synchronize.
-        __syncthreads();
-        // Write the tiles into the output. Switch rows and columns to handle non-square matrices.
-        transposed[(col + threadIdx.x) * numRows + (row + threadIdx.y)] = tile[threadIdx.x][threadIdx.y];
     }
 
     template <typename T>
