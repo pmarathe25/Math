@@ -260,7 +260,6 @@ namespace math {
         curandState_t state;
         curand_init(seed, index, 0, &state);
         if (index < unpaddedSize && (index % colsRaw) < cols) {
-            printf("%d\n", index);
             mat[index] = curand_normal(&state) * stdDev + mean;
         }
     }
