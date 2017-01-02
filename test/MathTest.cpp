@@ -99,6 +99,9 @@ int main() {
     std::cout << std::endl;
     math::display((vec + vec2).raw());
     math::display((vec - vec2).raw());
+    toTranspose2.randomizeNormal();
+    std::cout << std::endl;
+    math::display(toTranspose2);
     // math::display(toTranspose3.transpose());
     // std::cout << std::endl;
     // math::display(vec * vec2);

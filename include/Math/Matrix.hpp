@@ -72,7 +72,6 @@ namespace math {
             int rowsRaw, colsRaw, rows, cols;
             bool isVec = false;
             // Internal functions.
-            void randomize(T param1, T param2, randMode mode);
             Matrix arithmetic(const Matrix<T>& other, opMode mode) const;
     };
 

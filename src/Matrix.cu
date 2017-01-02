@@ -3,9 +3,10 @@
 #include <iostream>
 #include <curand.h>
 #include <curand_kernel.h>
-#include <chrono>
 #include <iomanip>
 #include <typeinfo>
+#include <random>
+#include <chrono>
 
 namespace math {
 
@@ -246,59 +247,22 @@ namespace math {
 
     template <typename T>
     void Matrix<T>::randomizeNormal(T mean, T stdDev) {
-        randomize(mean, stdDev, NORMAL);
+        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
+        std::default_random_engine generator(value.count());
+        std::normal_distribution<double> normalDistribution(mean, stdDev);
+        for (int i = 0; i < size(); ++i) {
+            at(i) = normalDistribution(generator);
+        }
     }
 
     template <typename T>
     void Matrix<T>::randomizeUniform(T lowerBound, T upperBound) {
-        randomize(lowerBound, upperBound, UNIFORM);
-    }
-
-    template <typename T>
-    __global__ void randomizeMatrixNormal(unsigned long seed, T* mat, T mean, T stdDev, int cols, int colsRaw, int unpaddedSize) {
-        int index = blockIdx.x * blockDim.x + threadIdx.x;
-        curandState_t state;
-        curand_init(seed, index, 0, &state);
-        if (index < unpaddedSize && (index % colsRaw) < cols) {
-            mat[index] = curand_normal(&state) * stdDev + mean;
-        }
-    }
-
-    template <typename T>
-    __global__ void randomizeMatrixUniform(unsigned long seed, T* mat, T lowerBound, T upperBound, int cols, int colsRaw, int unpaddedSize) {
-        int index = blockIdx.x * blockDim.x + threadIdx.x;
-        curandState_t state;
-        curand_init(seed, index, index, &state);
-        if (index < unpaddedSize && (index % colsRaw) < cols) {
-            mat[index] = curand_uniform(&state) * (upperBound - lowerBound) + lowerBound;
-        }
-    }
-
-    template <typename T>
-    void Matrix<T>::randomize(T param1, T param2, randMode mode) {
-        int size = sizeRaw();
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
-        // Initialize device copies.
-        T *dev_mat;
-        // Allocate memory for device copies.
-        cudaMalloc((void**)&dev_mat, size * sizeof(T));
-        // Copy inputs.
-        cudaMemcpy(dev_mat, data(), size * sizeof(T), cudaMemcpyHostToDevice);
-        // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(std::ceil(size / (float) THREADS_PER_BLOCK));
-        dim3 threads(THREADS_PER_BLOCK);
-        switch (mode) {
-            case UNIFORM:
-                randomizeMatrixUniform<<<blocks, threads>>>(value.count(), dev_mat, param1, param2, numColumns(), numColumnsRaw(), numColumnsRaw() * numRows());
-                break;
-            case NORMAL:
-                randomizeMatrixNormal<<<blocks, threads>>>(value.count(), dev_mat, param1, param2, numColumns(), numColumnsRaw(), numColumnsRaw() * numRows());
-                break;
+        std::default_random_engine generator(value.count());
+        std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
+        for (int i = 0; i < size(); ++i) {
+            at(i) = uniformDistribution(generator);
         }
-        // Get result.
-        cudaMemcpy(data(), dev_mat, size * sizeof(T) , cudaMemcpyDeviceToHost);
-        // Free memory.
-        cudaFree(dev_mat);
     }
 
     template <typename T>
