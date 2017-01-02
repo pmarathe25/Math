@@ -11,8 +11,8 @@ int main() {
     // math::MathParser parser = math::MathParser();
     // parser.addUnaryOperator("++", &postIncrement);
     // std::cout << parser.parse("1++*(3++!)++/9*4++-1+++++3") << std::endl;
-    // math::Matrix<float> mat = math::Matrix<float>({{0, 1}, {2, 3}, {4, 5}});
-    // math::Matrix<float> other = math::Matrix<float>({0, 1, 2, 3, 4, 5}, 2, 3);
+    math::Matrix<float> mat = math::Matrix<float>({{0, 1}, {2, 3}, {4, 5}});
+    math::Matrix<float> other = math::Matrix<float>({0, 1, 2, 3, 4, 5}, 2, 3);
     int testSize = 40;
     math::Matrix<double> toTranspose = math::Matrix<double>(testSize, testSize);
     math::Matrix<float> toTranspose2 = math::Matrix<float>(5, 30);
@@ -31,12 +31,12 @@ int main() {
     }
     math::Matrix<double> test = toTranspose2;
     math::Matrix<double> rnd2 = math::Matrix<double>(1, 15);
-    // math::display(mat);
-    // std::cout << std::endl;
-    // math::display(other);
-    // std::cout << std::endl;
-    // math::display(mat * other);
-    // std::cout << std::endl;
+    math::display(mat);
+    std::cout << std::endl;
+    math::display(other);
+    std::cout << std::endl;
+    math::display(mat * other);
+    std::cout << std::endl;
     math::display(toTranspose);
     std::cout << std::endl;
     math::display(toTranspose.transpose());
@@ -90,7 +90,7 @@ int main() {
     std::cout << std::endl;
     math::display(vec2);
     std::cout << std::endl;
-    math::display(vec * vec2);
+    math::display(vec.dot(vec2));
     // toTranspose2 = math::Matrix<int>(5, 30);
     std::cout << std::endl;
     math::display((2 * vec).raw());
@@ -109,12 +109,11 @@ int main() {
     // math::display(rnd2);
     std::cout << std::endl;
     // Test dot product speed.
-    math::Matrix<float> dotTest = math::Matrix<float>(1024 * 16, 1);
+    math::Matrix<double> dotTest = math::Matrix<double>(16, 1024 * 16);
     dotTest.randomizeNormal();
-    math::Matrix<float> dotTest2 = dotTest;
     // Begin timing.
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-    math::display(vec + vec);
+    math::display(vec.dot(vec));
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
     // End timing
     std::cout << std::endl;
@@ -126,7 +125,7 @@ int main() {
     toTranspose.at(0) = 3;
     math::display(toTranspose);
     t1 = std::chrono::high_resolution_clock::now();
-    math::display(toTranspose.dot(toTranspose));
+    dotTest - dotTest;
     t2 = std::chrono::high_resolution_clock::now();
     // End timing
     std::cout << std::endl;

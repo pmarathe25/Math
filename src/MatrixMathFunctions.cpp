@@ -11,7 +11,7 @@ namespace math {
         std::default_random_engine generator(value.count());
         std::normal_distribution<double> normalDistribution(mean, stdDev);
         for (int i = 0; i < size(); ++i) {
-            at(i) = normalDistribution(generator);
+            (*this)[i] = normalDistribution(generator);
         }
     }
 
@@ -21,7 +21,7 @@ namespace math {
         std::default_random_engine generator(value.count());
         std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
         for (int i = 0; i < size(); ++i) {
-            at(i) = uniformDistribution(generator);
+            (*this)[i] = uniformDistribution(generator);
         }
     }
 
@@ -65,11 +65,11 @@ namespace math {
             return other * at(0);
         } else if (other.size() == 1) {
             return *this * other.at(0);
+        } else if (numColumns() != other.numRows()) {
+            throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         } else if (isVector() && other.isVector()) {
             // If both are vectors, we just need to return the dot product.
             return Matrix<T>(dot(other));
-        } else if (numColumns() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         } else {
             Matrix product = Matrix(numRows(), other.numColumns());
             int Asize = sizeRaw();
@@ -123,15 +123,7 @@ namespace math {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
         } else if ((sizeRaw() < CPU_SATURATION_LIMIT || typeid(T) == typeid(double)) && isVector()) {
             // For small vectors, compute CPU dot product.
-            T product = T();
-            // numColumnsRaw is guaranteed to be a multiple of 32.
-            for (int i = 0; i < sizeRaw(); i += BLOCK_DIM) {
-                #pragma unroll
-                for (int j = 0; j < BLOCK_DIM; ++j) {
-                    product += data()[i + j] * other.data()[i + j];
-                }
-            }
-            return Matrix<T>(product);
+            return CPUDotProduct(other);
         } else if (isVector()) {
             // For large vectors, use CUDA.
             return math::innerProduct(raw(), other.raw());

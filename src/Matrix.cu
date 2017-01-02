@@ -54,7 +54,7 @@ namespace math {
             throw std::invalid_argument("Matrix initialization dimension mismatch.");
         }
         for (int i = 0; i < size(); ++i) {
-            at(i) = initialElements.at(i);
+            (*this)[i] = initialElements[i];
         }
     }
 
@@ -66,7 +66,7 @@ namespace math {
             throw std::invalid_argument("Matrix initialization dimension mismatch.");
         }
         for (int i = 0; i < size(); ++i) {
-            at(i) = initialElements.at(i);
+            (*this)[i] = initialElements[i];
         }
     }
 
@@ -77,11 +77,12 @@ namespace math {
         init(rows, cols);
         for (int row = 0; row < rows; ++row) {
             for (int col = 0; col < cols; ++col) {
-                at(row, col) = initialElements.at(row).at(col);
+                (*this)[row * cols + col] = initialElements[row][col];
             }
         }
     }
 
+    // Indexing Functions.
     template <typename T>
     T& Matrix<T>::at(int row, int col) {
         if (row < numRows() && col < numColumns()) {
@@ -102,14 +103,23 @@ namespace math {
 
     template <typename T>
     T& Matrix<T>::at(int index) {
-        int row = index / numColumns();
-        int col = index % numColumns();
-        return at(row, col);
+        return at(index / numColumns(), index % numColumns());
     }
 
     template <typename T>
     const T& Matrix<T>::at(int index) const {
         return at(index / numColumns(), index % numColumns());
+    }
+
+    // Unsafe indexing functions.
+    template <typename T>
+    T& Matrix<T>::operator[](int index) {
+        return elements[index / numColumns() * numColumnsRaw() + index % numColumns()];
+    }
+
+    template <typename T>
+    const T& Matrix<T>::operator[](int index) const {
+        return elements[index / numColumns() * numColumnsRaw() + index % numColumns()];
     }
 
     template <typename T>
@@ -183,8 +193,9 @@ namespace math {
     std::vector<T> Matrix<T>::row(int row) const {
         std::vector<T> tempRow;
         tempRow.reserve(numColumns());
+        int rowIndex = row * numColumns();
         for (int i = 0; i < numColumns(); ++i) {
-            tempRow.push_back(at(row, i));
+            tempRow.push_back((*this)[rowIndex + i]);
         }
         return tempRow;
     }
@@ -194,7 +205,7 @@ namespace math {
         std::vector<T> tempCol;
         tempCol.reserve(numRows());
         for (int i = 0; i < numRows(); ++i) {
-            tempCol.push_back(at(i, col));
+            tempCol.push_back((*this)[i * numColumns() + col]);
         }
         return tempCol;
     }

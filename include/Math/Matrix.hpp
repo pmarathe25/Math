@@ -41,6 +41,9 @@ namespace math {
             const T& at(int row, int col) const;
             T& at(int index);
             const T& at(int index) const;
+            // Unsafe indexing functions.
+            T& operator[](int index);
+            const T& operator[](int index) const;
             // Raw data functions.
             T* data();
             const T* data() const;
@@ -78,6 +81,7 @@ namespace math {
             Matrix CPUSum(const Matrix& other) const;
             Matrix CPUDifference(const Matrix& other) const;
             Matrix CPUScalarProduct(T other) const;
+            Matrix CPUDotProduct(const Matrix& other) const;
             Matrix matrxArithmetic(const Matrix<T>& other, opMode mode) const;
             Matrix scalarArithmetic(T other, opMode mode) const;
     };
