@@ -107,17 +107,6 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator*(T other) const  {
-        if (isVector() && sizeRaw() < CPU_SATURATION_LIMIT) {
-            // For small vectors, use CPU.
-            return CPUScalarProduct(other);
-        } else {
-            // For large vectors and matrices, use CUDA.
-            return scalarArithmetic(other, SCALAR_PRODUCT);
-        }
-    }
-
-    template <typename T>
     Matrix<T> Matrix<T>::dot(const Matrix& other) const {
         if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
@@ -153,8 +142,19 @@ namespace math {
     }
 
     template <typename T>
+    Matrix<T> Matrix<T>::operator*(T other) const  {
+        if (sizeRaw() < CPU_SATURATION_LIMIT) {
+            // For small vectors, use CPU.
+            return CPUScalarProduct(other);
+        } else {
+            // For large vectors and matrices, use CUDA.
+            return scalarArithmetic(other, SCALAR_PRODUCT);
+        }
+    }
+
+    template <typename T>
     Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
-        if (isVector() && sizeRaw() < CPU_SATURATION_LIMIT) {
+        if (sizeRaw() < CPU_SATURATION_LIMIT) {
             // For small vectors, use CPU.
             return CPUSum(other);
         } else {
@@ -165,7 +165,7 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
-        if (isVector() && sizeRaw() < CPU_SATURATION_LIMIT) {
+        if (sizeRaw() < CPU_SATURATION_LIMIT) {
             // For small vectors, use CPU.
             return CPUDifference(other);
         } else {

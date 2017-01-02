@@ -6,7 +6,7 @@
 
 const int BLOCK_DIM = 32;
 const int THREADS_PER_BLOCK = 1024;
-const int CPU_SATURATION_LIMIT = 1024 * 16;
+const int CPU_SATURATION_LIMIT = 16384;
 
 namespace math {
     template <typename T>
