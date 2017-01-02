@@ -508,8 +508,8 @@ namespace math {
                 index = rowIndex + i;
                 #pragma unroll
                 for (int j = 0; j < BLOCK_DIM; ++j) {
-                    index += j;
                     Cvalue += A[index] * B[index];
+                    index++;
                 }
             }
             A[row] = Cvalue;
