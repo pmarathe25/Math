@@ -155,6 +155,74 @@ namespace math {
     }
 
     template <typename T>
+    __global__ void computeMatrixVectorRowSum(T* A, T* B, int numColsB) {
+        // Avoid bank conflicts by allocating a single dummy element.
+        __shared__ T tileB[BLOCK_DIM + 1];
+        // Compute the coordinates of matrix C that this thread is responsible for.
+        int col = blockIdx.y * blockDim.y + threadIdx.y;
+        // Load vector - only load each element once.
+        if (threadIdx.x == 0) {
+            tileB[threadIdx.y] = B[col];
+        }
+        // Synchronize.
+        __syncthreads();
+        // Write to output.
+        int index = (blockIdx.x * blockDim.x + threadIdx.x) * numColsB + col;
+        A[index] = A[index] + tileB[threadIdx.y];
+    }
+
+    template <typename T>
+    __global__ void computeMatrixVectorColumnSum(T* A, T* B, int numColsB) {
+        // Avoid bank conflicts by allocating a single dummy element.
+        __shared__ T tileB[BLOCK_DIM + 1];
+        // Compute the coordinates of matrix C that this thread is responsible for.
+        int row = blockIdx.x * blockDim.x + threadIdx.x;
+        // Load vector - only load each element once.
+        if (threadIdx.y == 0) {
+            tileB[threadIdx.x] = B[row];
+        }
+        // Synchronize.
+        __syncthreads();
+        // Write to output.
+        int index = row * numColsB + blockIdx.y * blockDim.y + threadIdx.y;
+        A[index] = A[index] + tileB[threadIdx.x];
+    }
+
+    template <typename T>
+    __global__ void computeMatrixVectorRowDifference(T* A, T* B, int numColsB) {
+        // Avoid bank conflicts by allocating a single dummy element.
+        __shared__ T tileB[BLOCK_DIM + 1];
+        // Compute the coordinates of matrix C that this thread is responsible for.
+        int col = blockIdx.y * blockDim.y + threadIdx.y;
+        // Load vector - only load each element once.
+        if (threadIdx.x == 0) {
+            tileB[threadIdx.y] = B[col];
+        }
+        // Synchronize.
+        __syncthreads();
+        // Write to output.
+        int index = (blockIdx.x * blockDim.x + threadIdx.x) * numColsB + col;
+        A[index] = A[index] - tileB[threadIdx.y];
+    }
+
+    template <typename T>
+    __global__ void computeMatrixVectorColumnDifference(T* A, T* B, int numColsB) {
+        // Avoid bank conflicts by allocating a single dummy element.
+        __shared__ T tileB[BLOCK_DIM + 1];
+        // Compute the coordinates of matrix C that this thread is responsible for.
+        int row = blockIdx.x * blockDim.x + threadIdx.x;
+        // Load vector - only load each element once.
+        if (threadIdx.y == 0) {
+            tileB[threadIdx.x] = B[row];
+        }
+        // Synchronize.
+        __syncthreads();
+        // Write to output.
+        int index = row * numColsB + blockIdx.y * blockDim.y + threadIdx.y;
+        A[index] = A[index] - tileB[threadIdx.x];
+    }
+
+    template <typename T>
     __global__ void computeDifference(T* A, T* B) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         A[index] = A[index] - B[index];

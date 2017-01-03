@@ -6,7 +6,7 @@
 
 const int BLOCK_DIM = 32;
 const int THREADS_PER_BLOCK = 1024;
-const int CPU_SATURATION_LIMIT = 16384;
+const int CPU_SATURATION_LIMIT = 16385;
 
 namespace math {
     template <typename T>
@@ -82,7 +82,8 @@ namespace math {
             Matrix CPUDifference(const Matrix& other) const;
             Matrix CPUScalarProduct(T other) const;
             Matrix CPUDotProduct(const Matrix& other) const;
-            Matrix matrxArithmetic(const Matrix<T>& other, opMode mode) const;
+            Matrix matrixArithmetic(const Matrix<T>& other, opMode mode) const;
+            Matrix matrixTiledArithmetic(const Matrix<T>& other, opMode mode) const;
             Matrix scalarArithmetic(T other, opMode mode) const;
     };
 

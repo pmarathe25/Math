@@ -30,7 +30,7 @@ int main() {
         toTranspose3.at(i) = i;
     }
     math::Matrix<double> test = toTranspose2;
-    math::Matrix<double> rnd2 = math::Matrix<double>(1, 15);
+    math::Matrix<double> rnd2 = math::Matrix<double>(1, 40);
     math::display(mat);
     std::cout << std::endl;
     math::display(other);
@@ -61,19 +61,7 @@ int main() {
     math::display(toTranspose2 - 1.5 * test);
     std::cout << "Dot product." << std::endl;
     // Test File I/O.
-    math::Matrix<double> rnd = math::Matrix<double>(5, 40);
-    std::cout << "WRITING MATRIX" << std::endl;
-    rnd.randomizeUniform(-1, 1);
-    math::display(rnd);
-    std::ofstream saveFile("test/matrix");
-    rnd.write(saveFile);
-    saveFile.close();
-    std::cout << "READING MATRIX" << std::endl;
     math::Matrix<double> rndRead;
-    std::ifstream readFile("test/matrix");
-    rndRead.read(readFile);
-    readFile.close();
-    math::display(rndRead);
     // Equality test.
     math::Matrix<int> equalTest = math::Matrix<int>(4, 4);
     math::Matrix<int> equalTest2 = math::Matrix<int>(4, 4);
@@ -111,32 +99,61 @@ int main() {
     // std::cout << std::endl;
     // math::display(vec * vec2);
     // std::cout << std::endl;
-    // rnd2.randomizeUniform();
     // std::cout << std::endl;
     // math::display(rnd2);
     std::cout << std::endl;
     // Test dot product speed.
-    math::Matrix<double> dotTest = math::Matrix<double>(16, 1024 * 16);
+    math::Matrix<double> dotTest = math::Matrix<double>(2, 1024 * 8);
     dotTest.randomizeNormal();
+
     // Begin timing.
+    math::Matrix<double> rnd = math::Matrix<double>(1024, 16);
+    std::cout << "RANDOMIZING" << std::endl;
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-    math::display(vec.dot(vec));
+    rnd.randomizeUniform(-1, 1);
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-    // End timing
     std::cout << std::endl;
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
     std::cout << duration << std::endl;
-    // CUDA based dot product.
     std::cout << std::endl;
-    // Begin timing.
-    toTranspose.at(0) = 3;
-    math::display(toTranspose);
+    // Sum.
+    std::cout << "DOT PRODUCT" << std::endl;
     t1 = std::chrono::high_resolution_clock::now();
-    dotTest - dotTest;
+    math::display(toTranspose.dot(toTranspose));
     t2 = std::chrono::high_resolution_clock::now();
+    std::cout << std::endl;
+    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+    std::cout << duration << std::endl;
+    std::cout << std::endl;
+    // I/O.
+    std::cout << "WRITING MATRIX" << std::endl;
+    std::ofstream saveFile("test/matrix");
+    t1 = std::chrono::high_resolution_clock::now();
+    rnd.write(saveFile);
+    t2 = std::chrono::high_resolution_clock::now();
+    saveFile.close();
+    // math::display(rnd);
     // End timing
     std::cout << std::endl;
     duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
     std::cout << duration << std::endl;
-
+    // CUDA based dot product.
+    std::cout << std::endl;
+    // Begin timing.
+    // toTranspose.at(0) = 3;
+    // math::display(toTranspose);
+    std::cout << "READING MATRIX" << std::endl;
+    std::ifstream readFile("test/matrix");
+    t1 = std::chrono::high_resolution_clock::now();
+    rndRead.read(readFile);
+    t2 = std::chrono::high_resolution_clock::now();
+    readFile.close();
+    // math::display(rndRead);
+    // End timing
+    std::cout << std::endl;
+    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+    std::cout << duration << std::endl;
+    rnd2.randomizeNormal(1, 0);
+    rnd2.transpose();
+    math::display(toTranspose - rnd2);
 }

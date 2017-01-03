@@ -54,7 +54,7 @@ namespace math {
             throw std::invalid_argument("Matrix initialization dimension mismatch.");
         }
         for (int i = 0; i < size(); ++i) {
-            (*this)[i] = initialElements[i];
+            elements[i] = initialElements[i];
         }
     }
 
@@ -65,8 +65,11 @@ namespace math {
         if (size() != initialElements.size()) {
             throw std::invalid_argument("Matrix initialization dimension mismatch.");
         }
-        for (int i = 0; i < size(); ++i) {
-            (*this)[i] = initialElements[i];
+        int i = 0;
+        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
+            for (int col = 0; col < numColumns(); ++col) {
+                elements[row + col] = initialElements[i++];
+            }
         }
     }
 
@@ -75,10 +78,12 @@ namespace math {
         this -> rows = initialElements.size();
         this -> cols = initialElements.at(0).size();
         init(rows, cols);
-        for (int row = 0; row < rows; ++row) {
+        int rowInitial = 0;
+        for (int row = 0; row < rows * numColumnsRaw(); row += numColumnsRaw()) {
             for (int col = 0; col < cols; ++col) {
-                (*this)[row * cols + col] = initialElements[row][col];
+                elements[row + col] = initialElements[rowInitial][col];
             }
+            ++rowInitial;
         }
     }
 
@@ -146,8 +151,10 @@ namespace math {
     std::vector<T> Matrix<T>::getElements() const {
         std::vector<T> temp;
         temp.reserve(size());
-        for (int i = 0; i < size(); ++i) {
-            temp.push_back((*this)[i]);
+        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
+            for (int col = 0; col < numColumns(); ++col) {
+                temp.push_back(elements[row + col]);
+            }
         }
         return temp;
     }
@@ -191,9 +198,9 @@ namespace math {
     std::vector<T> Matrix<T>::row(int row) const {
         std::vector<T> tempRow;
         tempRow.reserve(numColumns());
-        int rowIndex = row * numColumns();
+        int rowIndex = row * numColumnsRaw();
         for (int i = 0; i < numColumns(); ++i) {
-            tempRow.push_back((*this)[rowIndex + i]);
+            tempRow.push_back(elements[rowIndex + i]);
         }
         return tempRow;
     }
@@ -202,8 +209,8 @@ namespace math {
     std::vector<T> Matrix<T>::column(int col) const {
         std::vector<T> tempCol;
         tempCol.reserve(numRows());
-        for (int i = 0; i < numRows(); ++i) {
-            tempCol.push_back((*this)[i * numColumns() + col]);
+        for (int i = 0; i < numRows() * numColumnsRaw(); i += numColumnsRaw()) {
+            tempCol.push_back(elements[i + col]);
         }
         return tempCol;
     }
@@ -220,11 +227,12 @@ namespace math {
                 precision = 7;
             }
             // Write elements
-            for (int i = 0; i < size() - 1; ++i) {
-                outFile << std::fixed << std::setprecision(precision) << (*this)[i];
-                outFile << ",";
+            for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
+                for (int col = 0; col < numColumns(); ++col) {
+                    // elements[row + col] = uniformDistribution(generator);
+                    outFile << std::fixed << std::setprecision(precision) << elements[row + col] << ",";
+                }
             }
-            outFile << (*this)[size() - 1] << std::endl;
         } else {
             throw std::invalid_argument("Could not open file.");
         }
@@ -245,9 +253,14 @@ namespace math {
             inFile >> tempElements[0];
             tempElements = strmanip::split(tempElements[0], ',');
             // Modify this matrix.
-            for (int i = 0; i < tempElements.size(); ++i) {
-                (*this)[i] = (T) std::stod(tempElements[i]);
+            int i = 0;
+            for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
+                for (int col = 0; col < numColumns(); ++col) {
+                    // elements[row + col] = uniformDistribution(generator);
+                    elements[row + col] = (T) std::stod(tempElements[i++]);
+                }
             }
+
         } else {
             throw std::invalid_argument("Could not open file.");
         }
