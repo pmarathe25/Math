@@ -30,7 +30,6 @@ int main() {
         toTranspose3.at(i) = i;
     }
     math::Matrix<double> test = toTranspose2;
-    math::Matrix<double> rnd2 = math::Matrix<double>(1, 40);
     math::display(mat);
     std::cout << std::endl;
     math::display(other);
@@ -51,8 +50,8 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose * toTranspose * toTranspose);
     std::cout << std::endl;
-    std::cout << "GET ELEMENTS" << std::endl;
-    math::display(toTranspose2.getElements());
+    std::cout << "RAW" << std::endl;
+    math::display(toTranspose2.raw());
     std::cout << std::endl;
     math::display(toTranspose2 - toTranspose2);
     std::cout << std::endl;
@@ -153,7 +152,21 @@ int main() {
     std::cout << std::endl;
     duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
     std::cout << duration << std::endl;
+    math::Matrix<double> rnd2 = math::Matrix<double>(1, 40);
     rnd2.randomizeNormal(1, 0);
-    rnd2.transpose();
-    math::display(toTranspose - rnd2);
+    // rnd2.transpose();
+    std::cout << "SUBTRACTION" << std::endl;
+    math::display(toTranspose + rnd2);
+    // std::cout << "MATRIX MULTIPLICATION" << std::endl;
+    // math::display(toTranspose);
+    // t1 = std::chrono::high_resolution_clock::now();
+    // math::display(toTranspose * toTranspose);
+    // t2 = std::chrono::high_resolution_clock::now();
+    // // math::display(rndRead);
+    // // End timing
+    // std::cout << std::endl;
+    // duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+    // std::cout << duration << std::endl;
+
+
 }

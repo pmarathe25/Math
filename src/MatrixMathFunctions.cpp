@@ -10,10 +10,8 @@ namespace math {
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
         std::normal_distribution<double> normalDistribution(mean, stdDev);
-        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
-            for (int col = 0; col < numColumns(); ++col) {
-                elements[row + col] = normalDistribution(generator);
-            }
+        for (int i = 0; i < size(); ++i) {
+            elements[i] = normalDistribution(generator);
         }
     }
 
@@ -22,10 +20,8 @@ namespace math {
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
         std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
-        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
-            for (int col = 0; col < numColumns(); ++col) {
-                elements[row + col] = uniformDistribution(generator);
-            }
+        for (int i = 0; i < size(); ++i) {
+            elements[i] = uniformDistribution(generator);
         }
     }
 
@@ -33,28 +29,25 @@ namespace math {
     Matrix<T>& Matrix<T>::transpose() {
         // For vectors, we only need to flip the dimensions.
         if (isVector()) {
-            int temp = rowsRaw;
-            rowsRaw = colsRaw;
-            colsRaw = temp;
-            temp = rows;
+            int temp = rows;
             rows = cols;
             cols = temp;
         } else {
-            int size = sizeRaw();
+            int matSize = size();
             // Initialize device copies.
             T *dev_original, *dev_transposed;
             // Allocate memory for device ccpies.
-            cudaMalloc((void**)&dev_original, size * sizeof(T));
-            cudaMalloc((void**)&dev_transposed, size * sizeof(T));
+            cudaMalloc((void**)&dev_original, matSize * sizeof(T));
+            cudaMalloc((void**)&dev_transposed, matSize * sizeof(T));
             // Copy inputs to device.
-            cudaMemcpy(dev_original, data(), size * sizeof(T), cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_original, data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
             // Launch kernel with only as many blocks as necessary.
-            dim3 blocks(std::ceil(numRowsRaw() / (float) BLOCK_DIM), std::ceil(numColumnsRaw() / (float) BLOCK_DIM));
+            dim3 blocks(std::ceil(numRows() / (float) BLOCK_DIM), std::ceil(numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
-            computeTranspose<<<blocks, threads>>>(dev_original, numRowsRaw(), numColumnsRaw(), dev_transposed);
+            computeTranspose<<<blocks, threads>>>(dev_original, numRows(), numColumns(), matSize, dev_transposed);
             // Get result.
             init(numColumns(), numRows());
-            cudaMemcpy(data(), dev_transposed, size * sizeof(T) , cudaMemcpyDeviceToHost);
+            cudaMemcpy(data(), dev_transposed, matSize * sizeof(T) , cudaMemcpyDeviceToHost);
             // Free memory.
             cudaFree(dev_original);
             cudaFree(dev_transposed);
@@ -71,9 +64,9 @@ namespace math {
             return dot(other);
         } else {
             Matrix product = Matrix(numRows(), other.numColumns());
-            int Asize = sizeRaw();
-            int Bsize = other.sizeRaw();
-            int Csize = product.sizeRaw();
+            int Asize = size();
+            int Bsize = other.size();
+            int Csize = product.size();
             // Initialize device copies.
             T *dev_A, *dev_B, *dev_C;
             // Allocate memory for device ccpies.
@@ -85,15 +78,9 @@ namespace math {
             cudaMemcpy(dev_B, other.data(), Bsize * sizeof(T), cudaMemcpyHostToDevice);
             cudaMemcpy(dev_C, product.data(), Csize * sizeof(T), cudaMemcpyHostToDevice);
             // Launch kernel with only as many blocks as necessary.
-            dim3 blocks(std::ceil(product.numRowsRaw() / (float) BLOCK_DIM), std::ceil(product.numColumnsRaw() / (float) BLOCK_DIM));
+            dim3 blocks(std::ceil(product.numRows() / (float) BLOCK_DIM), std::ceil(product.numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
-            if (isVector()) {
-                computeVectorProductLeft<<<blocks, threads>>>(dev_A, dev_B, numColumnsRaw(), other.numColumnsRaw(), dev_C);
-            } else if (other.isVector()) {
-                computeVectorProductRight<<<blocks, threads>>>(dev_A, dev_B, numColumnsRaw(), dev_C);
-            } else {
-                computeProduct<<<blocks, threads>>>(dev_A, dev_B, numColumnsRaw(), other.numColumnsRaw(), dev_C);
-            }
+            computeProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns(), other.numRows(), other.numColumns(), size(), other.size(), dev_C);
             // Get result.
             cudaMemcpy(product.data(), dev_C, Csize * sizeof(T) , cudaMemcpyDeviceToHost);
             // Free memory.
@@ -108,9 +95,9 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::dot(const Matrix& other) const {
         if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be added.");
-        } else if (sizeRaw() < CPU_SATURATION_LIMIT || (typeid(T) == typeid(double) && isVector())) {
-            // For small/double vectors, compute CPU dot product.
+            throw std::invalid_argument("Incompatible matrices cannot be dotted.");
+        } else if (size() < CPU_SATURATION_LIMIT || (typeid(T) == typeid(double) && isVector())) {
+            // For small matrices/double vectors, compute CPU dot product.
             return CPUDotProduct(other);
         } else if (isVector()) {
             // For large vectors, use CUDA.
@@ -118,7 +105,7 @@ namespace math {
         } else {
             // For matrices, also use CUDA.
             Matrix output = Matrix(numRows(), 1);
-            int rawSize = sizeRaw();
+            int rawSize = size();
             // Initialize device copies.
             T *dev_A, *dev_B;
             // Allocate memory for device copies.
@@ -130,7 +117,7 @@ namespace math {
             // Launch kernel where numThreads = size of matrix.
             dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeDotProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumnsRaw());
+            computeDotProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns());
             cudaMemcpy(output.data(), dev_A, output.size() * sizeof(T) , cudaMemcpyDeviceToHost);
             // Free memory.
             cudaFree(dev_A);
@@ -142,11 +129,11 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::operator*(T other) const  {
-        if (sizeRaw() < CPU_SATURATION_LIMIT) {
-            // For small vectors, use CPU.
+        if (size() < CPU_SATURATION_LIMIT) {
+            // For small matrices, use CPU.
             return CPUScalarProduct(other);
         } else {
-            // For large vectors and matrices, use CUDA.
+            // For large matrices, use CUDA.
             return scalarArithmetic(other, SCALAR_PRODUCT);
         }
     }
@@ -157,7 +144,7 @@ namespace math {
             return matrixTiledArithmetic(other, SUM);
         } else if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
-        } else if (sizeRaw() < CPU_SATURATION_LIMIT) {
+        } else if (size() < CPU_SATURATION_LIMIT) {
             // For small vectors, use CPU.
             return CPUSum(other);
         } else {
@@ -172,7 +159,7 @@ namespace math {
             return matrixTiledArithmetic(other, DIFFERENCE);
         } else if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be subtracted.");
-        } else if (sizeRaw() < CPU_SATURATION_LIMIT) {
+        } else if (size() < CPU_SATURATION_LIMIT) {
             // For small vectors, use CPU.
             return CPUDifference(other);
         } else {
@@ -184,7 +171,7 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::matrixArithmetic(const Matrix<T>& other, opMode mode) const {
         Matrix output = Matrix(numRows(), numColumns());
-        int rawSize = sizeRaw();
+        int rawSize = size();
         // Initialize device copies.
         T *dev_A, *dev_B;
         // Allocate memory for device copies.
@@ -198,18 +185,10 @@ namespace math {
         dim3 threads(THREADS_PER_BLOCK);
         switch (mode) {
             case SUM:
-                if (isVector()) {
-                    computeVectorSum<<<blocks, threads>>>(dev_A, dev_B, size());
-                } else {
-                    computeSum<<<blocks, threads>>>(dev_A, dev_B);
-                }
+                computeSum<<<blocks, threads>>>(dev_A, dev_B, size());
                 break;
             case DIFFERENCE:
-                if (isVector()) {
-                    computeVectorDifference<<<blocks, threads>>>(dev_A, dev_B, size());
-                } else {
-                    computeDifference<<<blocks, threads>>>(dev_A, dev_B);
-                }
+                computeDifference<<<blocks, threads>>>(dev_A, dev_B, size());
                 break;
         }
         // Get result.
@@ -224,7 +203,8 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::matrixTiledArithmetic(const Matrix<T>& other, opMode mode) const {
         Matrix output = Matrix(numRows(), numColumns());
-        int rawSize = sizeRaw();
+        std::cout << "EXECUTING CUDA" << std::endl;
+        int rawSize = size();
         // Initialize device copies.
         T *dev_A, *dev_B;
         // Allocate memory for device copies.
@@ -232,23 +212,23 @@ namespace math {
         cudaMalloc((void**)&dev_B, rawSize * sizeof(T));
         // Copy inputs to device.
         cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_B, other.data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_B, other.data(), other.size() * sizeof(T), cudaMemcpyHostToDevice);
         // Launch kernel where numThreads = size of matrix.
-        dim3 blocks(std::ceil(numRowsRaw() / (float) BLOCK_DIM), std::ceil(numColumnsRaw() / (float) BLOCK_DIM));
+        dim3 blocks(std::ceil(numRows() / (float) BLOCK_DIM), std::ceil(numColumns() / (float) BLOCK_DIM));
         dim3 threads(BLOCK_DIM, BLOCK_DIM);
         switch (mode) {
             case SUM:
                 if (other.numRows() == 1) {
-                    computeMatrixVectorRowSum<<<blocks, threads>>>(dev_A, dev_B, numColumnsRaw());
+                    computeMatrixVectorRowSum<<<blocks, threads>>>(dev_A, dev_B, numColumns(), numRows());
                 } else {
-                    computeMatrixVectorColumnSum<<<blocks, threads>>>(dev_A, dev_B, numColumnsRaw());
+                    computeMatrixVectorColumnSum<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns());
                 }
                 break;
             case DIFFERENCE:
                 if (other.numRows() == 1) {
-                    computeMatrixVectorRowDifference<<<blocks, threads>>>(dev_A, dev_B, numColumnsRaw());
+                    computeMatrixVectorRowDifference<<<blocks, threads>>>(dev_A, dev_B, numColumns(), numRows());
                 } else {
-                    computeMatrixVectorColumnDifference<<<blocks, threads>>>(dev_A, dev_B, numColumnsRaw());
+                    computeMatrixVectorColumnDifference<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns());
                 }
                 break;
         }
@@ -264,7 +244,7 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::scalarArithmetic(T other, opMode mode) const {
         Matrix product = Matrix(numRows(), numColumns());
-        int rawSize = sizeRaw();
+        int rawSize = size();
         // Initialize device copies.
         T *dev_A;
         // Allocate memory for device copies.
@@ -276,12 +256,8 @@ namespace math {
         dim3 threads(THREADS_PER_BLOCK);
         switch (mode) {
             case SCALAR_PRODUCT:
-                if (isVector()) {
-                    computeVectorScalarProduct<<<blocks, threads>>>(dev_A, other, size());
-                } else {
-                    computeScalarProduct<<<blocks, threads>>>(dev_A, other);
-                }
-            break;
+                computeScalarProduct<<<blocks, threads>>>(dev_A, other, size());
+                break;
         }
         // Get result.
         cudaMemcpy(product.data(), dev_A, rawSize * sizeof(T) , cudaMemcpyDeviceToHost);

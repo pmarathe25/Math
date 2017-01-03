@@ -10,40 +10,29 @@
 namespace math {
     template <typename T>
     void Matrix<T>::init(int rows, int cols) {
-        int rowsPadded = rows;
-        int colsPadded = cols;
-        // Do not pad vectors.
         isVec = (rows == 1) || (cols == 1);
-        if (rows % BLOCK_DIM != 0 && rows != 1) {
-            rowsPadded += BLOCK_DIM - (rows % BLOCK_DIM);
-        }
-        if (cols % BLOCK_DIM != 0 && cols != 1) {
-            colsPadded += BLOCK_DIM - (cols % BLOCK_DIM);
-        }
-        elements = std::vector<T> (rowsPadded * colsPadded);
-        this -> rowsRaw = rowsPadded;
-        this -> colsRaw = colsPadded;
         this -> rows = rows;
         this -> cols = cols;
+        this -> matrixSize = rows * cols;
+        elements.reserve(rows * cols);
     }
 
     template <typename T>
     Matrix<T>::Matrix() {
-        // Initialize elements with size (rowsRaw, colsRaw).
         init(0, 0);
     }
 
     template <typename T>
     Matrix<T>::Matrix(T elem) {
-        // Initialize elements with size (rowsRaw, colsRaw).
         init(1, 1);
-        elements[0] = elem;
+        elements.push_back(elem);
     }
 
     template <typename T>
     Matrix<T>::Matrix(int rows, int cols) {
-        // Initialize elements with size (rowsRaw, colsRaw).
+        // Zero-Initialize elements.
         init(rows, cols);
+        elements = std::vector<T>(size());
     }
 
     template <typename T>
@@ -53,9 +42,7 @@ namespace math {
         if (size() != initialElements.size()) {
             throw std::invalid_argument("Matrix initialization dimension mismatch.");
         }
-        for (int i = 0; i < size(); ++i) {
-            elements[i] = initialElements[i];
-        }
+        elements = initialElements;
     }
 
     template <typename T>
@@ -65,12 +52,7 @@ namespace math {
         if (size() != initialElements.size()) {
             throw std::invalid_argument("Matrix initialization dimension mismatch.");
         }
-        int i = 0;
-        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
-            for (int col = 0; col < numColumns(); ++col) {
-                elements[row + col] = initialElements[i++];
-            }
-        }
+        elements = initialElements;
     }
 
     template <typename T>
@@ -79,7 +61,7 @@ namespace math {
         this -> cols = initialElements.at(0).size();
         init(rows, cols);
         int rowInitial = 0;
-        for (int row = 0; row < rows * numColumnsRaw(); row += numColumnsRaw()) {
+        for (int row = 0; row < rows * numColumns(); row += numColumns()) {
             for (int col = 0; col < cols; ++col) {
                 elements[row + col] = initialElements[rowInitial][col];
             }
@@ -91,7 +73,7 @@ namespace math {
     template <typename T>
     T& Matrix<T>::at(int row, int col) {
         if (row < numRows() && col < numColumns()) {
-            return elements[row * numColumnsRaw() + col];
+            return elements[row * numColumns() + col];
         } else {
             throw std::out_of_range("Index out of range.");
         }
@@ -100,7 +82,7 @@ namespace math {
     template <typename T>
     const T& Matrix<T>::at(int row, int col) const {
         if (row < numRows() && col < numColumns()) {
-            return elements[row * numColumnsRaw() + col];
+            return elements[row * numColumns() + col];
         } else {
             throw std::out_of_range("Index out of range.");
         }
@@ -108,23 +90,23 @@ namespace math {
 
     template <typename T>
     T& Matrix<T>::at(int index) {
-        return at(index / numColumns(), index % numColumns());
+        return elements.at(index);
     }
 
     template <typename T>
     const T& Matrix<T>::at(int index) const {
-        return at(index / numColumns(), index % numColumns());
+        return elements.at(index);
     }
 
     // Unsafe indexing functions.
     template <typename T>
     T& Matrix<T>::operator[](int index) {
-        return elements[index / numColumns() * numColumnsRaw() + index % numColumns()];
+        return elements[index];
     }
 
     template <typename T>
     const T& Matrix<T>::operator[](int index) const {
-        return elements[index / numColumns() * numColumnsRaw() + index % numColumns()];
+        return elements[index];
     }
 
     template <typename T>
@@ -148,28 +130,6 @@ namespace math {
     }
 
     template <typename T>
-    std::vector<T> Matrix<T>::getElements() const {
-        std::vector<T> temp;
-        temp.reserve(size());
-        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
-            for (int col = 0; col < numColumns(); ++col) {
-                temp.push_back(elements[row + col]);
-            }
-        }
-        return temp;
-    }
-
-    template <typename T>
-    int Matrix<T>::numRowsRaw() const {
-        return rowsRaw;
-    }
-
-    template <typename T>
-    int Matrix<T>::numColumnsRaw() const {
-        return colsRaw;
-    }
-
-    template <typename T>
     int Matrix<T>::numRows() const {
         return rows;
     }
@@ -180,13 +140,8 @@ namespace math {
     }
 
     template <typename T>
-    int Matrix<T>::sizeRaw() const {
-        return numColumnsRaw() * numRowsRaw();
-    }
-
-    template <typename T>
     int Matrix<T>::size() const {
-        return numColumns() * numRows();
+        return matrixSize;
     }
 
     template <typename T>
@@ -198,7 +153,7 @@ namespace math {
     std::vector<T> Matrix<T>::row(int row) const {
         std::vector<T> tempRow;
         tempRow.reserve(numColumns());
-        int rowIndex = row * numColumnsRaw();
+        int rowIndex = row * numColumns();
         for (int i = 0; i < numColumns(); ++i) {
             tempRow.push_back(elements[rowIndex + i]);
         }
@@ -209,7 +164,7 @@ namespace math {
     std::vector<T> Matrix<T>::column(int col) const {
         std::vector<T> tempCol;
         tempCol.reserve(numRows());
-        for (int i = 0; i < numRows() * numColumnsRaw(); i += numColumnsRaw()) {
+        for (int i = 0; i < numRows() * numColumns(); i += numColumns()) {
             tempCol.push_back(elements[i + col]);
         }
         return tempCol;
@@ -227,11 +182,8 @@ namespace math {
                 precision = 7;
             }
             // Write elements
-            for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
-                for (int col = 0; col < numColumns(); ++col) {
-                    // elements[row + col] = uniformDistribution(generator);
-                    outFile << std::fixed << std::setprecision(precision) << elements[row + col] << ",";
-                }
+            for (int i = 0; i < size(); ++i) {
+                outFile << std::fixed << std::setprecision(precision) << elements[i] << ",";
             }
             outFile << std::endl;
         } else {
@@ -254,14 +206,9 @@ namespace math {
             inFile >> tempElements[0];
             tempElements = strmanip::split(tempElements[0], ',');
             // Modify this matrix.
-            int i = 0;
-            for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
-                for (int col = 0; col < numColumns(); ++col) {
-                    // elements[row + col] = uniformDistribution(generator);
-                    elements[row + col] = (T) std::stod(tempElements[i++]);
-                }
+            for (int i = 0; i < size(); ++i) {
+                elements.push_back((T) std::stod(tempElements[i]));
             }
-
         } else {
             throw std::invalid_argument("Could not open file.");
         }

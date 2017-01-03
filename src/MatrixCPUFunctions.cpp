@@ -8,10 +8,8 @@ namespace math {
         T* outputData = output.data();
         const T* thisData = data();
         const T* otherData = other.data();
-        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
-            for (int col = 0; col < numColumns(); ++col) {
-                outputData[row + col] = thisData[row + col] + otherData[row + col];
-            }
+        for (int i = 0; i < size(); ++i) {
+            outputData[i] = thisData[i] + otherData[i];
         }
         return output;
     }
@@ -22,10 +20,8 @@ namespace math {
         T* outputData = output.data();
         const T* thisData = data();
         const T* otherData = other.data();
-        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
-            for (int col = 0; col < numColumns(); ++col) {
-                outputData[row + col] = thisData[row + col] - otherData[row + col];
-            }
+        for (int i = 0; i < size(); ++i) {
+            outputData[i] = thisData[i] - otherData[i];
         }
         return output;
     }
@@ -35,10 +31,8 @@ namespace math {
         Matrix output = Matrix(numRows(), numColumns());
         T* outputData = output.data();
         const T* thisData = data();
-        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
-            for (int col = 0; col < numColumns(); ++col) {
-                outputData[row + col] = thisData[row + col] * other;
-            }
+        for (int i = 0; i < size(); ++i) {
+            outputData[i] = thisData[i] * other;
         }
         return output;
     }
@@ -46,12 +40,13 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::CPUDotProduct(const Matrix<T>& other) const {
         Matrix<T> output = Matrix<T>(numRows(), 1);
-        int i = 0;
-        for (int row = 0; row < numRows() * numColumnsRaw(); row += numColumnsRaw()) {
+        T* outputData = output.data();
+        const T* thisData = data();
+        const T* otherData = other.data();
+        for (int row = 0; row < numRows(); ++row) {
             for (int col = 0; col < numColumns(); ++col) {
-                output[i] += data()[col] * other.data()[col];
+                outputData[row] += thisData[col] * otherData[col];
             }
-            ++i;
         }
         return output;
     }
