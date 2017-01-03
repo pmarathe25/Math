@@ -6,7 +6,7 @@
 #include "MatrixCUDAFunctions.cu"
 #include "MatrixCPUFunctions.cpp"
 #include "MatrixMathFunctions.cpp"
-#include "MatrixMathHelperFunctions.cpp"
+#include "MatrixCUDACallFunctions.cpp"
 
 namespace math {
     template <typename T>

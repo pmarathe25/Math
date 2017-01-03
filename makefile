@@ -28,14 +28,15 @@ $(TESTDIR)/MathTest: $(TESTOBJS) $(LIBDIR)/Math/libmath.so
 $(BUILDDIR)/MathTest.o: $(TESTDIR)/MathTest.cpp $(INCLUDEDIR)/Math/Matrix.hpp $(LIBDIR)/Math/libmath.so
 	$(CXX) $(CFLAGS) $(TESTDIR)/MathTest.cpp -o $(BUILDDIR)/MathTest.o
 
-$(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEDIR)/Math/MathParser.hpp $(INCLUDEDIR)/Math/Math.hpp $(INCLUDEDIR)/Text/strmanip.hpp
+$(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEDIR)/Math/MathParser.hpp $(INCLUDEDIR)/Math/Math.hpp \
+	$(INCLUDEDIR)/Text/strmanip.hpp
 	$(CXX) $(CFLAGS) $(SRCDIR)/MathParser.cpp -o $(BUILDDIR)/MathParser.o
 
 $(BUILDDIR)/Math.o: $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Math.cu
 	$(CXX) $(CFLAGS) $(SRCDIR)/Math.cu -o $(BUILDDIR)/Math.o
 
-$(BUILDDIR)/Matrix.o: $(INCLUDEDIR)/Math/Matrix.hpp $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Matrix.cu $(SRCDIR)/MatrixMathFunctions.cpp $(SRCDIR)/MatrixCUDAFunctions.cu
-	$(SRCDIR)/MatrixCPUFunctions.cpp $(SRCDIR)/MatrixMathHelperFunctions.cpp
+$(BUILDDIR)/Matrix.o: $(INCLUDEDIR)/Math/Matrix.hpp $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Matrix.cu $(SRCDIR)/MatrixMathFunctions.cpp \
+	$(SRCDIR)/MatrixCUDAFunctions.cu $(SRCDIR)/MatrixCPUFunctions.cpp $(SRCDIR)/MatrixCUDACallFunctions.cpp
 	$(CXX) $(CFLAGS) $(SRCDIR)/Matrix.cu -o $(BUILDDIR)/Matrix.o
 
 clean:
