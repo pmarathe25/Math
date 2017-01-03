@@ -171,7 +171,7 @@ namespace math {
         if (!isVector() && other.isVector() && (numColumns() == other.numColumns() || numRows() == other.numRows())) {
             return matrixTiledArithmetic(other, DIFFERENCE);
         } else if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be added.");
+            throw std::invalid_argument("Incompatible matrices cannot be subtracted.");
         } else if (sizeRaw() < CPU_SATURATION_LIMIT) {
             // For small vectors, use CPU.
             return CPUDifference(other);

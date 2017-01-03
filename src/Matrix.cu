@@ -233,6 +233,7 @@ namespace math {
                     outFile << std::fixed << std::setprecision(precision) << elements[row + col] << ",";
                 }
             }
+            outFile << std::endl;
         } else {
             throw std::invalid_argument("Could not open file.");
         }
