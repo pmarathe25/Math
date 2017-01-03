@@ -51,6 +51,7 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose * toTranspose * toTranspose);
     std::cout << std::endl;
+    std::cout << "GET ELEMENTS" << std::endl;
     math::display(toTranspose2.getElements());
     std::cout << std::endl;
     math::display(toTranspose2 - toTranspose2);
@@ -60,23 +61,29 @@ int main() {
     math::display(toTranspose2 - 1.5 * test);
     std::cout << "Dot product." << std::endl;
     // Test File I/O.
-    math::Matrix<double> rnd = math::Matrix<double>(1, 15);
-    rnd.randomizeUniform(-100, 100);
+    math::Matrix<double> rnd = math::Matrix<double>(5, 40);
+    std::cout << "WRITING MATRIX" << std::endl;
+    rnd.randomizeUniform(-1, 1);
+    math::display(rnd);
     std::ofstream saveFile("test/matrix");
     rnd.write(saveFile);
     saveFile.close();
+    std::cout << "READING MATRIX" << std::endl;
     math::Matrix<double> rndRead;
     std::ifstream readFile("test/matrix");
     rndRead.read(readFile);
     readFile.close();
-    math::display(rnd);
     math::display(rndRead);
     // Equality test.
     math::Matrix<int> equalTest = math::Matrix<int>(4, 4);
     math::Matrix<int> equalTest2 = math::Matrix<int>(4, 4);
+    equalTest.at(0) = 1;
+    equalTest2.at(0) = 0;
     std::cout << std::endl;
     if (equalTest == equalTest2) {
         std::cout << "Success! Matrices are equal!" << std::endl;
+    } else {
+        std::cout << "Matrices are NOT equal!" << std::endl;
     }
     std::cout << std::endl;
     // Vector testing.
