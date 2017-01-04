@@ -55,7 +55,7 @@ namespace math {
             int i = 0;
             for (int row = 0; row < size(); row += numColumns()) {
                 for (int col = 0; col < numColumns(); ++col) {
-                    output[row + col] = (*this)[row + col] - other[row];
+                    output[row + col] = (*this)[row + col] - other[i];
                 }
             }
             ++i;
