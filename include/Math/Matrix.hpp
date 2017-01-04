@@ -61,6 +61,7 @@ namespace math {
             void randomizeUniform(T lowerBound = 0, T upperBound = 1);
             Matrix transpose();
             Matrix hadamard(const Matrix& other) const;
+            Matrix kronecker(const Matrix& other) const;
             Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;
@@ -82,6 +83,7 @@ namespace math {
             Matrix CPUScalarProduct(T other) const;
             Matrix CPUDotProduct(const Matrix& other) const;
             Matrix CPUHadamardProduct(const Matrix<T>& other) const;
+            Matrix CPUKroneckerProduct(const Matrix<T>& other) const;
             Matrix matrixArithmetic(const Matrix<T>& other, opMode mode) const;
             Matrix matrixTiledArithmetic(const Matrix<T>& other, opMode mode) const;
             Matrix scalarArithmetic(T other, opMode mode) const;

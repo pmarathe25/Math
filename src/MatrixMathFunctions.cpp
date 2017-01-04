@@ -3,6 +3,14 @@
 
 namespace math {
     template <typename T>
+    Matrix<T> Matrix<T>::kronecker(const Matrix& other) const {
+        if (!isVector()) {
+            throw std::invalid_argument("Kronecker product is currently only supported for vectors.");
+        }
+        return CPUKroneckerProduct(other);    
+    }
+
+    template <typename T>
     Matrix<T> Matrix<T>::hadamard(const Matrix& other) const {
         if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");

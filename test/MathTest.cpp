@@ -172,7 +172,11 @@ int main() {
     std::cout << std::endl;
     duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
     std::cout << duration << std::endl;
-    math::display(toTranspose3.transpose());
+    double someDouble = 2.0;
+    math::display(toTranspose3 * someDouble);
     std::cout << std::endl;
     math::display(toTranspose3);
+    std::cout << std::endl;
+    math::Matrix<double> newVec = math::Matrix<double>({1, 2, 3});
+    math::display(newVec.kronecker(newVec));
 }

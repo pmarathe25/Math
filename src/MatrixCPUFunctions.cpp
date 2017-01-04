@@ -130,6 +130,17 @@ namespace math {
         return output;
     }
 
+    template <typename T>
+    Matrix<T> Matrix<T>::CPUKroneckerProduct(const Matrix<T>& other) const {
+        Matrix output = Matrix(size(), other.size());
+        for (int i = 0; i < size(); ++i) {
+            for (int j = 0; j < other.size(); ++j) {
+                output[i * other.size() + j] = (*this)[i] * other[j];
+            }
+        }
+        return output;
+    }
+
 }
 
 #endif
