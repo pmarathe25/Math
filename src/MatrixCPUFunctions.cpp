@@ -103,6 +103,15 @@ namespace math {
         return output;
     }
 
+    template <typename T>
+    Matrix<T> Matrix<T>::CPUHadamardProduct(const Matrix<T>& other) const {
+        Matrix output = Matrix(numRows(), numColumns());
+        for (int i = 0; i < size(); ++i) {
+            output[i] = (*this)[i] * other[i];
+        }
+        return output;
+    }
+
 }
 
 #endif

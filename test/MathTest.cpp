@@ -157,7 +157,9 @@ int main() {
     // rnd2.transpose();
     // std::cout << "SUBTRACTION" << std::endl;
     // math::display(toTranspose);
-    // math::display(toTranspose - rnd2.transpose());
+    // math::display(toTranspose);
+    // math::display(hadamardTest);
+    math::display(toTranspose3.hadamard(toTranspose3));
     // std::cout << "MATRIX MULTIPLICATION" << std::endl;
     // math::display(toTranspose);
     // t1 = std::chrono::high_resolution_clock::now();

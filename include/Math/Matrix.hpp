@@ -16,6 +16,7 @@ namespace math {
                 SUM = 0,
                 DIFFERENCE,
                 SCALAR_PRODUCT,
+                HADAMARD_PRODUCT,
             };
             // Constructors.
             void init(int rows, int cols);
@@ -59,6 +60,7 @@ namespace math {
             void randomizeNormal(T mean = 0, T stdDev = 1);
             void randomizeUniform(T lowerBound = 0, T upperBound = 1);
             Matrix& transpose();
+            Matrix hadamard(const Matrix& other) const;
             Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;
@@ -75,6 +77,7 @@ namespace math {
             Matrix CPUDifference(const Matrix& other) const;
             Matrix CPUScalarProduct(T other) const;
             Matrix CPUDotProduct(const Matrix& other) const;
+            Matrix CPUHadamardProduct(const Matrix<T>& other) const;
             Matrix matrixArithmetic(const Matrix<T>& other, opMode mode) const;
             Matrix matrixTiledArithmetic(const Matrix<T>& other, opMode mode) const;
             Matrix scalarArithmetic(T other, opMode mode) const;

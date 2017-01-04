@@ -3,6 +3,17 @@
 
 namespace math {
     template <typename T>
+    Matrix<T> Matrix<T>::hadamard(const Matrix& other) const {
+        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
+            throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");
+        } else if (size() < CPU_SATURATION_LIMIT) {
+            return CPUHadamardProduct(other);
+        }
+        Matrix<T> output = Matrix<T>(numRows(), numColumns());
+        return output;
+    }
+
+    template <typename T>
     Matrix<T> Matrix<T>::dot(const Matrix& other) const {
         if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be dotted.");

@@ -54,6 +54,9 @@ namespace math {
             case DIFFERENCE:
                 computeDifference<<<blocks, threads>>>(dev_A, dev_B, size());
                 break;
+            case HADAMARD_PRODUCT:
+                computeHadamardProduct<<<blocks, threads>>>(dev_A, dev_B, size());
+                break;
         }
         // Get result.
         cudaMemcpy(output.data(), dev_A, rawSize * sizeof(T) , cudaMemcpyDeviceToHost);
