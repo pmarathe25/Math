@@ -172,6 +172,7 @@ int main() {
     std::cout << std::endl;
     duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
     std::cout << duration << std::endl;
-
-
+    math::display(toTranspose3.transpose());
+    std::cout << std::endl;
+    math::display(toTranspose3);
 }

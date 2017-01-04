@@ -59,7 +59,7 @@ namespace math {
             // Computation functions.
             void randomizeNormal(T mean = 0, T stdDev = 1);
             void randomizeUniform(T lowerBound = 0, T upperBound = 1);
-            Matrix& transpose();
+            Matrix transpose();
             Matrix hadamard(const Matrix& other) const;
             Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;

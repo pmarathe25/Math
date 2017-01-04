@@ -3,12 +3,11 @@
 
 namespace math {
     template <typename T>
-    Matrix<T>& Matrix<T>::transpose() {
+    Matrix<T> Matrix<T>::transpose() {
         // For vectors, we only need to flip the dimensions.
+        Matrix<T> out =  Matrix<T>(numColumns(), numRows());
         if (isVector()) {
-            int temp = rows;
-            rows = cols;
-            cols = temp;
+            out.raw() = raw();
         } else {
             int matSize = size();
             // Initialize device copies.
@@ -23,13 +22,12 @@ namespace math {
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
             computeTranspose<<<blocks, threads>>>(dev_original, numRows(), numColumns(), dev_transposed);
             // Get result.
-            init(numColumns(), numRows());
-            cudaMemcpy(data(), dev_transposed, matSize * sizeof(T) , cudaMemcpyDeviceToHost);
+            cudaMemcpy(out.data(), dev_transposed, matSize * sizeof(T) , cudaMemcpyDeviceToHost);
             // Free memory.
             cudaFree(dev_original);
             cudaFree(dev_transposed);
         }
-        return *this;
+        return out;
     }
 
     template <typename T>
