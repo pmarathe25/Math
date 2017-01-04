@@ -26,6 +26,41 @@ namespace math {
     }
 
     template <typename T>
+    Matrix<T> Matrix<T>::dot(const Matrix& other) const {
+        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
+            throw std::invalid_argument("Incompatible matrices cannot be dotted.");
+        } else if (size() < CPU_SATURATION_LIMIT || (typeid(T) == typeid(double) && isVector())) {
+            // For small matrices/double vectors, compute CPU dot product.
+            return CPUDotProduct(other);
+        } else if (isVector()) {
+            // For large vectors, use CUDA.
+            return math::innerProduct(raw(), other.raw());
+        } else {
+            // For matrices, also use CUDA.
+            Matrix output = Matrix(numRows(), 1);
+            int rawSize = size();
+            // Initialize device copies.
+            T *dev_A, *dev_B;
+            // Allocate memory for device copies.
+            cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
+            cudaMalloc((void**)&dev_B, rawSize * sizeof(T));
+            // Copy inputs to device.
+            cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_B, other.data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+            // Launch kernel where numThreads = size of matrix.
+            dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
+            dim3 threads(THREADS_PER_BLOCK);
+            computeDotProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns());
+            cudaMemcpy(output.data(), dev_A, output.size() * sizeof(T) , cudaMemcpyDeviceToHost);
+            // Free memory.
+            cudaFree(dev_A);
+            cudaFree(dev_B);
+            // Return.
+            return output;
+        }
+    }
+
+    template <typename T>
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
         if (numColumns() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
@@ -63,41 +98,6 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::dot(const Matrix& other) const {
-        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be dotted.");
-        } else if (size() < CPU_SATURATION_LIMIT || (typeid(T) == typeid(double) && isVector())) {
-            // For small matrices/double vectors, compute CPU dot product.
-            return CPUDotProduct(other);
-        } else if (isVector()) {
-            // For large vectors, use CUDA.
-            return math::innerProduct(raw(), other.raw());
-        } else {
-            // For matrices, also use CUDA.
-            Matrix output = Matrix(numRows(), 1);
-            int rawSize = size();
-            // Initialize device copies.
-            T *dev_A, *dev_B;
-            // Allocate memory for device copies.
-            cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
-            cudaMalloc((void**)&dev_B, rawSize * sizeof(T));
-            // Copy inputs to device.
-            cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
-            cudaMemcpy(dev_B, other.data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
-            // Launch kernel where numThreads = size of matrix.
-            dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
-            dim3 threads(THREADS_PER_BLOCK);
-            computeDotProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns());
-            cudaMemcpy(output.data(), dev_A, output.size() * sizeof(T) , cudaMemcpyDeviceToHost);
-            // Free memory.
-            cudaFree(dev_A);
-            cudaFree(dev_B);
-            // Return.
-            return output;
-        }
-    }
-
-    template <typename T>
     Matrix<T> Matrix<T>::operator*(T other) const  {
         if (size() < CPU_SATURATION_LIMIT) {
             // For small matrices, use CPU.
@@ -111,7 +111,11 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
         if (!isVector() && other.isVector() && (numColumns() == other.numColumns() || numRows() == other.numRows())) {
-            return matrixTiledArithmetic(other, SUM);
+            if (size() < CPU_SATURATION_LIMIT) {
+                return CPUMatrixVectorSum(other);
+            } else {
+                return matrixTiledArithmetic(other, SUM);
+            }
         } else if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
         } else if (size() < CPU_SATURATION_LIMIT) {
@@ -126,7 +130,11 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
         if (!isVector() && other.isVector() && (numColumns() == other.numColumns() || numRows() == other.numRows())) {
-            return matrixTiledArithmetic(other, DIFFERENCE);
+            if (size() < CPU_SATURATION_LIMIT) {
+                return CPUMatrixVectorDifference(other);
+            } else {
+                return matrixTiledArithmetic(other, DIFFERENCE);
+            }
         } else if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be subtracted.");
         } else if (size() < CPU_SATURATION_LIMIT) {

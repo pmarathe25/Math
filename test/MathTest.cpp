@@ -156,7 +156,7 @@ int main() {
     rnd2.randomizeNormal(1, 0);
     // rnd2.transpose();
     std::cout << "SUBTRACTION" << std::endl;
-    math::display(toTranspose + rnd2);
+    math::display(toTranspose + rnd2.transpose());
     // std::cout << "MATRIX MULTIPLICATION" << std::endl;
     // math::display(toTranspose);
     // t1 = std::chrono::high_resolution_clock::now();

@@ -12,10 +12,6 @@ namespace math {
     template <typename T>
     class Matrix {
         public:
-            enum randMode {
-                UNIFORM = 0,
-                NORMAL,
-            };
             enum opMode {
                 SUM = 0,
                 DIFFERENCE,
@@ -63,17 +59,19 @@ namespace math {
             void randomizeNormal(T mean = 0, T stdDev = 1);
             void randomizeUniform(T lowerBound = 0, T upperBound = 1);
             Matrix& transpose();
+            Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;
             Matrix operator+(const Matrix& other) const;
             Matrix operator-(const Matrix& other) const;
-            Matrix dot(const Matrix& other) const;
         private:
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols, matrixSize;
             bool isVec = false;
             // Internal functions.
             Matrix CPUSum(const Matrix& other) const;
+            Matrix CPUMatrixVectorSum(const Matrix& other) const;
+            Matrix CPUMatrixVectorDifference(const Matrix& other) const;
             Matrix CPUDifference(const Matrix& other) const;
             Matrix CPUScalarProduct(T other) const;
             Matrix CPUDotProduct(const Matrix& other) const;
