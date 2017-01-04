@@ -116,14 +116,14 @@ int main() {
     std::cout << duration << std::endl;
     std::cout << std::endl;
     // Sum.
-    std::cout << "DOT PRODUCT" << std::endl;
-    t1 = std::chrono::high_resolution_clock::now();
-    math::display(toTranspose.dot(toTranspose));
-    t2 = std::chrono::high_resolution_clock::now();
-    std::cout << std::endl;
-    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-    std::cout << duration << std::endl;
-    std::cout << std::endl;
+    // std::cout << "DOT PRODUCT" << std::endl;
+    // t1 = std::chrono::high_resolution_clock::now();
+    // math::display(toTranspose.dot(toTranspose));
+    // t2 = std::chrono::high_resolution_clock::now();
+    // std::cout << std::endl;
+    // duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+    // std::cout << duration << std::endl;
+    // std::cout << std::endl;
     // I/O.
     std::cout << "WRITING MATRIX" << std::endl;
     std::ofstream saveFile("test/matrix");
@@ -156,7 +156,8 @@ int main() {
     rnd2.randomizeNormal(1, 0);
     // rnd2.transpose();
     std::cout << "SUBTRACTION" << std::endl;
-    math::display(toTranspose - rnd2);
+    // math::display(toTranspose);
+    math::display(toTranspose - rnd2.transpose());
     // std::cout << "MATRIX MULTIPLICATION" << std::endl;
     // math::display(toTranspose);
     // t1 = std::chrono::high_resolution_clock::now();

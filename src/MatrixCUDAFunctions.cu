@@ -2,13 +2,12 @@
 #define MATRIX_CUDA_FUNCTIONS
 
 namespace math {
-    template <typename T>
-    __global__ void computeTranspose(T* original, int numRows, int numCols, int size, T* transposed) {
-        int x = blockIdx.y * blockDim.y + threadIdx.x;
-        int y = blockIdx.x * blockDim.x + threadIdx.y;
-        int threadIndex = threadIdx.y - threadIdx.x;
+    template<typename T>
+    __global__ void computeTranspose(T* original, int numRows, int numCols, T* transposed) {
+        int x = blockIdx.y * BLOCK_DIM + threadIdx.x;
+        int y = blockIdx.x * BLOCK_DIM + threadIdx.y;
         if (x < numCols && y < numRows) {
-          transposed[x * numRows + y] = original[(x + threadIndex) * numCols + (y - threadIndex)];
+            transposed[x * numRows + y] = original[y * numCols + x];
         }
     }
 

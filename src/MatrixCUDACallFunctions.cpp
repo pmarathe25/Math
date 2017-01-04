@@ -21,7 +21,7 @@ namespace math {
             // Launch kernel with only as many blocks as necessary.
             dim3 blocks(std::ceil(numRows() / (float) BLOCK_DIM), std::ceil(numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
-            computeTranspose<<<blocks, threads>>>(dev_original, numRows(), numColumns(), matSize, dev_transposed);
+            computeTranspose<<<blocks, threads>>>(dev_original, numRows(), numColumns(), dev_transposed);
             // Get result.
             init(numColumns(), numRows());
             cudaMemcpy(data(), dev_transposed, matSize * sizeof(T) , cudaMemcpyDeviceToHost);

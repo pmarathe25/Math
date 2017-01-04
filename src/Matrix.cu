@@ -2,6 +2,9 @@
 #include "Text/strmanip.hpp"
 #include <iostream>
 #include <iomanip>
+#include <random>
+#include <chrono>
+#include <typeinfo>
 // Include matrix functions.
 #include "MatrixCUDAFunctions.cu"
 #include "MatrixCPUFunctions.cpp"
