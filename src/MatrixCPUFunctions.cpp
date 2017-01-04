@@ -32,6 +32,15 @@ namespace math {
     }
 
     template <typename T>
+    Matrix<T> Matrix<T>::CPUSum(T other) const {
+        Matrix output = Matrix(numRows(), numColumns());
+        for (int i = 0; i < size(); ++i) {
+            output[i] = (*this)[i] + other;
+        }
+        return output;
+    }
+
+    template <typename T>
     Matrix<T> Matrix<T>::CPUMatrixVectorSum(const Matrix<T>& other) const {
         Matrix<T> output = Matrix<T>(numRows(), numColumns());
         if (other.numRows() == 1) {
@@ -58,6 +67,15 @@ namespace math {
         Matrix output = Matrix(numRows(), numColumns());
         for (int i = 0; i < size(); ++i) {
             output[i] = (*this)[i] - other[i];
+        }
+        return output;
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::CPUDifference(T other) const {
+        Matrix output = Matrix(numRows(), numColumns());
+        for (int i = 0; i < size(); ++i) {
+            output[i] = (*this)[i] - other;
         }
         return output;
     }

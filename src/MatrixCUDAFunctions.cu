@@ -57,6 +57,22 @@ namespace math {
     }
 
     template <typename T>
+    __global__ void computeScalarSum(T* A, T B, int Asize) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            A[index] = A[index] + B;
+        }
+    }
+
+    template <typename T>
+    __global__ void computeScalarDifference(T* A, T B, int Asize) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            A[index] = A[index] - B;
+        }
+    }
+
+    template <typename T>
     __global__ void computeDotProduct(T* A, T* B, int numRows, int numCols) {
         int row = blockIdx.x * blockDim.x + threadIdx.x;
         if (row < numRows) {

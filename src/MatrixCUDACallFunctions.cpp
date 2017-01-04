@@ -121,6 +121,12 @@ namespace math {
         dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
         switch (mode) {
+            case SUM:
+                computeScalarSum<<<blocks, threads>>>(dev_A, other, size());
+                break;
+            case DIFFERENCE:
+                computeScalarDifference<<<blocks, threads>>>(dev_A, other, size());
+                break;
             case SCALAR_PRODUCT:
                 computeScalarProduct<<<blocks, threads>>>(dev_A, other, size());
                 break;

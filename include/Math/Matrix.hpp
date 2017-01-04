@@ -65,16 +65,20 @@ namespace math {
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;
             Matrix operator+(const Matrix& other) const;
+            Matrix operator+(T other) const;
             Matrix operator-(const Matrix& other) const;
+            Matrix operator-(T other) const;
         private:
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols, matrixSize;
             bool isVec = false;
             // Internal functions.
             Matrix CPUSum(const Matrix& other) const;
+            Matrix CPUSum(T other) const;
             Matrix CPUMatrixVectorSum(const Matrix& other) const;
             Matrix CPUMatrixVectorDifference(const Matrix& other) const;
             Matrix CPUDifference(const Matrix& other) const;
+            Matrix CPUDifference(T other) const;
             Matrix CPUScalarProduct(T other) const;
             Matrix CPUDotProduct(const Matrix& other) const;
             Matrix CPUHadamardProduct(const Matrix<T>& other) const;
@@ -93,6 +97,11 @@ namespace math {
     template <typename T, typename O>
     Matrix<T> operator*(O other, const Matrix<T>& A) {
         return A * other;
+    }
+
+    template <typename T, typename O>
+    Matrix<T> operator-(O other, const Matrix<T>& A) {
+        return (A * -1) + other;
     }
 
     template <typename T>

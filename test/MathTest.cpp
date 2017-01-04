@@ -55,9 +55,9 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose2 - toTranspose2);
     std::cout << std::endl;
-    math::display(1.5 * test + toTranspose2);
+    math::display((test * 1.5) + toTranspose2);
     std::cout << std::endl;
-    math::display(toTranspose2 - 1.5 * test);
+    math::display(toTranspose2 - (1.5 * test));
     std::cout << "Dot product." << std::endl;
     // Test File I/O.
     math::Matrix<double> rndRead;
@@ -159,17 +159,19 @@ int main() {
     // math::display(toTranspose);
     // math::display(toTranspose);
     // math::display(hadamardTest);
-    math::display(toTranspose3.hadamard(toTranspose3));
-    // std::cout << "MATRIX MULTIPLICATION" << std::endl;
-    // math::display(toTranspose);
-    // t1 = std::chrono::high_resolution_clock::now();
-    // math::display(toTranspose * toTranspose);
-    // t2 = std::chrono::high_resolution_clock::now();
-    // // math::display(rndRead);
-    // // End timing
-    // std::cout << std::endl;
-    // duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-    // std::cout << duration << std::endl;
+    std::cout << std::endl;
+    std::cout << "HADAMARD PRODUCT" << std::endl;
+    math::display(1 - toTranspose3.hadamard(toTranspose3));
+    std::cout << std::endl;
+    std::cout << "MATRIX MULTIPLICATION" << std::endl;
+    t1 = std::chrono::high_resolution_clock::now();
+    math::display(toTranspose * toTranspose);
+    t2 = std::chrono::high_resolution_clock::now();
+    // math::display(rndRead);
+    // End timing
+    std::cout << std::endl;
+    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+    std::cout << duration << std::endl;
 
 
 }

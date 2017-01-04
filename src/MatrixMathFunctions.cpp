@@ -97,6 +97,24 @@ namespace math {
     }
 
     template <typename T>
+    Matrix<T> Matrix<T>::operator+(T other) const {
+        if (size() < CPU_SATURATION_LIMIT) {
+            return CPUSum(other);
+        } else {
+            return scalarArithmetic(other, SUM);
+        }
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::operator-(T other) const {
+        if (size() < CPU_SATURATION_LIMIT) {
+            return CPUDifference(other);
+        } else {
+            return scalarArithmetic(other, DIFFERENCE);
+        }
+    }
+
+    template <typename T>
     Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
         if (!isVector() && other.isVector() && (numColumns() == other.numColumns() || numRows() == other.numRows())) {
             if (size() < CPU_SATURATION_LIMIT) {
