@@ -11,7 +11,7 @@ int main() {
     // math::MathParser parser = math::MathParser();
     // parser.addUnaryOperator("++", &postIncrement);
     // std::cout << parser.parse("1++*(3++!)++/9*4++-1+++++3") << std::endl;
-    math::Matrix<float> mat = math::Matrix<float>({{0, 1}, {2, 3}, {4, 5}});
+    math::Matrix<float> mat = math::Matrix<float>({{0, 1, 0}, {0, 2, 3}});
     math::Matrix<float> other = math::Matrix<float>({0, 1, 2, 3, 4, 5}, 2, 3);
     int testSize = 40;
     math::Matrix<double> toTranspose = math::Matrix<double>(testSize, testSize);
@@ -34,7 +34,7 @@ int main() {
     std::cout << std::endl;
     math::display(other);
     std::cout << std::endl;
-    math::display(mat * other);
+    // math::display(mat * other);
     std::cout << std::endl;
     math::display(toTranspose);
     std::cout << std::endl;

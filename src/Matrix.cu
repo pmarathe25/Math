@@ -64,12 +64,10 @@ namespace math {
         this -> rows = initialElements.size();
         this -> cols = initialElements.at(0).size();
         init(rows, cols);
-        int rowInitial = 0;
-        for (int row = 0; row < rows * numColumns(); row += numColumns()) {
+        for (int row = 0; row < rows; ++row) {
             for (int col = 0; col < cols; ++col) {
-                elements[row + col] = initialElements[rowInitial][col];
+                elements.push_back(initialElements[row][col]);
             }
-            ++rowInitial;
         }
     }
 
