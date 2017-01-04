@@ -179,4 +179,6 @@ int main() {
     std::cout << std::endl;
     math::Matrix<double> newVec = math::Matrix<double>({1, 2, 3});
     math::display(newVec.kronecker(newVec));
+    std::cout << std::endl;
+    math::display(toTranspose.rowMean());
 }

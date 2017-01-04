@@ -3,6 +3,17 @@
 
 namespace math {
     template <typename T>
+    Matrix<T> Matrix<T>::CPURowMean(double scaleFactor) const {
+        Matrix output = Matrix(1, numColumns());
+        for (int row = 0; row < size(); row += numColumns()) {
+            for (int col = 0; col < numColumns(); ++col) {
+                output[col] += (*this)[row + col] * scaleFactor;
+            }
+        }
+        return output;
+    }
+
+    template <typename T>
     void Matrix<T>::randomizeNormal(T mean, T stdDev) {
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());

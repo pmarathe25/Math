@@ -17,6 +17,7 @@ namespace math {
                 DIFFERENCE,
                 SCALAR_PRODUCT,
                 HADAMARD_PRODUCT,
+                MEAN,
             };
             // Constructors.
             void init(int rows, int cols);
@@ -60,6 +61,7 @@ namespace math {
             void randomizeNormal(T mean = 0, T stdDev = 1);
             void randomizeUniform(T lowerBound = 0, T upperBound = 1);
             Matrix transpose();
+            Matrix rowMean() const;
             Matrix hadamard(const Matrix& other) const;
             Matrix kronecker(const Matrix& other) const;
             Matrix dot(const Matrix& other) const;
@@ -74,6 +76,7 @@ namespace math {
             int rowsRaw, colsRaw, rows, cols, matrixSize;
             bool isVec = false;
             // Internal functions.
+            Matrix CPURowMean(double scaleFactor) const;
             Matrix CPUSum(const Matrix& other) const;
             Matrix CPUSum(T other) const;
             Matrix CPUMatrixVectorSum(const Matrix& other) const;

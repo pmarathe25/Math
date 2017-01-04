@@ -3,11 +3,24 @@
 
 namespace math {
     template <typename T>
+    Matrix<T> Matrix<T>::rowMean() const {
+        if (numRows() == 1) {
+            return (*this);
+        }
+        double scaleFactor = 1 / (double) numRows();
+        if (size() < CPU_SATURATION_LIMIT) {
+            return CPURowMean(scaleFactor);
+        } else {
+            return scalarArithmetic(scaleFactor, MEAN).row(0);
+        }
+    }
+
+    template <typename T>
     Matrix<T> Matrix<T>::kronecker(const Matrix& other) const {
         if (!isVector()) {
             throw std::invalid_argument("Kronecker product is currently only supported for vectors.");
         }
-        return CPUKroneckerProduct(other);    
+        return CPUKroneckerProduct(other);
     }
 
     template <typename T>

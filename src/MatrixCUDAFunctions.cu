@@ -57,6 +57,19 @@ namespace math {
     }
 
     template <typename T>
+    __global__ void computeRowMean(T* A, T B, int numRows, int numCols, int size) {
+        int col = blockIdx.x * blockDim.x + threadIdx.x;
+        T mean = T();
+        if (col < numCols) {
+            for (int i = 0; i < size; i += numCols) {
+                mean += A[i + col] * B;
+            }
+        }
+        __syncthreads();
+        A[col] = mean;
+    }
+
+    template <typename T>
     __global__ void computeScalarSum(T* A, T B, int Asize) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {

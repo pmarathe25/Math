@@ -128,6 +128,9 @@ namespace math {
             case SCALAR_PRODUCT:
                 computeScalarProduct<<<blocks, threads>>>(dev_A, other, size());
                 break;
+            case MEAN:
+                computeRowMean<<<blocks, threads>>>(dev_A, other, numRows(), numColumns(), size());
+                break;
         }
         // Get result.
         cudaMemcpy(product.data(), dev_A, rawSize * sizeof(T) , cudaMemcpyDeviceToHost);
