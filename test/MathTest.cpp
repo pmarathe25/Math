@@ -153,11 +153,11 @@ int main() {
     duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
     std::cout << duration << std::endl;
     math::Matrix<double> rnd2 = math::Matrix<double>(1, 40);
-    rnd2.randomizeNormal(1, 0);
+    rnd2.randomizeUniform();
     // rnd2.transpose();
-    std::cout << "SUBTRACTION" << std::endl;
+    // std::cout << "SUBTRACTION" << std::endl;
     // math::display(toTranspose);
-    math::display(toTranspose - rnd2.transpose());
+    // math::display(toTranspose - rnd2.transpose());
     // std::cout << "MATRIX MULTIPLICATION" << std::endl;
     // math::display(toTranspose);
     // t1 = std::chrono::high_resolution_clock::now();
