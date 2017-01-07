@@ -36,14 +36,14 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::dot(const Matrix& other) const {
-        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be dotted.");
-        } else if (size() < CPU_SATURATION_LIMIT || (typeid(T) == typeid(double) && isVector())) {
+         if (size() < CPU_SATURATION_LIMIT || (typeid(T) == typeid(double) && isVector())) {
             // For small matrices/double vectors, compute CPU dot product.
             return CPUDotProduct(other);
         } else if (isVector()) {
             // For large vectors, use CUDA.
             return math::innerProduct(raw(), other.raw());
+        } else if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
+           throw std::invalid_argument("Incompatible matrices cannot be dotted.");
         } else {
             // For matrices, also use CUDA.
             Matrix output = Matrix(numRows(), 1);
@@ -73,7 +73,7 @@ namespace math {
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
         if (numColumns() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
-        } else if (isVector() && other.isVector()) {
+        } else if (isVector() && other.isVector() && numRows() == other.numRows() && numColumns() == other.numColumns()) {
             // If both are vectors, we just need to return the dot product.
             return dot(other);
         } else {
@@ -137,7 +137,8 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
-        if (!isVector() && other.isVector() && (numColumns() == other.numColumns() || numRows() == other.numRows())) {
+        if (!isVector() && other.isVector() && (numColumns() == other.numColumns() || numRows() == other.numRows()) || other.isVector() &&
+            (numColumns() != other.numColumns() || numRows() != other.numRows()) ) {
             if (size() < CPU_SATURATION_LIMIT) {
                 return CPUMatrixVectorSum(other);
             } else {
@@ -156,7 +157,8 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
-        if (!isVector() && other.isVector() && (numColumns() == other.numColumns() || numRows() == other.numRows())) {
+        if (!isVector() && other.isVector() && (numColumns() == other.numColumns() || numRows() == other.numRows()) || other.isVector() &&
+            (numColumns() != other.numColumns() || numRows() != other.numRows()) ) {
             if (size() < CPU_SATURATION_LIMIT) {
                 return CPUMatrixVectorDifference(other);
             } else {

@@ -124,10 +124,8 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::CPUDotProduct(const Matrix<T>& other) const {
         Matrix<T> output = Matrix<T>(numRows(), 1);
-        for (int row = 0; row < numRows(); ++row) {
-            for (int col = 0; col < numColumns(); ++col) {
-                output[row] += (*this)[col] * other[col];
-            }
+        for (int i = 0; i < size(); ++i) {
+            output[i] += (*this)[i] * other[i];
         }
         return output;
     }
