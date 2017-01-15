@@ -11,7 +11,7 @@ namespace math {
         if (size() < CPU_SATURATION_LIMIT) {
             return CPURowMean(scaleFactor);
         } else {
-            return scalarArithmetic(scaleFactor, MEAN).row(0);
+            return scalarArithmetic(scaleFactor, ROW_MEAN).row(0);
         }
     }
 

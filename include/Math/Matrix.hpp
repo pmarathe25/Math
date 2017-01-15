@@ -17,7 +17,7 @@ namespace math {
                 DIFFERENCE,
                 SCALAR_PRODUCT,
                 HADAMARD_PRODUCT,
-                MEAN,
+                ROW_MEAN,
             };
             // Constructors.
             void init(int rows, int cols);
@@ -47,6 +47,12 @@ namespace math {
             const T* data() const;
             std::vector<T>& raw();
             const std::vector<T>& raw() const;
+            // GPU data management functions.
+            T* dataGPU();
+            const T* dataGPU() const;
+            void updateGPUCopy() const;
+            void updateGPUCopy(const Matrix& other) const;
+            bool isGPUCopyOld() const;
             // User-facing getter functions.
             int numRows() const;
             int numColumns() const;
@@ -75,6 +81,8 @@ namespace math {
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols, matrixSize;
             bool isVec = false;
+            bool updateGPU = true;
+            T* GPUPointer;
             // Internal functions.
             Matrix CPURowMean(double scaleFactor) const;
             Matrix CPUSum(const Matrix& other) const;

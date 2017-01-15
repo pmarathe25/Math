@@ -26,8 +26,8 @@ $(BINDIR)/MathParse: $(EXECOBJS) $(LIBDIR)/Math/libmath.so
 $(BUILDDIR)/MathParse.o: $(SRCDIR)/MathParse.cpp $(LIBDIR)/Math/libmath.so
 	$(CXX) $(CFLAGS) $(SRCDIR)/MathParse.cpp -o $(BUILDDIR)/MathParse.o
 
-$(TESTDIR)/MathTest: $(TESTOBJS) $(LIBDIR)/Math/libmath.so
-	$(CXX) $(TESTLFLAGS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so -o $(TESTDIR)/MathTest
+$(TESTDIR)/MathTest: $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(LIBDIR)/Math/libmath.so
+	$(CXX) $(TESTLFLAGS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(LIBDIR)/Math/libmatrix.so -o $(TESTDIR)/MathTest
 
 $(BUILDDIR)/MathTest.o: $(TESTDIR)/MathTest.cpp $(INCLUDEDIR)/Math/Matrix.hpp $(LIBDIR)/Math/libmath.so
 	$(CXX) $(CFLAGS) $(TESTDIR)/MathTest.cpp -o $(BUILDDIR)/MathTest.o

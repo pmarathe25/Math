@@ -128,7 +128,7 @@ namespace math {
             case SCALAR_PRODUCT:
                 computeScalarProduct<<<blocks, threads>>>(dev_A, other, size());
                 break;
-            case MEAN:
+            case ROW_MEAN:
                 computeRowMean<<<blocks, threads>>>(dev_A, other, numRows(), numColumns(), size());
                 break;
         }
