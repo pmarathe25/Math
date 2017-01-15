@@ -13,8 +13,12 @@ LFLAGS = -shared -Wno-deprecated-gpu-targets
 TESTLFLAGS = -Wno-deprecated-gpu-targets
 EXECLFLAGS = -Wno-deprecated-gpu-targets
 
-$(LIBDIR)/Math/libmath.so: $(OBJS) $(LIBDIR)/Text/libtext.so
-	$(CXX) $(LFLAGS) $(OBJS) $(LIBDIR)/Text/libtext.so -o $(LIBDIR)/Math/libmath.so
+
+$(LIBDIR)/Math/libmath.so: $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o $(LIBDIR)/Text/libtext.so
+	$(CXX) $(LFLAGS) $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o $(LIBDIR)/Text/libtext.so -o $(LIBDIR)/Math/libmath.so
+
+$(LIBDIR)/Math/libmatrix.so: $(BUILDDIR)/Matrix.o $(LIBDIR)/Text/libtext.so
+	$(CXX) $(LFLAGS) $(BUILDDIR)/Matrix.o $(LIBDIR)/Text/libtext.so -o $(LIBDIR)/Math/libmatrix.so
 
 $(BINDIR)/MathParse: $(EXECOBJS) $(LIBDIR)/Math/libmath.so
 	$(CXX) $(EXECLFLAGS) $(EXECOBJS) $(LIBDIR)/Math/libmath.so -o $(BINDIR)/MathParse
@@ -46,3 +50,7 @@ test: $(TESTDIR)/MathTest
 	$(TESTDIR)/MathTest
 
 exec: $(BINDIR)/MathParse
+
+libmatrix: $(LIBDIR)/Math/libmatrix.so
+
+libmath: $(LIBDIR)/Math/libmath.so
