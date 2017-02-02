@@ -192,7 +192,6 @@ namespace math {
     template <typename T>
     void Matrix<T>::updateCPUCopy() {
         if (!isGPUCopyOld()) {
-            std::cout << "Updating CPU Copy" << std::endl;
             cudaMemcpy(elements.data(), GPUPointer, size() * sizeof(T) , cudaMemcpyDeviceToHost);
             updateGPU = true;
         }
