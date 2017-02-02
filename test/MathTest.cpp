@@ -27,5 +27,6 @@ int main() {
         toTranspose3.at(i) = i;
     }
     toTranspose.display();
-
+    toTranspose2.display();
+    toTranspose3.display();
 }
