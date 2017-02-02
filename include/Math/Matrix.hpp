@@ -12,12 +12,6 @@ namespace math {
     template <typename T>
     class Matrix {
         public:
-            enum opMode {
-                SUM = 0,
-                DIFFERENCE,
-                HADAMARD_PRODUCT,
-            };
-            // Constructors.
             void init(int rows, int cols);
             Matrix();
             Matrix(T elem);
@@ -25,7 +19,6 @@ namespace math {
             Matrix(const std::vector<T>& initialElements);
             Matrix(const std::vector<T>& initialElements, int rows, int cols);
             Matrix(const std::vector<std::vector<T> >& initialElements);
-            Matrix(const Matrix<T>& other);
             ~Matrix();
             // Indexing functions.
             T& at(int row, int col);
@@ -38,15 +31,6 @@ namespace math {
             // Raw data functions.
             T* data();
             const T* data() const;
-            std::vector<T>& raw();
-            const std::vector<T>& raw() const;
-            // GPU data management functions.
-            T* dataGPU();
-            const T* dataGPU() const;
-            void updateGPUCopy() const;
-            void updateGPUCopy();
-            void updateCPUCopy(bool update = false);
-            bool isGPUCopyOld() const;
             // User-facing getter functions.
             int numRows() const;
             int numColumns() const;
@@ -54,6 +38,8 @@ namespace math {
             bool isVector() const;
             std::vector<T> row(int row);
             std::vector<T> column(int col);
+            // Display
+            void display() const;
             // File I/O.
             void write(std::ofstream& outFile) const;
             void read(std::ifstream& inFile);
@@ -71,7 +57,7 @@ namespace math {
             Matrix operator-(const Matrix& other) const;
             Matrix operator-(T other) const;
         private:
-            std::vector<T> elements;
+            T* elements;
             int rowsRaw, colsRaw, rows, cols, matrixSize;
             bool isVec = false;
             // Does the GPU pointer need to be updated?
@@ -86,17 +72,10 @@ namespace math {
             Matrix CPUDifference(T other) const;
             Matrix CPUScalarProduct(T other) const;
             Matrix CPUDotProduct(const Matrix& other) const;
-            Matrix matrixArithmetic(const Matrix<T>& other, opMode mode) const;
-            Matrix matrixTiledArithmetic(const Matrix<T>& other, opMode mode) const;
-            Matrix scalarArithmetic(T other, opMode mode) const;
+            Matrix matrixArithmetic(const Matrix<T>& other, int mode) const;
+            Matrix matrixTiledArithmetic(const Matrix<T>& other, int mode) const;
+            Matrix scalarArithmetic(T other, int mode) const;
     };
-
-    template <typename T>
-    void display(Matrix<T> toDisplay) {
-        for (int i = 0; i < toDisplay.numRows(); ++i) {
-            display(toDisplay.row(i));
-        }
-    }
 
     template <typename T, typename O>
     Matrix<T> operator*(O other, const Matrix<T>& A) {

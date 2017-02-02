@@ -18,7 +18,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::matrixArithmetic(const Matrix<T>& other, opMode mode) const {
+    Matrix<T> Matrix<T>::matrixArithmetic(const Matrix<T>& other, int mode) const {
         Matrix output = Matrix(numRows(), numColumns());
         int rawSize = size();
         // Initialize device copies.
@@ -50,7 +50,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::matrixTiledArithmetic(const Matrix<T>& other, opMode mode) const {
+    Matrix<T> Matrix<T>::matrixTiledArithmetic(const Matrix<T>& other, int mode) const {
         Matrix output = Matrix(numRows(), numColumns());
         int rawSize = size();
         // Initialize device copies.
@@ -90,7 +90,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::scalarArithmetic(T other, opMode mode) const {
+    Matrix<T> Matrix<T>::scalarArithmetic(T other, int mode) const {
         Matrix product = Matrix(numRows(), numColumns());
         int rawSize = size();
         // Initialize device copies.
