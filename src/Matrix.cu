@@ -218,7 +218,7 @@ namespace math {
 
     template <typename T>
     std::vector<T> Matrix<T>::row(int row) {
-        updateCPUCopy(true);
+        updateCPUCopy();
         std::vector<T> tempRow;
         tempRow.reserve(numColumns());
         int rowIndex = row * numColumns();
@@ -230,7 +230,7 @@ namespace math {
 
     template <typename T>
     std::vector<T> Matrix<T>::column(int col) {
-        updateCPUCopy(true);
+        updateCPUCopy();
         std::vector<T> tempCol;
         tempCol.reserve(numRows());
         for (int i = 0; i < numRows() * numColumns(); i += numColumns()) {
