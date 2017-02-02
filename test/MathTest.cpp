@@ -166,7 +166,7 @@ int main() {
     // math::display(hadamardTest);
     std::cout << std::endl;
     std::cout << "HADAMARD PRODUCT" << std::endl;
-    math::display(1 - toTranspose3.hadamard(toTranspose3));
+    math::display(toTranspose3.hadamard(toTranspose3));
     std::cout << std::endl;
     std::cout << "MATRIX MULTIPLICATION" << std::endl;
     t1 = std::chrono::high_resolution_clock::now();

@@ -45,9 +45,7 @@ namespace math {
             const T* dataGPU() const;
             void updateGPUCopy() const;
             void updateGPUCopy();
-            void updateGPUCopy(Matrix& other);
-            void updateCPUCopy();
-            void updateCPUCopy(Matrix& other);
+            void updateCPUCopy(bool update = false);
             bool isGPUCopyOld() const;
             // User-facing getter functions.
             int numRows() const;
@@ -64,7 +62,7 @@ namespace math {
             void randomizeUniform(T lowerBound = 0, T upperBound = 1);
             Matrix transpose();
             Matrix rowMean();
-            Matrix hadamard(const Matrix& other) const;
+            Matrix hadamard(Matrix& other);
             Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;

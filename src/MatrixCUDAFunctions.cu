@@ -211,7 +211,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeHadamardProduct(const T* A, const T* B, int Asize, T* C) {
+    __global__ void computeHadamardProduct(T* A, T* B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
             C[index] = A[index] * B[index];

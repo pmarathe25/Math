@@ -94,7 +94,7 @@ namespace math {
     template <typename T>
     T& Matrix<T>::at(int row, int col) {
         if (row < numRows() && col < numColumns()) {
-            updateCPUCopy();
+            updateCPUCopy(true);
             return elements[row * numColumns() + col];
         } else {
             throw std::out_of_range("Index out of range.");
@@ -112,7 +112,7 @@ namespace math {
 
     template <typename T>
     T& Matrix<T>::at(int index) {
-        updateCPUCopy();
+        updateCPUCopy(true);
         return elements.at(index);
     }
 
@@ -124,7 +124,7 @@ namespace math {
     // Unsafe indexing functions.
     template <typename T>
     T& Matrix<T>::operator[](int index) {
-        updateCPUCopy();
+        updateCPUCopy(true);
         return elements[index];
     }
 
@@ -135,7 +135,7 @@ namespace math {
 
     template <typename T>
     T* Matrix<T>::data() {
-        updateCPUCopy();
+        updateCPUCopy(true);
         return elements.data();
     }
 
@@ -146,7 +146,7 @@ namespace math {
 
     template <typename T>
     std::vector<T>& Matrix<T>::raw() {
-        updateCPUCopy();
+        updateCPUCopy(true);
         return elements;
     }
 
@@ -184,23 +184,11 @@ namespace math {
     }
 
     template <typename T>
-    void Matrix<T>::updateGPUCopy(Matrix& other) {
-        updateGPUCopy();
-        other.updateGPUCopy();
-    }
-
-    template <typename T>
-    void Matrix<T>::updateCPUCopy() {
+    void Matrix<T>::updateCPUCopy(bool update) {
         if (!isGPUCopyOld()) {
             cudaMemcpy(elements.data(), GPUPointer, size() * sizeof(T) , cudaMemcpyDeviceToHost);
-            updateGPU = true;
+            updateGPU = update;
         }
-    }
-
-    template <typename T>
-    void Matrix<T>::updateCPUCopy(Matrix& other) {
-        updateCPUCopy();
-        other.updateCPUCopy();
     }
 
     template <typename T>
@@ -230,7 +218,7 @@ namespace math {
 
     template <typename T>
     std::vector<T> Matrix<T>::row(int row) {
-        updateCPUCopy();
+        updateCPUCopy(true);
         std::vector<T> tempRow;
         tempRow.reserve(numColumns());
         int rowIndex = row * numColumns();
@@ -242,7 +230,7 @@ namespace math {
 
     template <typename T>
     std::vector<T> Matrix<T>::column(int col) {
-        updateCPUCopy();
+        updateCPUCopy(true);
         std::vector<T> tempCol;
         tempCol.reserve(numRows());
         for (int i = 0; i < numRows() * numColumns(); i += numColumns()) {

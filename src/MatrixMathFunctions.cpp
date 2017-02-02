@@ -18,7 +18,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::hadamard(const Matrix& other) const {
+    Matrix<T> Matrix<T>::hadamard(Matrix& other) {
         if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");
         } else {
@@ -26,6 +26,7 @@ namespace math {
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
             computeHadamardProduct<<<blocks, threads>>>(dataGPU(), other.dataGPU(), size(), output.dataGPU());
+            output.updateCPUCopy();
             return output;
         }
     }
