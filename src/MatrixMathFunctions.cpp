@@ -7,11 +7,12 @@ namespace math {
         if (numRows() == 1) {
             return (*this);
         } else {
-            float scaleFactor = 1 / (float) numRows();
             Matrix output = Matrix(1, numColumns());
+            float scaleFactor = 1 / (float) numRows();
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeRowMean<<<blocks, threads>>>(dataGPU(), scaleFactor, numRows(), numColumns(), size(), output.dataGPU());
+            computeRowMean<<<blocks, threads>>>(dataGPU(), scaleFactor, numColumns(), size(), output.dataGPU());
+            output.updateCPUCopy();
             return output;
         }
     }

@@ -20,15 +20,14 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeRowMean(T* A, float B, int numRows, int numCols, int size, T* C) {
+    __global__ void computeRowMean(T* A, float B, int numCols, int size, T* C) {
         int col = blockIdx.x * blockDim.x + threadIdx.x;
-        T mean = T();
+        float mean = 0;
         if (col < numCols) {
             for (int i = 0; i < size; i += numCols) {
                 mean += A[i + col] * B;
             }
         }
-        __syncthreads();
         C[col] = mean;
     }
 
