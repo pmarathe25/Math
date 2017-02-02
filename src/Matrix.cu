@@ -19,6 +19,9 @@ namespace math {
         this -> cols = cols;
         this -> matrixSize = rows * cols;
         elements.reserve(rows * cols);
+        // Allocate space on the GPU for this matrix.
+        cudaMalloc((void**)&GPUPointer, matrixSize * sizeof(T));
+        updateGPU = true;
     }
 
     template <typename T>
@@ -71,10 +74,27 @@ namespace math {
         }
     }
 
+    template <typename T>
+    Matrix<T>::Matrix(const Matrix<T>& other) {
+        rows = other.numRows();
+        cols = other.numColumns();
+        init(rows, cols);
+        elements = std::vector<T>(other.raw().begin(), other.raw().end());
+        // Copy GPU data.
+        copy<<<size() / THREADS_PER_BLOCK, THREADS_PER_BLOCK>>>(other.dataGPU(), size(), dataGPU());
+        updateGPU = other.isGPUCopyOld();
+    }
+
+    template <typename T>
+    Matrix<T>::~Matrix() {
+        cudaFree(GPUPointer);
+    }
+
     // Indexing Functions.
     template <typename T>
     T& Matrix<T>::at(int row, int col) {
         if (row < numRows() && col < numColumns()) {
+            updateCPUCopy();
             return elements[row * numColumns() + col];
         } else {
             throw std::out_of_range("Index out of range.");
@@ -92,6 +112,7 @@ namespace math {
 
     template <typename T>
     T& Matrix<T>::at(int index) {
+        updateCPUCopy();
         return elements.at(index);
     }
 
@@ -103,6 +124,7 @@ namespace math {
     // Unsafe indexing functions.
     template <typename T>
     T& Matrix<T>::operator[](int index) {
+        updateCPUCopy();
         return elements[index];
     }
 
@@ -113,6 +135,7 @@ namespace math {
 
     template <typename T>
     T* Matrix<T>::data() {
+        updateCPUCopy();
         return elements.data();
     }
 
@@ -123,12 +146,67 @@ namespace math {
 
     template <typename T>
     std::vector<T>& Matrix<T>::raw() {
+        updateCPUCopy();
         return elements;
     }
 
     template <typename T>
     const std::vector<T>& Matrix<T>::raw() const {
         return elements;
+    }
+
+    template <typename T>
+    T* Matrix<T>::dataGPU() {
+        updateGPUCopy();
+        // We assume that the GPU copy is now more up-to-date than the CPU copy.
+        updateGPU = false;
+        return GPUPointer;
+    }
+
+    template <typename T>
+    const T* Matrix<T>::dataGPU() const {
+        return GPUPointer;
+    }
+
+    template <typename T>
+    void Matrix<T>::updateGPUCopy() const {
+        if (updateGPU) {
+            cudaMemcpy(GPUPointer, elements.data(), size() * sizeof(T), cudaMemcpyHostToDevice);
+        }
+    }
+
+    template <typename T>
+    void Matrix<T>::updateGPUCopy() {
+        if (updateGPU) {
+            cudaMemcpy(GPUPointer, elements.data(), size() * sizeof(T), cudaMemcpyHostToDevice);
+            updateGPU = false;
+        }
+    }
+
+    template <typename T>
+    void Matrix<T>::updateGPUCopy(Matrix& other) {
+        updateGPUCopy();
+        other.updateGPUCopy();
+    }
+
+    template <typename T>
+    void Matrix<T>::updateCPUCopy() {
+        if (!isGPUCopyOld()) {
+            std::cout << "Updating CPU Copy" << std::endl;
+            cudaMemcpy(elements.data(), GPUPointer, size() * sizeof(T) , cudaMemcpyDeviceToHost);
+            updateGPU = true;
+        }
+    }
+
+    template <typename T>
+    void Matrix<T>::updateCPUCopy(Matrix& other) {
+        updateCPUCopy();
+        other.updateCPUCopy();
+    }
+
+    template <typename T>
+    bool Matrix<T>::isGPUCopyOld() const {
+        return updateGPU;
     }
 
     template <typename T>
@@ -152,7 +230,8 @@ namespace math {
     }
 
     template <typename T>
-    std::vector<T> Matrix<T>::row(int row) const {
+    std::vector<T> Matrix<T>::row(int row) {
+        updateCPUCopy();
         std::vector<T> tempRow;
         tempRow.reserve(numColumns());
         int rowIndex = row * numColumns();
@@ -163,7 +242,8 @@ namespace math {
     }
 
     template <typename T>
-    std::vector<T> Matrix<T>::column(int col) const {
+    std::vector<T> Matrix<T>::column(int col) {
+        updateCPUCopy();
         std::vector<T> tempCol;
         tempCol.reserve(numRows());
         for (int i = 0; i < numRows() * numColumns(); i += numColumns()) {

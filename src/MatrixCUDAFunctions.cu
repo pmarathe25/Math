@@ -2,13 +2,34 @@
 #define MATRIX_CUDA_FUNCTIONS
 
 namespace math {
-    template<typename T>
+    template <typename T>
+    __global__ void copy(const T* original, int size, T* copy) {
+        int x = blockIdx.x * BLOCK_DIM + threadIdx.x;
+        if (x < size) {
+            copy[x] = original[x];
+        }
+    }
+
+    template <typename T>
     __global__ void computeTranspose(T* original, int numRows, int numCols, T* transposed) {
         int x = blockIdx.y * BLOCK_DIM + threadIdx.x;
         int y = blockIdx.x * BLOCK_DIM + threadIdx.y;
         if (x < numCols && y < numRows) {
             transposed[x * numRows + y] = original[y * numCols + x];
         }
+    }
+
+    template <typename T>
+    __global__ void computeRowMean(T* A, float B, int numRows, int numCols, int size, T* C) {
+        int col = blockIdx.x * blockDim.x + threadIdx.x;
+        T mean = T();
+        if (col < numCols) {
+            for (int i = 0; i < size; i += numCols) {
+                mean += A[i + col] * B;
+            }
+        }
+        __syncthreads();
+        C[col] = mean;
     }
 
     template <typename T>
@@ -49,24 +70,11 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeScalarProduct(T* A, T B, int Asize) {
+    __global__ void computeScalarProduct(const T* A, T B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
-            A[index] = A[index] * B;
+            C[index] = A[index] * B;
         }
-    }
-
-    template <typename T>
-    __global__ void computeRowMean(T* A, T B, int numRows, int numCols, int size) {
-        int col = blockIdx.x * blockDim.x + threadIdx.x;
-        T mean = T();
-        if (col < numCols) {
-            for (int i = 0; i < size; i += numCols) {
-                mean += A[i + col] * B;
-            }
-        }
-        __syncthreads();
-        A[col] = mean;
     }
 
     template <typename T>
@@ -204,10 +212,10 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeHadamardProduct(T* A, T* B, int Asize) {
+    __global__ void computeHadamardProduct(const T* A, const T* B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
-            A[index] = A[index] * B[index];
+            C[index] = A[index] * B[index];
         }
     }
 

@@ -15,9 +15,7 @@ namespace math {
             enum opMode {
                 SUM = 0,
                 DIFFERENCE,
-                SCALAR_PRODUCT,
                 HADAMARD_PRODUCT,
-                ROW_MEAN,
             };
             // Constructors.
             void init(int rows, int cols);
@@ -27,13 +25,8 @@ namespace math {
             Matrix(const std::vector<T>& initialElements);
             Matrix(const std::vector<T>& initialElements, int rows, int cols);
             Matrix(const std::vector<std::vector<T> >& initialElements);
-            template <typename O>
-            Matrix(const Matrix<O>& other) {
-                rows = other.numRows();
-                cols = other.numColumns();
-                init(rows, cols);
-                elements = std::vector<T>(other.raw().begin(), other.raw().end());
-            }
+            Matrix(const Matrix<T>& other);
+            ~Matrix();
             // Indexing functions.
             T& at(int row, int col);
             const T& at(int row, int col) const;
@@ -47,13 +40,22 @@ namespace math {
             const T* data() const;
             std::vector<T>& raw();
             const std::vector<T>& raw() const;
+            // GPU data management functions.
+            T* dataGPU();
+            const T* dataGPU() const;
+            void updateGPUCopy() const;
+            void updateGPUCopy();
+            void updateGPUCopy(Matrix& other);
+            void updateCPUCopy();
+            void updateCPUCopy(Matrix& other);
+            bool isGPUCopyOld() const;
             // User-facing getter functions.
             int numRows() const;
             int numColumns() const;
             int size() const;
             bool isVector() const;
-            std::vector<T> row(int row) const;
-            std::vector<T> column(int col) const;
+            std::vector<T> row(int row);
+            std::vector<T> column(int col);
             // File I/O.
             void write(std::ofstream& outFile) const;
             void read(std::ifstream& inFile);
@@ -61,9 +63,8 @@ namespace math {
             void randomizeNormal(T mean = 0, T stdDev = 1);
             void randomizeUniform(T lowerBound = 0, T upperBound = 1);
             Matrix transpose();
-            Matrix rowMean() const;
+            Matrix rowMean();
             Matrix hadamard(const Matrix& other) const;
-            Matrix kronecker(const Matrix& other) const;
             Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;
@@ -75,8 +76,10 @@ namespace math {
             std::vector<T> elements;
             int rowsRaw, colsRaw, rows, cols, matrixSize;
             bool isVec = false;
+            // Does the GPU pointer need to be updated?
+            bool updateGPU = true;
+            T* GPUPointer;
             // Internal functions.
-            Matrix CPURowMean(double scaleFactor) const;
             Matrix CPUSum(const Matrix& other) const;
             Matrix CPUSum(T other) const;
             Matrix CPUMatrixVectorSum(const Matrix& other) const;
@@ -85,15 +88,13 @@ namespace math {
             Matrix CPUDifference(T other) const;
             Matrix CPUScalarProduct(T other) const;
             Matrix CPUDotProduct(const Matrix& other) const;
-            Matrix CPUHadamardProduct(const Matrix<T>& other) const;
-            Matrix CPUKroneckerProduct(const Matrix<T>& other) const;
             Matrix matrixArithmetic(const Matrix<T>& other, opMode mode) const;
             Matrix matrixTiledArithmetic(const Matrix<T>& other, opMode mode) const;
             Matrix scalarArithmetic(T other, opMode mode) const;
     };
 
     template <typename T>
-    void display(const Matrix<T>& toDisplay) {
+    void display(Matrix<T> toDisplay) {
         for (int i = 0; i < toDisplay.numRows(); ++i) {
             display(toDisplay.row(i));
         }
@@ -110,7 +111,7 @@ namespace math {
     }
 
     template <typename T>
-    bool operator==(const Matrix<T>& A, const Matrix<T>& B) {
+    bool operator==(Matrix<T>& A, Matrix<T>& B) {
         return (A.numRows() == B.numRows() && A.numColumns() == B.numColumns() && A.raw() == B.raw());
     }
 

@@ -8,15 +8,13 @@ double postIncrement(double operand) {
 }
 
 int main() {
-    // math::MathParser parser = math::MathParser();
-    // parser.addUnaryOperator("++", &postIncrement);
-    // std::cout << parser.parse("1++*(3++!)++/9*4++-1+++++3") << std::endl;
     math::Matrix<float> mat = math::Matrix<float>({{0, 1, 0}, {0, 2, 3}});
     math::Matrix<float> other = math::Matrix<float>({0, 1, 2, 3, 4, 5}, 2, 3);
     int testSize = 40;
     math::Matrix<double> toTranspose = math::Matrix<double>(testSize, testSize);
     math::Matrix<float> toTranspose2 = math::Matrix<float>(5, 30);
     math::Matrix<float> toTranspose3 = math::Matrix<float>(15, 5);
+    std::cout << "Matrices created." << std::endl;
     math::display(toTranspose3 * toTranspose2);
     for (int i = 0; i < testSize; ++i) {
         for (int j = 0; j < testSize; ++j) {
@@ -29,7 +27,9 @@ int main() {
     for (int i = 0; i < 75; ++i) {
         toTranspose3.at(i) = i;
     }
-    math::Matrix<double> test = toTranspose2;
+    std::cout << "Matrices Assigned." << std::endl;
+    math::Matrix<float> test = toTranspose2;
+    std::cout << "Matrix copied." << std::endl;
     math::display(mat);
     std::cout << std::endl;
     math::display(other);
@@ -48,6 +48,10 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose3.transpose());
     std::cout << std::endl;
+
+    math::display(toTranspose3);
+    std::cout << std::endl;
+
     math::display(toTranspose * toTranspose * toTranspose);
     std::cout << std::endl;
     std::cout << "RAW" << std::endl;
@@ -89,6 +93,7 @@ int main() {
     std::cout << std::endl;
     math::display((2 * vec).raw());
     std::cout << std::endl;
+    std::cout << "SUM" << std::endl;
     math::display((vec + vec2).raw());
     math::display((vec - vec2).raw());
     toTranspose2.randomizeNormal();
@@ -173,14 +178,19 @@ int main() {
     duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
     std::cout << duration << std::endl;
     double someDouble = 2.0;
-    math::display(toTranspose3 * someDouble);
+    math::display(toTranspose3);
+    std::cout << std::endl;
+    math::display(toTranspose3 * 2.0);
     std::cout << std::endl;
     math::display(toTranspose3);
     std::cout << std::endl;
     math::Matrix<double> newVec = math::Matrix<double>({1, 2, 3});
-    math::display(newVec.kronecker(newVec));
     std::cout << std::endl;
     math::display(newVec.transpose() * newVec);
     std::cout << std::endl;
-    math::display(toTranspose.rowMean());
+    math::display(toTranspose);
+    std::cout << std::endl;
+    math::Matrix<double> rowMean = toTranspose.rowMean();
+    math::display(rowMean);
+
 }

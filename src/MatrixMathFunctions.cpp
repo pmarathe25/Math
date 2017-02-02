@@ -3,68 +3,28 @@
 
 namespace math {
     template <typename T>
-    Matrix<T> Matrix<T>::rowMean() const {
+    Matrix<T> Matrix<T>::rowMean() {
         if (numRows() == 1) {
             return (*this);
-        }
-        double scaleFactor = 1 / (double) numRows();
-        if (size() < CPU_SATURATION_LIMIT) {
-            return CPURowMean(scaleFactor);
         } else {
-            return scalarArithmetic(scaleFactor, ROW_MEAN).row(0);
+            float scaleFactor = 1 / (float) numRows();
+            Matrix output = Matrix(1, numColumns());
+            dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+            dim3 threads(THREADS_PER_BLOCK);
+            computeRowMean<<<blocks, threads>>>(dataGPU(), scaleFactor, numRows(), numColumns(), size(), output.dataGPU());
+            return output;
         }
-    }
-
-    template <typename T>
-    Matrix<T> Matrix<T>::kronecker(const Matrix& other) const {
-        if (!isVector()) {
-            throw std::invalid_argument("Kronecker product is currently only supported for vectors.");
-        }
-        return CPUKroneckerProduct(other);
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::hadamard(const Matrix& other) const {
         if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");
-        } else if (size() < CPU_SATURATION_LIMIT) {
-            return CPUHadamardProduct(other);
-        }
-        Matrix<T> output = Matrix<T>(numRows(), numColumns());
-        return output;
-    }
-
-    template <typename T>
-    Matrix<T> Matrix<T>::dot(const Matrix& other) const {
-         if (size() < CPU_SATURATION_LIMIT || (typeid(T) == typeid(double) && isVector())) {
-            // For small matrices/double vectors, compute CPU dot product.
-            return CPUDotProduct(other);
-        } else if (isVector()) {
-            // For large vectors, use CUDA.
-            return math::innerProduct(raw(), other.raw());
-        } else if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-           throw std::invalid_argument("Incompatible matrices cannot be dotted.");
         } else {
-            // For matrices, also use CUDA.
-            Matrix output = Matrix(numRows(), 1);
-            int rawSize = size();
-            // Initialize device copies.
-            T *dev_A, *dev_B;
-            // Allocate memory for device copies.
-            cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
-            cudaMalloc((void**)&dev_B, rawSize * sizeof(T));
-            // Copy inputs to device.
-            cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
-            cudaMemcpy(dev_B, other.data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
-            // Launch kernel where numThreads = size of matrix.
-            dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
+            Matrix<T> output = Matrix<T>(numRows(), numColumns());
+            dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeDotProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns());
-            cudaMemcpy(output.data(), dev_A, output.size() * sizeof(T) , cudaMemcpyDeviceToHost);
-            // Free memory.
-            cudaFree(dev_A);
-            cudaFree(dev_B);
-            // Return.
+            computeHadamardProduct<<<blocks, threads>>>(dataGPU(), other.dataGPU(), size(), output.dataGPU());
             return output;
         }
     }
@@ -107,14 +67,12 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator*(T other) const  {
-        if (size() < CPU_SATURATION_LIMIT) {
-            // For small matrices, use CPU.
-            return CPUScalarProduct(other);
-        } else {
-            // For large matrices, use CUDA.
-            return scalarArithmetic(other, SCALAR_PRODUCT);
-        }
+    Matrix<T> Matrix<T>::operator*(T other) const {
+        Matrix product = Matrix(numRows(), numColumns());
+        dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+        dim3 threads(THREADS_PER_BLOCK);
+        computeScalarProduct<<<blocks, threads>>>(dataGPU(), other, size(), product.dataGPU());
+        return product;
     }
 
     template <typename T>
@@ -172,6 +130,41 @@ namespace math {
         } else {
             // For large vectors and matrices, use CUDA.
             return matrixArithmetic(other, DIFFERENCE);
+        }
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::dot(const Matrix& other) const {
+         if (size() < CPU_SATURATION_LIMIT || (typeid(T) == typeid(double) && isVector())) {
+            // For small matrices/double vectors, compute CPU dot product.
+            return CPUDotProduct(other);
+        } else if (isVector()) {
+            // For large vectors, use CUDA.
+            return math::innerProduct(raw(), other.raw());
+        } else if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
+           throw std::invalid_argument("Incompatible matrices cannot be dotted.");
+        } else {
+            // For matrices, also use CUDA.
+            Matrix output = Matrix(numRows(), 1);
+            int rawSize = size();
+            // Initialize device copies.
+            T *dev_A, *dev_B;
+            // Allocate memory for device copies.
+            cudaMalloc((void**)&dev_A, rawSize * sizeof(T));
+            cudaMalloc((void**)&dev_B, rawSize * sizeof(T));
+            // Copy inputs to device.
+            cudaMemcpy(dev_A, data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_B, other.data(), rawSize * sizeof(T), cudaMemcpyHostToDevice);
+            // Launch kernel where numThreads = size of matrix.
+            dim3 blocks(std::ceil(rawSize / (float) THREADS_PER_BLOCK));
+            dim3 threads(THREADS_PER_BLOCK);
+            computeDotProduct<<<blocks, threads>>>(dev_A, dev_B, numRows(), numColumns());
+            cudaMemcpy(output.data(), dev_A, output.size() * sizeof(T) , cudaMemcpyDeviceToHost);
+            // Free memory.
+            cudaFree(dev_A);
+            cudaFree(dev_B);
+            // Return.
+            return output;
         }
     }
 

@@ -3,18 +3,8 @@
 
 namespace math {
     template <typename T>
-    Matrix<T> Matrix<T>::CPURowMean(double scaleFactor) const {
-        Matrix output = Matrix(1, numColumns());
-        for (int row = 0; row < size(); row += numColumns()) {
-            for (int col = 0; col < numColumns(); ++col) {
-                output[col] += (*this)[row + col] * scaleFactor;
-            }
-        }
-        return output;
-    }
-
-    template <typename T>
     void Matrix<T>::randomizeNormal(T mean, T stdDev) {
+        updateGPU = true;
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
         std::normal_distribution<double> normalDistribution(mean, stdDev);
@@ -25,6 +15,7 @@ namespace math {
 
     template <typename T>
     void Matrix<T>::randomizeUniform(T lowerBound, T upperBound) {
+        updateGPU = true;
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
         std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
@@ -113,39 +104,10 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::CPUScalarProduct(T other) const {
-        Matrix output = Matrix(numRows(), numColumns());
-        for (int i = 0; i < size(); ++i) {
-            output[i] = (*this)[i] * other;
-        }
-        return output;
-    }
-
-    template <typename T>
     Matrix<T> Matrix<T>::CPUDotProduct(const Matrix<T>& other) const {
         Matrix<T> output = Matrix<T>(numRows(), 1);
         for (int i = 0; i < size(); ++i) {
             output[i] += (*this)[i] * other[i];
-        }
-        return output;
-    }
-
-    template <typename T>
-    Matrix<T> Matrix<T>::CPUHadamardProduct(const Matrix<T>& other) const {
-        Matrix output = Matrix(numRows(), numColumns());
-        for (int i = 0; i < size(); ++i) {
-            output[i] = (*this)[i] * other[i];
-        }
-        return output;
-    }
-
-    template <typename T>
-    Matrix<T> Matrix<T>::CPUKroneckerProduct(const Matrix<T>& other) const {
-        Matrix output = Matrix(size(), other.size());
-        for (int i = 0; i < size(); ++i) {
-            for (int j = 0; j < other.size(); ++j) {
-                output[i * other.size() + j] = (*this)[i] * other[j];
-            }
         }
         return output;
     }

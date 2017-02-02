@@ -4,28 +4,14 @@
 namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::transpose() {
+        Matrix<T> out = Matrix<T>(numColumns(), numRows());
         // For vectors, we only need to flip the dimensions.
-        Matrix<T> out =  Matrix<T>(numColumns(), numRows());
         if (isVector()) {
-            out.raw() = raw();
+            out.raw() = std::vector<T>(raw().begin(), raw().end());
         } else {
-            int matSize = size();
-            // Initialize device copies.
-            T *dev_original, *dev_transposed;
-            // Allocate memory for device ccpies.
-            cudaMalloc((void**)&dev_original, matSize * sizeof(T));
-            cudaMalloc((void**)&dev_transposed, matSize * sizeof(T));
-            // Copy inputs to device.
-            cudaMemcpy(dev_original, data(), matSize * sizeof(T), cudaMemcpyHostToDevice);
-            // Launch kernel with only as many blocks as necessary.
             dim3 blocks(std::ceil(numRows() / (float) BLOCK_DIM), std::ceil(numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
-            computeTranspose<<<blocks, threads>>>(dev_original, numRows(), numColumns(), dev_transposed);
-            // Get result.
-            cudaMemcpy(out.data(), dev_transposed, matSize * sizeof(T) , cudaMemcpyDeviceToHost);
-            // Free memory.
-            cudaFree(dev_original);
-            cudaFree(dev_transposed);
+            computeTranspose<<<blocks, threads>>>(dataGPU(), numRows(), numColumns(), out.dataGPU());
         }
         return out;
     }
@@ -51,9 +37,6 @@ namespace math {
                 break;
             case DIFFERENCE:
                 computeDifference<<<blocks, threads>>>(dev_A, dev_B, size());
-                break;
-            case HADAMARD_PRODUCT:
-                computeHadamardProduct<<<blocks, threads>>>(dev_A, dev_B, size());
                 break;
         }
         // Get result.
@@ -124,12 +107,6 @@ namespace math {
                 break;
             case DIFFERENCE:
                 computeScalarDifference<<<blocks, threads>>>(dev_A, other, size());
-                break;
-            case SCALAR_PRODUCT:
-                computeScalarProduct<<<blocks, threads>>>(dev_A, other, size());
-                break;
-            case ROW_MEAN:
-                computeRowMean<<<blocks, threads>>>(dev_A, other, numRows(), numColumns(), size());
                 break;
         }
         // Get result.
