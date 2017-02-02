@@ -95,7 +95,6 @@ namespace math {
 
     template <typename T>
     void display(Matrix<T> toDisplay) {
-        toDisplay.updateCPUCopy();
         for (int i = 0; i < toDisplay.numRows(); ++i) {
             display(toDisplay.row(i));
         }
