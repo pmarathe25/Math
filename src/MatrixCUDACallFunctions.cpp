@@ -7,7 +7,7 @@ namespace math {
         Matrix<T> out = Matrix<T>(numColumns(), numRows());
         // For vectors, we only need to flip the dimensions.
         if (isVector()) {
-            out.raw() = std::vector<T>(raw().begin(), raw().end());
+            out.raw() = raw();
         } else {
             dim3 blocks(std::ceil(numRows() / (float) BLOCK_DIM), std::ceil(numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
