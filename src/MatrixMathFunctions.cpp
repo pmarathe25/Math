@@ -3,7 +3,7 @@
 
 namespace math {
     template <typename T>
-    Matrix<T> Matrix<T>::rowMean() const {
+    Matrix<T> Matrix<T>::rowMean() {
         if (numRows() == 1) {
             return (*this);
         } else {
