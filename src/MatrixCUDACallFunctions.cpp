@@ -3,7 +3,7 @@
 
 namespace math {
     template <typename T>
-    Matrix<T> Matrix<T>::transpose() {
+    Matrix<T> Matrix<T>::transpose() const {
         Matrix<T> out = Matrix<T>(numColumns(), numRows());
         // For vectors, we only need to flip the dimensions.
         if (isVector()) {

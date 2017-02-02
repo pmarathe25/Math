@@ -11,7 +11,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeTranspose(T* original, int numRows, int numCols, T* transposed) {
+    __global__ void computeTranspose(const T* original, int numRows, int numCols, T* transposed) {
         int x = blockIdx.y * BLOCK_DIM + threadIdx.x;
         int y = blockIdx.x * BLOCK_DIM + threadIdx.y;
         if (x < numCols && y < numRows) {
@@ -20,7 +20,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeRowMean(T* A, float B, int numCols, int size, T* C) {
+    __global__ void computeRowMean(const T* A, float B, int numCols, int size, T* C) {
         int col = blockIdx.x * blockDim.x + threadIdx.x;
         float mean = 0;
         if (col < numCols) {
