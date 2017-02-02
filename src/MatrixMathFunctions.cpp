@@ -12,7 +12,7 @@ namespace math {
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
             computeRowMean<<<blocks, threads>>>(dataGPU(), scaleFactor, numColumns(), size(), output.dataGPU());
-            output.updateCPUCopy();
+            // output.updateCPUCopy();
             return output;
         }
     }
