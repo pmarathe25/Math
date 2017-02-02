@@ -79,7 +79,7 @@ namespace math {
         rows = other.numRows();
         cols = other.numColumns();
         init(rows, cols);
-        elements = std::vector<T>(other.raw().begin(), other.raw().end());
+        elements = other.raw();
         // Copy GPU data.
         copy<<<size() / THREADS_PER_BLOCK, THREADS_PER_BLOCK>>>(other.dataGPU(), size(), dataGPU());
         updateGPU = other.isGPUCopyOld();

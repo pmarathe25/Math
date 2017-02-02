@@ -12,6 +12,7 @@ namespace math {
             dim3 blocks(std::ceil(numRows() / (float) BLOCK_DIM), std::ceil(numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
             computeTranspose<<<blocks, threads>>>(dataGPU(), numRows(), numColumns(), out.dataGPU());
+            out.updateCPUCopy();
         }
         return out;
     }

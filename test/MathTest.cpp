@@ -190,6 +190,7 @@ int main() {
     std::cout << std::endl;
     math::display(toTranspose);
     std::cout << std::endl;
+    math::display(toTranspose.rowMean());
     math::Matrix<double> rowMean = toTranspose.rowMean();
     math::display(rowMean);
 
