@@ -25,7 +25,7 @@ math::Matrix<T> createSequentialMatrix(int rows, int cols) {
 }
 
 int testMatrixCreation() {
-    std::cout << "Testing Matrix Creation." << std::endl;
+    std::cout << "========================Testing Matrix Creation.========================" << std::endl;
     std::cout << "Vector of Vectors Creation 2x3" << std::endl;
     math::Matrix<float> creationTest0 = math::Matrix<float>({{0, 1, 0}, {0, 2, 3}});
     creationTest0.display();
@@ -45,7 +45,7 @@ int testMatrixCreation() {
 }
 
 int testMatrixCopy() {
-    std::cout << "Testing Matrix Copy" << std::endl;
+    std::cout << "========================Testing Matrix Copy========================" << std::endl;
     std::cout << "Copying Matrices of the same type" << std::endl;
     math::Matrix<float> copyTest0 = createSequentialMatrix<float>(2, 10);
     math::Matrix<float> copyTest1 = copyTest0;
@@ -76,7 +76,7 @@ int testMatrixCopy() {
 }
 
 int testMatrixReshape() {
-    std::cout << "Testing Matrix Reshape" << std::endl;
+    std::cout << "========================Testing Matrix Reshape========================" << std::endl;
     math::Matrix<float> reshapeTest0 = createSequentialMatrix<float>(5, 30);
     reshapeTest0.display();
     std::cout << "Reshaping 5x30 Matrix into 10x15" << std::endl;
@@ -86,7 +86,7 @@ int testMatrixReshape() {
 }
 
 int testMatrixTranspose() {
-    std::cout << "Testing Matrix Transpose" << std::endl;
+    std::cout << "========================Testing Matrix Transpose========================" << std::endl;
     math::Matrix<float> transposeTest0 = createSequentialMatrix<float>(5, 30);
     transposeTest0.display();
     std::cout << "Transpose" << std::endl;
@@ -95,7 +95,7 @@ int testMatrixTranspose() {
 }
 
 int testMatrixRandomize() {
-    std::cout << "Testing Matrix Randomize" << std::endl;
+    std::cout << "========================Testing Matrix Randomize========================" << std::endl;
     std::cout << "Normal Randomization | Mean 0 | Standard Deviation 1" << std::endl;
     math::Matrix<float> randomizeTest0 = createSequentialMatrix<float>(5, 30);
     randomizeTest0.randomizeNormal(0, 1);
@@ -107,7 +107,7 @@ int testMatrixRandomize() {
 }
 
 int testRowMean() {
-    std::cout << "Testing Matrix Row Mean" << std::endl;
+    std::cout << "========================Testing Matrix Row Mean========================" << std::endl;
     std::cout << "5x30 Sequential Matrix" << std::endl;
     math::Matrix<int> rowMeanTest0 = createSequentialMatrix<int>(5, 30);
     rowMeanTest0.display();
@@ -117,7 +117,7 @@ int testRowMean() {
 }
 
 int testRowWiseDot() {
-    std::cout << "Testing Row-Wise Dot Product" << std::endl;
+    std::cout << "========================Testing Row-Wise Dot Product========================" << std::endl;
     std::cout << "30x5 Ones Matrix" << std::endl;
     math::Matrix<int> rowWiseDotTest0 = createOnesMatrix<int>(30, 5);
     rowWiseDotTest0.display();
@@ -127,7 +127,7 @@ int testRowWiseDot() {
 }
 
 int testMatrixMultiplication() {
-    std::cout << "Testing Matrix Multiplication" << std::endl;
+    std::cout << "========================Testing Matrix Multiplication========================" << std::endl;
     std::cout << "10x5 Ones Matrix" << std::endl;
     math::Matrix<int> multiplicationTest0 = createOnesMatrix<int>(10, 5);
     multiplicationTest0.display();
@@ -140,7 +140,7 @@ int testMatrixMultiplication() {
 }
 
 int testMatrixArithmetic() {
-    std::cout << "Testing Matrix Arithmetic" << std::endl;
+    std::cout << "========================Testing Matrix Arithmetic========================" << std::endl;
     std::cout << "10x10 Ones Matrix" << std::endl;
     math::Matrix<float> arithmeticTest0 = createOnesMatrix<float>(10, 10);
     arithmeticTest0.display();
@@ -154,7 +154,7 @@ int testMatrixArithmetic() {
 }
 
 int testMatrixVectorArithmetic() {
-    std::cout << "Testing Matrix-Vector Arithmetic" << std::endl;
+    std::cout << "========================Testing Matrix-Vector Arithmetic========================" << std::endl;
     std::cout << "10x10 Ones Matrix" << std::endl;
     math::Matrix<int> vectorArithmeticTest0 = createOnesMatrix<int>(10, 10);
     vectorArithmeticTest0.display();
@@ -172,7 +172,7 @@ int testMatrixVectorArithmetic() {
 }
 
 int testMatrixScalarArithmetic() {
-    std::cout << "Testing Matrix-Scalar Arithmetic" << std::endl;
+    std::cout << "========================Testing Matrix-Scalar Arithmetic========================" << std::endl;
     std::cout << "10x10 Ones Matrix" << std::endl;
     math::Matrix<int> scalarArithmeticTest0 = createOnesMatrix<int>(10, 10);
     scalarArithmeticTest0.display();
@@ -192,7 +192,7 @@ int testMatrixScalarArithmetic() {
 }
 
 int testMatrixHadamardProduct() {
-    std::cout << "Testing Matrix Hadamard Product" << std::endl;
+    std::cout << "========================Testing Matrix Hadamard Product========================" << std::endl;
     std::cout << "10x10 Sequential Matrix" << std::endl;
     math::Matrix<int> hadamardProductTest0 = createSequentialMatrix<int>(10, 10);
     hadamardProductTest0.display();
