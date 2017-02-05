@@ -13,7 +13,6 @@ LFLAGS = -shared -Wno-deprecated-gpu-targets
 TESTLFLAGS = -Wno-deprecated-gpu-targets
 EXECLFLAGS = -Wno-deprecated-gpu-targets
 
-
 $(LIBDIR)/Math/libmath.so: $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o $(LIBDIR)/Text/libtext.so
 	$(CXX) $(LFLAGS) $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o $(LIBDIR)/Text/libtext.so -o $(LIBDIR)/Math/libmath.so
 
@@ -39,9 +38,9 @@ $(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEDIR)/Math/MathParser
 $(BUILDDIR)/Math.o: $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Math.cu
 	$(CXX) $(CFLAGS) $(SRCDIR)/Math.cu -o $(BUILDDIR)/Math.o
 
-$(BUILDDIR)/Matrix.o: $(INCLUDEDIR)/Math/Matrix.hpp $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Matrix.cu $(SRCDIR)/MatrixMathFunctions.cpp \
-	$(SRCDIR)/MatrixCUDAFunctions.cu $(SRCDIR)/MatrixCPUFunctions.cpp $(SRCDIR)/MatrixCUDACallFunctions.cpp
-	$(CXX) $(CFLAGS) $(SRCDIR)/Matrix.cu -o $(BUILDDIR)/Matrix.o
+$(BUILDDIR)/Matrix.o: $(INCLUDEDIR)/Math/Matrix.hpp $(INCLUDEDIR)/Math/Math.hpp $(SRCDIR)/Matrix/Matrix.cu $(SRCDIR)/Matrix/MatrixComputationFunctions.cpp \
+	$(SRCDIR)/Matrix/MatrixCUDAFunctions.cu $(SRCDIR)/Matrix/MatrixModificationFunctions.cpp $(SRCDIR)/Matrix/MatrixAccessFunctions.cpp
+	$(CXX) $(CFLAGS) $(SRCDIR)/Matrix/Matrix.cu -o $(BUILDDIR)/Matrix.o
 
 clean:
 	rm $(OBJS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(TESTDIR)/MathTest

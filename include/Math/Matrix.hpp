@@ -6,19 +6,24 @@
 
 const int BLOCK_DIM = 32;
 const int THREADS_PER_BLOCK = 1024;
-const int CPU_SATURATION_LIMIT = 16385;
 
 namespace math {
     template <typename T>
     class Matrix {
         public:
             void init(int rows, int cols);
-            Matrix();
+            Matrix() {}
             Matrix(T elem);
             Matrix(int rows, int cols);
             Matrix(const std::vector<T>& initialElements);
             Matrix(const std::vector<T>& initialElements, int rows, int cols);
             Matrix(const std::vector<std::vector<T> >& initialElements);
+            Matrix(const Matrix& other);
+            template <typename O>
+            Matrix(const Matrix<O>& other) {
+                init(other.numRows(), other.numColumns());
+                std::copy(other.data(), other.data() + size(), elements);
+            }
             ~Matrix();
             // Indexing functions.
             T& at(int row, int col);
@@ -36,20 +41,20 @@ namespace math {
             int numColumns() const;
             int size() const;
             bool isVector() const;
-            std::vector<T> row(int row);
-            std::vector<T> column(int col);
             // Display
             void display() const;
             // File I/O.
             void write(std::ofstream& outFile) const;
             void read(std::ifstream& inFile);
+            // In-place modification
+            void reshape(int rows, int cols);
             // Computation functions.
             void randomizeNormal(T mean = 0, T stdDev = 1);
             void randomizeUniform(T lowerBound = 0, T upperBound = 1);
-            Matrix transpose();
-            Matrix rowMean();
+            Matrix transpose() const;
+            Matrix rowMean() const;
             Matrix hadamard(Matrix& other);
-            Matrix dot(const Matrix& other) const;
+            Matrix rowWiseDot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
             Matrix operator*(T other) const;
             Matrix operator+(const Matrix& other) const;
@@ -58,11 +63,8 @@ namespace math {
             Matrix operator-(T other) const;
         private:
             T* elements;
-            int rowsRaw, colsRaw, rows, cols, matrixSize;
+            int rows, cols, matrixSize;
             bool isVec = false;
-            // Does the GPU pointer need to be updated?
-            bool updateGPU = true;
-            T* GPUPointer;
             // Internal functions.
             Matrix CPUSum(const Matrix& other) const;
             Matrix CPUSum(T other) const;
@@ -86,17 +88,6 @@ namespace math {
     Matrix<T> operator-(O other, const Matrix<T>& A) {
         return (A * -1) + other;
     }
-
-    template <typename T>
-    bool operator==(Matrix<T>& A, Matrix<T>& B) {
-        return (A.numRows() == B.numRows() && A.numColumns() == B.numColumns() && A.raw() == B.raw());
-    }
-
-    template <typename T, typename O>
-    bool operator==(const Matrix<T>& A, const Matrix<O>& B) {
-        return false;
-    }
-
 }
 
 #endif
