@@ -21,17 +21,14 @@ namespace math {
             Matrix(const Matrix& other);
             template <typename O>
             Matrix(const Matrix<O>& other) {
-                init(other.numRows(), other.numColumns());
-                std::copy(other.data(), other.data() + size(), elements);
-            }
-            void operator=(const Matrix& other) {
-                init(other.numRows(), other.numColumns());
-                std::copy(other.data(), other.data() + size(), elements);
+                copy(other);
             }
             template <typename O>
             void operator=(const Matrix<O>& other) {
-                init(other.numRows(), other.numColumns());
-                std::copy(other.data(), other.data() + size(), elements);
+                copy(other);
+            }
+            void operator=(const Matrix& other) {
+                copy(other);
             }
             ~Matrix();
             // Indexing functions.
@@ -78,6 +75,11 @@ namespace math {
             T* elements;
             int rows, cols, matrixSize;
             bool isVec = false;
+            template <typename O>
+            void copy(const Matrix<O>& other) {
+                init(other.numRows(), other.numColumns());
+                std::copy(other.data(), other.data() + size(), elements);
+            }
     };
 
     template <typename T, typename O>

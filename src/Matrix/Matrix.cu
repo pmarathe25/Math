@@ -68,8 +68,7 @@ namespace math {
 
     template <typename T>
     Matrix<T>::Matrix(const Matrix<T>& other) {
-        init(other.numRows(), other.numColumns());
-        std::copy(other.data(), other.data() + size(), elements);
+        copy(other);
     }
 
     template <typename T>
