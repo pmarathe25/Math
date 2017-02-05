@@ -126,6 +126,33 @@ int testRowWiseDot() {
     return 0;
 }
 
+int testMatrixMultiplication() {
+    std::cout << "Testing Matrix Multiplication" << std::endl;
+    std::cout << "10x5 Ones Matrix" << std::endl;
+    math::Matrix<int> multiplicationTest0 = createOnesMatrix<int>(10, 5);
+    multiplicationTest0.display();
+    std::cout << "5x5 Sequential Matrix" << std::endl;
+    math::Matrix<int> multiplicationTest1 = createSequentialMatrix<int>(5, 5);
+    multiplicationTest1.display();
+    std::cout << "Product" << std::endl;
+    (multiplicationTest0 * multiplicationTest1).display();
+    return 0;
+}
+
+int testMatrixArithmetic() {
+    std::cout << "Testing Matrix Arithmetic" << std::endl;
+    std::cout << "10x10 Ones Matrix" << std::endl;
+    math::Matrix<float> arithmeticTest0 = createOnesMatrix<float>(10, 10);
+    arithmeticTest0.display();
+    std::cout << "10x10 Sequential Matrix" << std::endl;
+    math::Matrix<float> arithmeticTest1 = createSequentialMatrix<float>(10, 10);
+    arithmeticTest1.display();
+    std::cout << "Sum" << std::endl;
+    (arithmeticTest0 + arithmeticTest1).display();
+    std::cout << "Difference" << std::endl;
+    (arithmeticTest0 - arithmeticTest1).display();
+}
+
 int main() {
     int success = 0;
     success += testMatrixCreation();
@@ -135,4 +162,6 @@ int main() {
     success += testMatrixRandomize();
     success += testRowMean();
     success += testRowWiseDot();
+    success += testMatrixMultiplication();
+    success += testMatrixArithmetic();
 }

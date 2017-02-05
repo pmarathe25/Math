@@ -38,7 +38,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeProduct(T* A, T* B, int numRowsA, int numColsA, int numRowsB, int numColsB, int Asize, int Bsize, T* C) {
+    __global__ void computeProduct(const T* A, const T* B, int numRowsA, int numColsA, int numRowsB, int numColsB, int Asize, int Bsize, T* C) {
        __shared__ T tileA[BLOCK_DIM][BLOCK_DIM + 1];
        __shared__ T tileB[BLOCK_DIM][BLOCK_DIM + 1];
        // Compute the coordinates of matrix C that this thread is responsible for.
@@ -75,6 +75,22 @@ namespace math {
     }
 
     template <typename T>
+    __global__ void computeSum(const T* A, const T* B, int Asize, T* C) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            C[index] = A[index] + B[index];
+        }
+    }
+
+    template <typename T>
+    __global__ void computeDifference(const T* A, const T* B, int size, T* C) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < size) {
+            C[index] = A[index] - B[index];
+        }
+    }
+
+    template <typename T>
     __global__ void computeScalarProduct(const T* A, T B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
@@ -95,14 +111,6 @@ namespace math {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
             A[index] = A[index] - B;
-        }
-    }
-
-    template <typename T>
-    __global__ void computeSum(T* A, T* B, int Asize) {
-        int index = blockIdx.x * blockDim.x + threadIdx.x;
-        if (index < Asize) {
-            A[index] = A[index] + B[index];
         }
     }
 
@@ -185,14 +193,6 @@ namespace math {
         if (row < numRows && col < numColsA) {
             int index = row * numColsA + col ;
             A[index] = A[index] - tileB[threadIdx.x];
-        }
-    }
-
-    template <typename T>
-    __global__ void computeDifference(T* A, T* B, int size) {
-        int index = blockIdx.x * blockDim.x + threadIdx.x;
-        if (index < size) {
-            A[index] = A[index] - B[index];
         }
     }
 
