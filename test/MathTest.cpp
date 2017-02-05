@@ -116,13 +116,13 @@ int testRowMean() {
     return 0;
 }
 
-int testRowWiseDot() {
+int testDotProduct() {
     std::cout << "========================Testing Row-Wise Dot Product========================" << std::endl;
     std::cout << "30x5 Ones Matrix" << std::endl;
-    math::Matrix<int> rowWiseDotTest0 = createOnesMatrix<int>(30, 5);
-    rowWiseDotTest0.display();
+    math::Matrix<int> dotTest0 = createOnesMatrix<int>(30, 5);
+    dotTest0.display();
     std::cout << "Row-Wise Dot Product of Matrix with itself" << std::endl;
-    rowWiseDotTest0.rowWiseDot(rowWiseDotTest0).display();
+    dotTest0.dot(dotTest0).display();
     return 0;
 }
 
@@ -209,7 +209,7 @@ int main() {
     numFailed += testMatrixTranspose();
     numFailed += testMatrixRandomize();
     numFailed += testRowMean();
-    numFailed += testRowWiseDot();
+    numFailed += testDotProduct();
     numFailed += testMatrixMultiplication();
     numFailed += testMatrixArithmetic();
     numFailed += testMatrixVectorArithmetic();

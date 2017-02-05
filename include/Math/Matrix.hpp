@@ -54,7 +54,7 @@ namespace math {
             Matrix transpose() const;
             Matrix rowMean() const;
             // Matrix Arithmetic
-            Matrix rowWiseDot(const Matrix& other) const;
+            Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
             Matrix operator+(const Matrix& other) const;
             Matrix operator-(const Matrix& other) const;

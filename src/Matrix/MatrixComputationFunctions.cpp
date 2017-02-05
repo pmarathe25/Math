@@ -35,15 +35,15 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::rowWiseDot(const Matrix& other) const {
-        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be dotted.");
-        } else if (isVector()) {
+    Matrix<T> Matrix<T>::dot(const Matrix& other) const {
+        if (isVector() && size() == other.size()) {
             Matrix output = T();
             for (int i = 0; i < size(); ++i) {
                 output[0] += (*this)[i] * other[i];
             }
             return output;
+        } else if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
+            throw std::invalid_argument("Incompatible matrices cannot be dotted.");
         } else {
             Matrix output = Matrix(numRows(), 1);
             // Launch kernel where numThreads = numRows.
@@ -60,8 +60,7 @@ namespace math {
         if (numColumns() != other.numRows()) {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         } else if (isVector() && other.isVector()) {
-            // If both are vectors, we just need to return the dot product.
-            return rowWiseDot(other);
+            return dot(other);
         } else {
             Matrix output = Matrix(numRows(), other.numColumns());
             dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
