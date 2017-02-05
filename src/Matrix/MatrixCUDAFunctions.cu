@@ -151,8 +151,6 @@ namespace math {
             C[index] = A[index] * B[index];
         }
     }
-
-
 }
 
 #endif
