@@ -24,6 +24,15 @@ namespace math {
                 init(other.numRows(), other.numColumns());
                 std::copy(other.data(), other.data() + size(), elements);
             }
+            void operator=(const Matrix& other) {
+                init(other.numRows(), other.numColumns());
+                std::copy(other.data(), other.data() + size(), elements);
+            }
+            template <typename O>
+            void operator=(const Matrix<O>& other) {
+                init(other.numRows(), other.numColumns());
+                std::copy(other.data(), other.data() + size(), elements);
+            }
             ~Matrix();
             // Indexing functions.
             T& at(int row, int col);
