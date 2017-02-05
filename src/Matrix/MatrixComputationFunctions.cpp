@@ -100,51 +100,67 @@ namespace math {
         }
     }
 
-/*
     template <typename T>
-    Matrix<T> Matrix<T>::hadamard(Matrix& other) {
+    Matrix<T> Matrix<T>::hadamard(const Matrix& other) const {
         if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
             throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");
         } else {
-            Matrix<T> output = Matrix<T>(numRows(), numColumns());
+            Matrix output = Matrix(numRows(), numColumns());
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeHadamardProduct<<<blocks, threads>>>(dataGPU(), other.dataGPU(), size(), output.dataGPU());
-            output.updateCPUCopy();
+            computeHadamardProduct<<<blocks, threads>>>(data(), other.data(), size(), output.data());
+            cudaDeviceSynchronize();
+            return output;
+        }
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::addVector(const Matrix<T>& other) const {
+        if (!other.isVector()) {
+            throw std::invalid_argument("addVector only accepts Matrices that are Vectors.");
+        } else {
+            Matrix output = Matrix(numRows(), numColumns());
+            dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
+            dim3 threads(BLOCK_DIM, BLOCK_DIM);
+            if (other.numRows() == 1) {
+                computeMatrixVectorRowSum<<<blocks, threads>>>(data(), other.data(), numColumns(), numRows(), output.data());
+            } else {
+                computeMatrixVectorColumnSum<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), output.data());
+            }
+            cudaDeviceSynchronize();
             return output;
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator*(T other) const {
-        Matrix product = Matrix(numRows(), numColumns());
+        Matrix output = Matrix(numRows(), numColumns());
         dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
-        computeScalarProduct<<<blocks, threads>>>(dataGPU(), other, size(), product.dataGPU());
-        return product;
+        computeScalarProduct<<<blocks, threads>>>(data(), other, size(), output.data());
+        cudaDeviceSynchronize();
+        return output;
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator+(T other) const {
-        if (size() < CPU_SATURATION_LIMIT) {
-            return CPUSum(other);
-        } else {
-            return scalarArithmetic(other, SUM);
-        }
+        Matrix output = Matrix(numRows(), numColumns());
+        dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+        dim3 threads(THREADS_PER_BLOCK);
+        computeScalarSum<<<blocks, threads>>>(data(), other, size(), output.data());
+        cudaDeviceSynchronize();
+        return output;
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator-(T other) const {
-        if (size() < CPU_SATURATION_LIMIT) {
-            return CPUDifference(other);
-        } else {
-            return scalarArithmetic(other, DIFFERENCE);
-        }
+        Matrix output = Matrix(numRows(), numColumns());
+        dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+        dim3 threads(THREADS_PER_BLOCK);
+        computeScalarSum<<<blocks, threads>>>(data(), -other, size(), output.data());
+        cudaDeviceSynchronize();
+        return output;
     }
-
-
-    */
-
 }
 
 #endif

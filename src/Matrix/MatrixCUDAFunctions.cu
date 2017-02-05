@@ -91,6 +91,44 @@ namespace math {
     }
 
     template <typename T>
+    __global__ void computeMatrixVectorRowSum(const T* A, const T* B, int numCols, int numRowsA, T* C) {
+        __shared__ T tileB[BLOCK_DIM];
+        // Compute the coordinates of matrix C that this thread is responsible for.
+        int row = blockIdx.x * blockDim.x + threadIdx.x;
+        int col = blockIdx.y * blockDim.y + threadIdx.y;
+        // Load vector - only load each element once.
+        if (threadIdx.x == 0) {
+            tileB[threadIdx.y] = (col < numCols) ? B[col] : 0;
+        }
+        // Synchronize.
+        __syncthreads();
+        // Write to output.
+        if (row < numRowsA && col < numCols) {
+            int index = row * numCols + col;
+            C[index] = A[index] + tileB[threadIdx.y];
+        }
+    }
+
+    template <typename T>
+    __global__ void computeMatrixVectorColumnSum(const T* A, const T* B, int numRows, int numColsA, T* C) {
+        __shared__ T tileB[BLOCK_DIM];
+        // Compute the coordinates of matrix C that this thread is responsible for.
+        int row = blockIdx.x * blockDim.x + threadIdx.x;
+        int col = blockIdx.y * blockDim.y + threadIdx.y;
+        // Load vector - only load each element once.
+        if (threadIdx.y == 0) {
+            tileB[threadIdx.x] = (row < numRows) ? B[row] : 0;
+        }
+        // Synchronize.
+        __syncthreads();
+        // Write to output.
+        if (row < numRows && col < numColsA) {
+            int index = row * numColsA + col ;
+            C[index] = A[index] + tileB[threadIdx.x];
+        }
+    }
+
+    template <typename T>
     __global__ void computeScalarProduct(const T* A, T B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
@@ -99,105 +137,15 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeScalarSum(T* A, T B, int Asize) {
+    __global__ void computeScalarSum(const T* A, T B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
-            A[index] = A[index] + B;
+            C[index] = A[index] + B;
         }
     }
 
     template <typename T>
-    __global__ void computeScalarDifference(T* A, T B, int Asize) {
-        int index = blockIdx.x * blockDim.x + threadIdx.x;
-        if (index < Asize) {
-            A[index] = A[index] - B;
-        }
-    }
-
-    template <typename T>
-    __global__ void computeMatrixVectorRowSum(T* A, T* B, int numCols, int numRowsA) {
-        // Avoid bank conflicts by allocating a single dummy element.
-        __shared__ T tileB[BLOCK_DIM + 1];
-        // Compute the coordinates of matrix C that this thread is responsible for.
-        int row = blockIdx.x * blockDim.x + threadIdx.x;
-        int col = blockIdx.y * blockDim.y + threadIdx.y;
-        // Load vector - only load each element once.
-        if (threadIdx.x == 0) {
-            tileB[threadIdx.y] = (col < numCols) ? B[col] : 0;
-        }
-        // Synchronize.
-        __syncthreads();
-        // Write to output.
-        if (row < numRowsA && col < numCols) {
-            int index = row * numCols + col;
-            // printf("%d\n", index);
-            A[index] = A[index] + tileB[threadIdx.y];
-        }
-    }
-
-    template <typename T>
-    __global__ void computeMatrixVectorColumnSum(T* A, T* B, int numRows, int numColsA) {
-        // Avoid bank conflicts by allocating a single dummy element.
-        __shared__ T tileB[BLOCK_DIM + 1];
-        // Compute the coordinates of matrix C that this thread is responsible for.
-        int row = blockIdx.x * blockDim.x + threadIdx.x;
-        int col = blockIdx.y * blockDim.y + threadIdx.y;
-        // Load vector - only load each element once.
-        if (threadIdx.y == 0) {
-            tileB[threadIdx.x] = (row < numRows) ? B[row] : 0;
-        }
-        // Synchronize.
-        __syncthreads();
-        // Write to output.
-        if (row < numRows && col < numColsA) {
-            int index = row * numColsA + col ;
-            A[index] = A[index] + tileB[threadIdx.x];
-        }
-    }
-
-    template <typename T>
-    __global__ void computeMatrixVectorRowDifference(T* A, T* B, int numCols, int numRowsA) {
-        // Avoid bank conflicts by allocating a single dummy element.
-        __shared__ T tileB[BLOCK_DIM + 1];
-        // Compute the coordinates of matrix C that this thread is responsible for.
-        int row = blockIdx.x * blockDim.x + threadIdx.x;
-        int col = blockIdx.y * blockDim.y + threadIdx.y;
-        // Load vector - only load each element once.
-        if (threadIdx.x == 0) {
-            tileB[threadIdx.y] = (col < numCols) ? B[col] : 0;
-        }
-        // Synchronize.
-        __syncthreads();
-        // Write to output.
-        if (row < numRowsA && col < numCols) {
-            int index = row * numCols + col;
-            // printf("%d\n", index);
-            A[index] = A[index] - tileB[threadIdx.y];
-        }
-    }
-
-    template <typename T>
-    __global__ void computeMatrixVectorColumnDifference(T* A, T* B, int numRows, int numColsA) {
-        // Avoid bank conflicts by allocating a single dummy element.
-        __shared__ T tileB[BLOCK_DIM + 1];
-        // Compute the coordinates of matrix C that this thread is responsible for.
-        int row = blockIdx.x * blockDim.x + threadIdx.x;
-        int col = blockIdx.y * blockDim.y + threadIdx.y;
-        // Load vector - only load each element once.
-        if (threadIdx.y == 0) {
-            tileB[threadIdx.x] = (row < numRows) ? B[row] : 0;
-        }
-        // Synchronize.
-        __syncthreads();
-        // Write to output.
-        if (row < numRows && col < numColsA) {
-            int index = row * numColsA + col ;
-            A[index] = A[index] - tileB[threadIdx.x];
-        }
-    }
-
-    template <typename T>
-    __global__ void computeHadamardProduct(T* A, T* B, int Asize, T* C) {
+    __global__ void computeHadamardProduct(const T* A, const T* B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
             C[index] = A[index] * B[index];

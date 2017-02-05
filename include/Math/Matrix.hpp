@@ -48,35 +48,27 @@ namespace math {
             void read(std::ifstream& inFile);
             // In-place modification
             void reshape(int rows, int cols);
-            // Computation functions.
             void randomizeNormal(T mean = 0, T stdDev = 1);
             void randomizeUniform(T lowerBound = 0, T upperBound = 1);
+            // Unary functions.
             Matrix transpose() const;
             Matrix rowMean() const;
-            Matrix hadamard(Matrix& other);
+            // Matrix Arithmetic
             Matrix rowWiseDot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
-            Matrix operator*(T other) const;
             Matrix operator+(const Matrix& other) const;
-            Matrix operator+(T other) const;
             Matrix operator-(const Matrix& other) const;
+            Matrix hadamard(const Matrix& other) const;
+            // Matrix-Vector Arithmetic
+            Matrix addVector(const Matrix& other) const;
+            // Matrix-Scalar Arithmetic
+            Matrix operator*(T other) const;
+            Matrix operator+(T other) const;
             Matrix operator-(T other) const;
         private:
             T* elements;
             int rows, cols, matrixSize;
             bool isVec = false;
-            // Internal functions.
-            Matrix CPUSum(const Matrix& other) const;
-            Matrix CPUSum(T other) const;
-            Matrix CPUMatrixVectorSum(const Matrix& other) const;
-            Matrix CPUMatrixVectorDifference(const Matrix& other) const;
-            Matrix CPUDifference(const Matrix& other) const;
-            Matrix CPUDifference(T other) const;
-            Matrix CPUScalarProduct(T other) const;
-            Matrix CPUDotProduct(const Matrix& other) const;
-            Matrix matrixArithmetic(const Matrix<T>& other, int mode) const;
-            Matrix matrixTiledArithmetic(const Matrix<T>& other, int mode) const;
-            Matrix scalarArithmetic(T other, int mode) const;
     };
 
     template <typename T, typename O>
@@ -87,6 +79,11 @@ namespace math {
     template <typename T, typename O>
     Matrix<T> operator-(O other, const Matrix<T>& A) {
         return (A * -1) + other;
+    }
+
+    template <typename T, typename O>
+    Matrix<T> operator+(O other, const Matrix<T>& A) {
+        return A + other;
     }
 }
 

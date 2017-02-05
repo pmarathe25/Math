@@ -153,15 +153,71 @@ int testMatrixArithmetic() {
     (arithmeticTest0 - arithmeticTest1).display();
 }
 
+int testMatrixVectorArithmetic() {
+    std::cout << "Testing Matrix-Vector Arithmetic" << std::endl;
+    std::cout << "10x10 Ones Matrix" << std::endl;
+    math::Matrix<int> vectorArithmeticTest0 = createOnesMatrix<int>(10, 10);
+    vectorArithmeticTest0.display();
+    std::cout << "1x10 Sequential Column Vector" << std::endl;
+    math::Matrix<int> vectorArithmeticTest1 = createSequentialMatrix<int>(10, 1);
+    vectorArithmeticTest1.display();
+    std::cout << "Matrix-Column Vector Addition" << std::endl;
+    vectorArithmeticTest0.addVector(vectorArithmeticTest1).display();
+    std::cout << "1x10 Sequential Row Vector" << std::endl;
+    math::Matrix<int> vectorArithmeticTest2 = createSequentialMatrix<int>(1, 10);
+    vectorArithmeticTest2.display();
+    std::cout << "Matrix-Row Vector Addition" << std::endl;
+    vectorArithmeticTest0.addVector(vectorArithmeticTest2).display();
+    return 0;
+}
+
+int testMatrixScalarArithmetic() {
+    std::cout << "Testing Matrix-Scalar Arithmetic" << std::endl;
+    std::cout << "10x10 Ones Matrix" << std::endl;
+    math::Matrix<int> scalarArithmeticTest0 = createOnesMatrix<int>(10, 10);
+    scalarArithmeticTest0.display();
+    std::cout << "Product with Scalar 2 (Right)" << std::endl;
+    (scalarArithmeticTest0 * 2).display();
+    std::cout << "Product with Scalar 2 (Left)" << std::endl;
+    (2 * scalarArithmeticTest0).display();
+    std::cout << "Sum with Scalar 2 (Right)" << std::endl;
+    (scalarArithmeticTest0 + 2).display();
+    std::cout << "Sum with Scalar 2 (Left)" << std::endl;
+    (2 + scalarArithmeticTest0).display();
+    std::cout << "Difference with Scalar 2 (Right)" << std::endl;
+    (scalarArithmeticTest0 - 2).display();
+    std::cout << "Difference with Scalar 2 (Left)" << std::endl;
+    (2 - scalarArithmeticTest0).display();
+    return 0;
+}
+
+int testMatrixHadamardProduct() {
+    std::cout << "Testing Matrix Hadamard Product" << std::endl;
+    std::cout << "10x10 Sequential Matrix" << std::endl;
+    math::Matrix<int> hadamardProductTest0 = createSequentialMatrix<int>(10, 10);
+    hadamardProductTest0.display();
+    std::cout << "Matrix Hadamard Product with itself" << std::endl;
+    hadamardProductTest0.hadamard(hadamardProductTest0).display();
+    return 0;
+}
+
 int main() {
-    int success = 0;
-    success += testMatrixCreation();
-    success += testMatrixCopy();
-    success += testMatrixReshape();
-    success += testMatrixTranspose();
-    success += testMatrixRandomize();
-    success += testRowMean();
-    success += testRowWiseDot();
-    success += testMatrixMultiplication();
-    success += testMatrixArithmetic();
+    int numFailed = 0;
+    numFailed += testMatrixCreation();
+    numFailed += testMatrixCopy();
+    numFailed += testMatrixReshape();
+    numFailed += testMatrixTranspose();
+    numFailed += testMatrixRandomize();
+    numFailed += testRowMean();
+    numFailed += testRowWiseDot();
+    numFailed += testMatrixMultiplication();
+    numFailed += testMatrixArithmetic();
+    numFailed += testMatrixVectorArithmetic();
+    numFailed += testMatrixScalarArithmetic();
+    numFailed += testMatrixHadamardProduct();
+    if (numFailed == 0) {
+        std::cout << "All Tests Passed." << std::endl;
+    } else {
+        std::cout << numFailed << " Tests Failed." << std::endl;
+    }
 }
