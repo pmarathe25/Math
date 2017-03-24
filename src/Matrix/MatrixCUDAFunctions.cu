@@ -38,7 +38,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeProduct(const T* A, const T* B, int numRowsA, int numColsA, int numRowsB, int numColsB, int Asize, int Bsize, T* C) {
+    __global__ void computeProduct(const T* A, const T* B, int numRowsA, int numColsA, int numColsB, int Asize, int Bsize, T* C) {
        __shared__ T tileA[BLOCK_DIM][BLOCK_DIM + 1];
        __shared__ T tileB[BLOCK_DIM][BLOCK_DIM + 1];
        // Compute the coordinates of matrix C that this thread is responsible for.

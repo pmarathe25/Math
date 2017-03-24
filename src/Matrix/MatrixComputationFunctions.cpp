@@ -63,7 +63,7 @@ namespace math {
             Matrix output = Matrix(numRows(), other.numColumns());
             dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
-            computeProduct<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), other.numRows(), other.numColumns(), size(), other.size(), output.data());
+            computeProduct<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), other.numColumns(), size(), other.size(), output.data());
             cudaDeviceSynchronize();
             return output;
         }
