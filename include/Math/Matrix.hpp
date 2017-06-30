@@ -18,6 +18,7 @@ namespace math {
             Matrix(const std::vector<T>& initialElements);
             Matrix(const std::vector<T>& initialElements, int rows, int cols);
             Matrix(const std::vector<std::vector<T> >& initialElements);
+            Matrix(Matrix&& other);
             Matrix(const Matrix& other);
             template <typename O>
             Matrix(const Matrix<O>& other) {
@@ -71,8 +72,9 @@ namespace math {
             Matrix operator*(T other) const;
             Matrix operator+(T other) const;
             Matrix operator-(T other) const;
-        private:
+        protected:
             T* elements;
+        private:
             int rows, cols, matrixSize;
             bool isVec = false;
             template <typename O>
