@@ -59,19 +59,19 @@ int testMatrixCopy() {
     copyTest0.display();
     std::cout << "Copy" << std::endl;
     copyTest1.display();
-    std::cout << "Copying Matrices of different types" << std::endl;
-    math::Matrix<double> copyTest2 = createSequentialMatrix<double>(2, 10);
-    math::Matrix<int> copyTest3 = copyTest2;
-    std::cout << "Original" << std::endl;
-    copyTest2.display();
-    std::cout << "Copy" << std::endl;
-    copyTest3.display();
-    std::cout << "Modifying First Matrix (Should not affect second)" << std::endl;
-    copyTest2.at(0) = 4056;
-    std::cout << "Original" << std::endl;
-    copyTest2.display();
-    std::cout << "Copy" << std::endl;
-    copyTest3.display();
+    // std::cout << "Copying Matrices of different types" << std::endl;
+    // math::Matrix<double> copyTest2 = createSequentialMatrix<double>(2, 10);
+    // math::Matrix<int> copyTest3 = copyTest2;
+    // std::cout << "Original" << std::endl;
+    // copyTest2.display();
+    // std::cout << "Copy" << std::endl;
+    // copyTest3.display();
+    // std::cout << "Modifying First Matrix (Should not affect second)" << std::endl;
+    // copyTest2.at(0) = 4056;
+    // std::cout << "Original" << std::endl;
+    // copyTest2.display();
+    // std::cout << "Copy" << std::endl;
+    // copyTest3.display();
     return 0;
 }
 

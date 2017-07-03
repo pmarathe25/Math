@@ -20,17 +20,7 @@ namespace math {
             Matrix(const std::vector<std::vector<T> >& initialElements);
             Matrix(Matrix&& other);
             Matrix(const Matrix& other);
-            template <typename O>
-            Matrix(const Matrix<O>& other) {
-                copy(other);
-            }
-            template <typename O>
-            void operator=(const Matrix<O>& other) {
-                copy(other);
-            }
-            void operator=(const Matrix& other) {
-                copy(other);
-            }
+            void operator=(Matrix other);
             ~Matrix();
             // Indexing functions.
             T& at(int row, int col);

@@ -36,15 +36,7 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::dot(const Matrix& other) const {
-        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be dotted.");
-        } else if (isVector()) {
-            Matrix output = T();
-            for (int i = 0; i < size(); ++i) {
-                output[0] += (*this)[i] * other[i];
-            }
-            return output;
-        } else {
+        try {
             Matrix output = Matrix(numRows(), 1);
             // Launch kernel where numThreads = numRows.
             dim3 blocks(std::ceil(numRows() / (float) THREADS_PER_BLOCK));
@@ -52,70 +44,70 @@ namespace math {
             computeRowWiseDotProduct<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), output.data());
             cudaDeviceSynchronize();
             return output;
+        } catch (const std::exception& e) {
+            throw std::invalid_argument("Incompatible matrices cannot be dotted.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
-        if (numColumns() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
-        } else {
+        try {
             Matrix output = Matrix(numRows(), other.numColumns());
             dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
             computeProduct<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), other.numColumns(), size(), other.size(), output.data());
             cudaDeviceSynchronize();
             return output;
+        } catch (const std::exception& e) {
+            throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
-        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be added.");
-        } else {
+        try {
             Matrix output = Matrix(numRows(), numColumns());
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
             computeSum<<<blocks, threads>>>(data(), other.data(), size(), output.data());
             cudaDeviceSynchronize();
             return output;
+        } catch (const std::exception& e) {
+            throw std::invalid_argument("Incompatible matrices cannot be added.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
-        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Incompatible matrices cannot be added.");
-        } else {
+        try {
             Matrix output = Matrix(numRows(), numColumns());
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
             computeDifference<<<blocks, threads>>>(data(), other.data(), size(), output.data());
             cudaDeviceSynchronize();
             return output;
+        } catch (const std::exception& e) {
+            throw std::invalid_argument("Incompatible matrices cannot be added.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::hadamard(const Matrix& other) const {
-        if (numColumns() != other.numColumns() || numRows() != other.numRows()) {
-            throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");
-        } else {
+        try {
             Matrix output = Matrix(numRows(), numColumns());
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
             computeHadamardProduct<<<blocks, threads>>>(data(), other.data(), size(), output.data());
             cudaDeviceSynchronize();
             return output;
+        } catch (const std::exception& e) {
+            throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::addVector(const Matrix<T>& other) const {
-        if (!other.isVector()) {
-            throw std::invalid_argument("addVector only accepts Matrices that are Vectors.");
-        } else {
+        try {
             Matrix output = Matrix(numRows(), numColumns());
             dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
@@ -126,6 +118,8 @@ namespace math {
             }
             cudaDeviceSynchronize();
             return output;
+        } catch (const std::exception& e) {
+            throw std::invalid_argument("addVector only accepts Matrices that are Vectors.");
         }
     }
 

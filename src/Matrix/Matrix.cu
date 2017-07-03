@@ -83,6 +83,17 @@ namespace math {
     }
 
     template <typename T>
+    void Matrix<T>::operator=(Matrix other) {
+        this -> elements = other.data();
+        this -> rows = other.numRows();
+        this -> cols = other.numColumns();
+        this -> matrixSize = rows * cols;
+        isVec = (rows == 1) || (cols == 1);
+        this -> elements = other.elements;
+        other.elements = NULL;
+    }
+
+    template <typename T>
     Matrix<T>::~Matrix() {
         if (elements) {
             cudaFree(elements);
