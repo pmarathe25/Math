@@ -63,12 +63,15 @@ namespace math {
             Matrix operator+(T other) const;
             Matrix operator-(T other) const;
         protected:
-            T* elements;
+            T* elements = NULL;
         private:
             int rows, cols, matrixSize;
             bool isVec = false;
             template <typename O>
             void copy(const Matrix<O>& other) {
+                if (elements) {
+                    cudaFree(elements);
+                }
                 init(other.numRows(), other.numColumns());
                 std::copy(other.data(), other.data() + size(), elements);
             }
