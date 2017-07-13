@@ -53,9 +53,9 @@ namespace math {
             // Matrix Arithmetic
             Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
-            Matrix operator+(const Matrix& other) const;
-            Matrix operator-(const Matrix& other) const;
-            Matrix hadamard(const Matrix& other) const;
+            Matrix operator+(Matrix other) const;
+            Matrix operator-(Matrix other) const;
+            Matrix hadamard(Matrix other) const;
             // Matrix-Vector Arithmetic
             Matrix addVector(const Matrix& other) const;
             // Matrix-Scalar Arithmetic

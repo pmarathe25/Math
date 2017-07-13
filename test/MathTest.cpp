@@ -148,9 +148,11 @@ int testMatrixArithmetic() {
     math::Matrix<float> arithmeticTest1 = createSequentialMatrix<float>(10, 10);
     arithmeticTest1.display();
     std::cout << "Sum" << std::endl;
-    (arithmeticTest0 + arithmeticTest1).display();
+    math::Matrix<float> sum = arithmeticTest0 + arithmeticTest1;
+    sum.display();
     std::cout << "Difference" << std::endl;
-    (arithmeticTest0 - arithmeticTest1).display();
+    math::Matrix<float> difference = arithmeticTest0 - arithmeticTest1;
+    difference.display();
 }
 
 int testMatrixVectorArithmetic() {

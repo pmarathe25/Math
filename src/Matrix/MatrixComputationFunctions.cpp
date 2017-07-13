@@ -4,19 +4,19 @@
 namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::transpose() const {
-        Matrix<T> output;
         // For vectors, we only need to flip the dimensions.
         if (isVector()) {
-            output = (*this);
+            Matrix<T> output = (*this);
             output.reshape(numColumns(), numRows());
+            return output;
         } else {
-            output = Matrix(numColumns(), numRows());
+            Matrix<T> output(numColumns(), numRows());
             dim3 blocks(std::ceil(numRows() / (float) BLOCK_DIM), std::ceil(numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
             computeTranspose<<<blocks, threads>>>(data(), numRows(), numColumns(), output.data());
             cudaDeviceSynchronize();
+            return output;
         }
-        return output;
     }
 
     template <typename T>
@@ -24,7 +24,7 @@ namespace math {
         if (numRows() == 1) {
             return (*this);
         } else {
-            Matrix output = Matrix(1, numColumns());
+            Matrix<T> output(1, numColumns());
             float scaleFactor = 1 / (float) numRows();
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
@@ -37,7 +37,7 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::dot(const Matrix& other) const {
         try {
-            Matrix output = Matrix(numRows(), 1);
+            Matrix<T> output(numRows(), 1);
             // Launch kernel where numThreads = numRows.
             dim3 blocks(std::ceil(numRows() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
@@ -52,7 +52,7 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
         try {
-            Matrix output = Matrix(numRows(), other.numColumns());
+            Matrix<T> output(numRows(), other.numColumns());
             dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
             computeProduct<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), other.numColumns(), size(), other.size(), output.data());
@@ -64,42 +64,39 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
+    Matrix<T> Matrix<T>::operator+(Matrix<T> other) const {
         try {
-            Matrix output = Matrix(numRows(), numColumns());
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeSum<<<blocks, threads>>>(data(), other.data(), size(), output.data());
+            computeSum<<<blocks, threads>>>(data(), other.data(), size(), other.data());
             cudaDeviceSynchronize();
-            return output;
+            return other;
         } catch (const std::exception& e) {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
         }
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
+    Matrix<T> Matrix<T>::operator-(Matrix<T> other) const {
         try {
-            Matrix output = Matrix(numRows(), numColumns());
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeDifference<<<blocks, threads>>>(data(), other.data(), size(), output.data());
+            computeDifference<<<blocks, threads>>>(data(), other.data(), size(), other.data());
             cudaDeviceSynchronize();
-            return output;
+            return other;
         } catch (const std::exception& e) {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
         }
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::hadamard(const Matrix& other) const {
+    Matrix<T> Matrix<T>::hadamard(Matrix<T> other) const {
         try {
-            Matrix output = Matrix(numRows(), numColumns());
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeHadamardProduct<<<blocks, threads>>>(data(), other.data(), size(), output.data());
+            computeHadamardProduct<<<blocks, threads>>>(data(), other.data(), size(), other.data());
             cudaDeviceSynchronize();
-            return output;
+            return other;
         } catch (const std::exception& e) {
             throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");
         }
@@ -108,7 +105,7 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::addVector(const Matrix<T>& other) const {
         try {
-            Matrix output = Matrix(numRows(), numColumns());
+            Matrix<T> output(numRows(), numColumns());
             dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
             if (other.numRows() == 1) {
@@ -125,7 +122,7 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::operator*(T other) const {
-        Matrix output = Matrix(numRows(), numColumns());
+        Matrix<T> output(numRows(), numColumns());
         dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
         computeScalarProduct<<<blocks, threads>>>(data(), other, size(), output.data());
@@ -135,7 +132,7 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::operator+(T other) const {
-        Matrix output = Matrix(numRows(), numColumns());
+        Matrix<T> output(numRows(), numColumns());
         dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
         computeScalarSum<<<blocks, threads>>>(data(), other, size(), output.data());
@@ -145,7 +142,7 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::operator-(T other) const {
-        Matrix output = Matrix(numRows(), numColumns());
+        Matrix<T> output(numRows(), numColumns());
         dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
         computeScalarSum<<<blocks, threads>>>(data(), -other, size(), output.data());
