@@ -8,6 +8,14 @@ const int BLOCK_DIM = 32;
 const int THREADS_PER_BLOCK = 1024;
 
 namespace math {
+    template <typename T, T (*func)(T)>
+    __global__ void computeApplyFunction(T* A, int Asize) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            A[index] = func(A[index]);
+        }
+    }
+
     template <typename T>
     class Matrix {
         public:
@@ -62,6 +70,15 @@ namespace math {
             Matrix operator*(T other) const;
             Matrix operator+(T other) const;
             Matrix operator-(T other) const;
+            // In place functions
+            template <T (*func)(T)>
+            const Matrix& applyFunction() {
+                dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+                dim3 threads(THREADS_PER_BLOCK);
+                computeApplyFunction<T, func><<<blocks, threads>>>(data(), size());
+                cudaDeviceSynchronize();
+                return (*this);
+            }
         protected:
             T* elements = NULL;
         private:

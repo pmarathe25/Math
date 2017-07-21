@@ -28,8 +28,8 @@ $(BUILDDIR)/MathParse.o: $(SRCDIR)/MathParse.cpp $(LIBDIR)/Math/libmath.so
 $(TESTDIR)/MathTest: $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(LIBDIR)/Math/libmatrix.so
 	$(CXX) $(TESTLFLAGS) $(TESTOBJS) $(LIBDIR)/Math/libmath.so $(LIBDIR)/Math/libmatrix.so -o $(TESTDIR)/MathTest
 
-$(BUILDDIR)/MathTest.o: $(TESTDIR)/MathTest.cpp $(INCLUDEDIR)/Math/Matrix.hpp $(LIBDIR)/Math/libmath.so
-	$(CXX) $(CFLAGS) $(TESTDIR)/MathTest.cpp -o $(BUILDDIR)/MathTest.o
+$(BUILDDIR)/MathTest.o: $(TESTDIR)/MathTest.cu $(INCLUDEDIR)/Math/Matrix.hpp $(LIBDIR)/Math/libmath.so
+	$(CXX) $(CFLAGS) $(TESTDIR)/MathTest.cu -o $(BUILDDIR)/MathTest.o
 
 $(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEDIR)/Math/MathParser.hpp $(INCLUDEDIR)/Math/Math.hpp \
 	$(INCLUDEDIR)/Text/strmanip.hpp

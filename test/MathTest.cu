@@ -59,19 +59,6 @@ int testMatrixCopy() {
     copyTest0.display();
     std::cout << "Copy" << std::endl;
     copyTest1.display();
-    // std::cout << "Copying Matrices of different types" << std::endl;
-    // math::Matrix<double> copyTest2 = createSequentialMatrix<double>(2, 10);
-    // math::Matrix<int> copyTest3 = copyTest2;
-    // std::cout << "Original" << std::endl;
-    // copyTest2.display();
-    // std::cout << "Copy" << std::endl;
-    // copyTest3.display();
-    // std::cout << "Modifying First Matrix (Should not affect second)" << std::endl;
-    // copyTest2.at(0) = 4056;
-    // std::cout << "Original" << std::endl;
-    // copyTest2.display();
-    // std::cout << "Copy" << std::endl;
-    // copyTest3.display();
     return 0;
 }
 
@@ -153,6 +140,7 @@ int testMatrixArithmetic() {
     std::cout << "Difference" << std::endl;
     math::Matrix<float> difference = arithmeticTest0 - arithmeticTest1;
     difference.display();
+    return 0;
 }
 
 int testMatrixVectorArithmetic() {
@@ -203,6 +191,20 @@ int testMatrixHadamardProduct() {
     return 0;
 }
 
+__device__ double sigmoid(double a) {
+    return 1 / (1 + exp(-a));
+}
+
+int testMatrixApplyFunction() {
+    std::cout << "========================Testing Matrix Apply Function========================" << std::endl;
+    std::cout << "10x10 Sequential Matrix" << std::endl;
+    math::Matrix<double> applyFunctionTest0 = createSequentialMatrix<double>(10, 10) - 50;
+    applyFunctionTest0.display();
+    std::cout << "Applying sigmoid function" << std::endl;
+    applyFunctionTest0.applyFunction<sigmoid>().display();
+    return 0;
+}
+
 int main() {
     int numFailed = 0;
     numFailed += testMatrixCreation();
@@ -217,6 +219,7 @@ int main() {
     numFailed += testMatrixVectorArithmetic();
     numFailed += testMatrixScalarArithmetic();
     numFailed += testMatrixHadamardProduct();
+    numFailed += testMatrixApplyFunction();
     if (numFailed == 0) {
         std::cout << "All Tests Passed." << std::endl;
     } else {
