@@ -85,8 +85,7 @@ namespace math {
         private:
             int rows, cols, matrixSize;
             bool isVec = false;
-            template <typename O>
-            void copy(const Matrix<O>& other) {
+            void copy(const Matrix& other) {
                 if (elements) {
                     cudaFree(elements);
                 }
@@ -110,8 +109,8 @@ namespace math {
         return A + other;
     }
 
-    template <typename T, typename O, typename OO>
-    Matrix<T> randomNormal(int rows, int cols, O mean, OO stdDev) {
+    template <typename T>
+    Matrix<T> randomNormal(int rows, int cols, double mean, double stdDev) {
         Matrix<T> output(rows, cols);
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
@@ -122,8 +121,8 @@ namespace math {
         return output;
     }
 
-    template <typename T, typename O, typename OO>
-    Matrix<T> randomNormalLike(const Matrix<T>& like, O mean, OO stdDev) {
+    template <typename T>
+    Matrix<T> randomNormalLike(const Matrix<T>& like, double mean, double stdDev) {
         Matrix<T> output(like.numRows(), like.numColumns());
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
@@ -134,8 +133,8 @@ namespace math {
         return output;
     }
 
-    template <typename T, typename O, typename OO>
-    Matrix<T> randomUniform(int rows, int cols, O lowerBound, OO upperBound) {
+    template <typename T>
+    Matrix<T> randomUniform(int rows, int cols, double lowerBound, double upperBound) {
         Matrix<T> output(rows, cols);
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
@@ -146,8 +145,8 @@ namespace math {
         return output;
     }
 
-    template <typename T, typename O, typename OO>
-    Matrix<T> randomUniformLike(const Matrix<T>& like, O lowerBound, OO upperBound) {
+    template <typename T>
+    Matrix<T> randomUniformLike(const Matrix<T>& like, double lowerBound, double upperBound) {
         Matrix<T> output(like.numRows(), like.numColumns());
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
