@@ -3,16 +3,18 @@
 #include "Math/Math.hpp"
 #include <fstream>
 #include <vector>
+#include <chrono>
+#include <random>
 
 const int BLOCK_DIM = 32;
 const int THREADS_PER_BLOCK = 1024;
 
 namespace math {
     template <typename T, T (*func)(T)>
-    __global__ void computeApplyFunction(T* A, int Asize) {
+    __global__ void computeApplyFunction(T* A, int Asize, T* B) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
-            A[index] = func(A[index]);
+            B[index] = func(A[index]);
         }
     }
 
@@ -53,8 +55,6 @@ namespace math {
             void read(std::ifstream& inFile);
             // In-place modification
             void reshape(int rows, int cols);
-            void randomizeNormal(T mean = 0, T stdDev = 1);
-            void randomizeUniform(T lowerBound = 0, T upperBound = 1);
             // Unary functions.
             Matrix transpose() const;
             Matrix rowMean() const;
@@ -72,12 +72,13 @@ namespace math {
             Matrix operator-(T other) const;
             // In place functions
             template <T (*func)(T)>
-            const Matrix& applyFunction() {
+            Matrix applyFunction() {
+                Matrix output(numRows(), numColumns());
                 dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
                 dim3 threads(THREADS_PER_BLOCK);
-                computeApplyFunction<T, func><<<blocks, threads>>>(data(), size());
+                computeApplyFunction<T, func><<<blocks, threads>>>(data(), size(), output.data());
                 cudaDeviceSynchronize();
-                return (*this);
+                return output;
             }
         protected:
             T* elements = NULL;
@@ -107,6 +108,54 @@ namespace math {
     template <typename T, typename O>
     Matrix<T> operator+(O other, const Matrix<T>& A) {
         return A + other;
+    }
+
+    template <typename T, typename O>
+    Matrix<T> randomNormal(int rows, int cols, O mean, O stdDev) {
+        Matrix<T> output(rows, cols);
+        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
+        std::default_random_engine generator(value.count());
+        std::normal_distribution<double> normalDistribution(mean, stdDev);
+        for (int i = 0; i < output.size(); ++i) {
+            output[i] = normalDistribution(generator);
+        }
+        return output;
+    }
+
+    template <typename T, typename O>
+    Matrix<T> randomNormalLike(const Matrix<T>& like, O mean, O stdDev) {
+        Matrix<T> output(like.numRows(), like.numColumns());
+        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
+        std::default_random_engine generator(value.count());
+        std::normal_distribution<double> normalDistribution(mean, stdDev);
+        for (int i = 0; i < output.size(); ++i) {
+            output[i] = normalDistribution(generator);
+        }
+        return output;
+    }
+
+    template <typename T, typename O>
+    Matrix<T> randomUniform(int rows, int cols, O lowerBound, O upperBound) {
+        Matrix<T> output(rows, cols);
+        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
+        std::default_random_engine generator(value.count());
+        std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
+        for (int i = 0; i < output.size(); ++i) {
+            output[i] = uniformDistribution(generator);
+        }
+        return output;
+    }
+
+    template <typename T, typename O>
+    Matrix<T> randomUniformLike(const Matrix<T>& like, O lowerBound, O upperBound) {
+        Matrix<T> output(like.numRows(), like.numColumns());
+        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
+        std::default_random_engine generator(value.count());
+        std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
+        for (int i = 0; i < output.size(); ++i) {
+            output[i] = uniformDistribution(generator);
+        }
+        return output;
     }
 }
 

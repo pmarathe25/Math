@@ -85,10 +85,10 @@ int testMatrixRandomize() {
     std::cout << "========================Testing Matrix Randomize========================" << std::endl;
     std::cout << "Normal Randomization | Mean 0 | Standard Deviation 1" << std::endl;
     math::Matrix<float> randomizeTest0 = createSequentialMatrix<float>(5, 30);
-    randomizeTest0.randomizeNormal(0, 1);
+    randomizeTest0 = randomNormalLike(randomizeTest0, 0, 1);
     randomizeTest0.display();
     std::cout << "Uniform Randomization | Range [0, 1]" << std::endl;
-    randomizeTest0.randomizeUniform(0, 1);
+    randomizeTest0 = randomUniformLike(randomizeTest0, 0, 1);
     randomizeTest0.display();
     return 0;
 }
