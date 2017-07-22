@@ -110,8 +110,8 @@ namespace math {
         return A + other;
     }
 
-    template <typename T, typename O>
-    Matrix<T> randomNormal(int rows, int cols, O mean, O stdDev) {
+    template <typename T, typename O, typename OO>
+    Matrix<T> randomNormal(int rows, int cols, O mean, OO stdDev) {
         Matrix<T> output(rows, cols);
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
@@ -122,8 +122,8 @@ namespace math {
         return output;
     }
 
-    template <typename T, typename O>
-    Matrix<T> randomNormalLike(const Matrix<T>& like, O mean, O stdDev) {
+    template <typename T, typename O, typename OO>
+    Matrix<T> randomNormalLike(const Matrix<T>& like, O mean, OO stdDev) {
         Matrix<T> output(like.numRows(), like.numColumns());
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
@@ -134,8 +134,8 @@ namespace math {
         return output;
     }
 
-    template <typename T, typename O>
-    Matrix<T> randomUniform(int rows, int cols, O lowerBound, O upperBound) {
+    template <typename T, typename O, typename OO>
+    Matrix<T> randomUniform(int rows, int cols, O lowerBound, OO upperBound) {
         Matrix<T> output(rows, cols);
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
@@ -146,8 +146,8 @@ namespace math {
         return output;
     }
 
-    template <typename T, typename O>
-    Matrix<T> randomUniformLike(const Matrix<T>& like, O lowerBound, O upperBound) {
+    template <typename T, typename O, typename OO>
+    Matrix<T> randomUniformLike(const Matrix<T>& like, O lowerBound, OO upperBound) {
         Matrix<T> output(like.numRows(), like.numColumns());
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
