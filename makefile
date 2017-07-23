@@ -19,10 +19,10 @@ LFLAGS = -shared -Wno-deprecated-gpu-targets
 TESTLFLAGS = -Wno-deprecated-gpu-targets
 EXECLFLAGS = -Wno-deprecated-gpu-targets
 
-$(LIBDIR)/libmatrix.so: $(BUILDDIR)/Matrix.o
+$(LIBDIR)/libmatrix.so: $(BUILDDIR)/Matrix.o $(LIBTEXT)
 	$(CXX) $(LFLAGS) $(BUILDDIR)/Matrix.o $(LIBTEXT) -o $(LIBDIR)/libmatrix.so
 
-$(LIBDIR)/libmath.so: $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o
+$(LIBDIR)/libmath.so: $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o $(LIBTEXT)
 	$(CXX) $(LFLAGS) $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o $(LIBTEXT) -o $(LIBDIR)/libmath.so
 
 $(BINDIR)/MathParse: $(EXECOBJS) $(LIBDIR)/libmath.so

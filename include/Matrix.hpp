@@ -10,7 +10,7 @@ const int BLOCK_DIM = 32;
 const int THREADS_PER_BLOCK = 1024;
 
 namespace math {
-    template <typename T, T (func)(T)>
+    template <typename T, T func(T)>
     __global__ void computeApplyFunction(T* A, int Asize, T* B) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
@@ -71,7 +71,7 @@ namespace math {
             Matrix operator+(T other) const;
             Matrix operator-(T other) const;
             // In place functions
-            template <T (func)(T)>
+            template <T func(T)>
             Matrix applyFunction() {
                 Matrix output(numRows(), numColumns());
                 dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
