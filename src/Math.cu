@@ -1,4 +1,4 @@
-#include "Math/Math.hpp"
+#include "Math.hpp"
 #include <typeinfo>
 #include <memory>
 #define THREADS_PER_BLOCK 1024

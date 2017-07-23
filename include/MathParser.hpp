@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "Math/Math.hpp"
-#include "Text/strmanip.hpp"
+#include "Math.hpp"
+#include "strmanip.hpp"
 
 namespace math {
     class MathParser {

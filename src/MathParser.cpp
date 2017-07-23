@@ -1,4 +1,4 @@
-#include "Math/MathParser.hpp"
+#include "MathParser.hpp"
 #include <algorithm>
 
 namespace math {

@@ -1,4 +1,4 @@
-#include "Math/Matrix.hpp"
+#include "Matrix.hpp"
 #include <iostream>
 #include <chrono>
 

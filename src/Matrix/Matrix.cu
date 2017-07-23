@@ -1,5 +1,5 @@
-#include "Math/Matrix.hpp"
-#include "Text/strmanip.hpp"
+#include "Matrix.hpp"
+#include "strmanip.hpp"
 #include <iostream>
 #include <iomanip>
 #include <typeinfo>
