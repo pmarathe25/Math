@@ -36,7 +36,7 @@ namespace math {
 
     template <typename T>
     Matrix<T> Matrix<T>::dot(const Matrix& other) const {
-        try {
+        if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             Matrix<T> output(numRows(), 1);
             // Launch kernel where numThreads = numRows.
             dim3 blocks(std::ceil(numRows() / (float) THREADS_PER_BLOCK));
@@ -44,67 +44,67 @@ namespace math {
             computeRowWiseDotProduct<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), output.data());
             cudaDeviceSynchronize();
             return output;
-        } catch (const std::exception& e) {
+        } else {
             throw std::invalid_argument("Incompatible matrices cannot be dotted.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
-        try {
+        if (numColumns() == other.numRows()) {
             Matrix<T> output(numRows(), other.numColumns());
             dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
             computeProduct<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), other.numColumns(), size(), other.size(), output.data());
             cudaDeviceSynchronize();
             return output;
-        } catch (const std::exception& e) {
+        } else {
             throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator+(Matrix<T> other) const {
-        try {
+        if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
             computeSum<<<blocks, threads>>>(data(), other.data(), size(), other.data());
             cudaDeviceSynchronize();
             return other;
-        } catch (const std::exception& e) {
+        } else {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::operator-(Matrix<T> other) const {
-        try {
+        if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
             computeDifference<<<blocks, threads>>>(data(), other.data(), size(), other.data());
             cudaDeviceSynchronize();
             return other;
-        } catch (const std::exception& e) {
+        } else {
             throw std::invalid_argument("Incompatible matrices cannot be added.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::hadamard(Matrix<T> other) const {
-        try {
+        if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
             computeHadamardProduct<<<blocks, threads>>>(data(), other.data(), size(), other.data());
             cudaDeviceSynchronize();
             return other;
-        } catch (const std::exception& e) {
+        } else {
             throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");
         }
     }
 
     template <typename T>
     Matrix<T> Matrix<T>::addVector(const Matrix<T>& other) const {
-        try {
+        if (other.isVector() && (other.size() == numRows() || other.size() == numColumns())) {
             Matrix<T> output(numRows(), numColumns());
             dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
@@ -115,7 +115,7 @@ namespace math {
             }
             cudaDeviceSynchronize();
             return output;
-        } catch (const std::exception& e) {
+        } else {
             throw std::invalid_argument("addVector only accepts Matrices that are Vectors.");
         }
     }
