@@ -85,7 +85,7 @@ namespace math {
     }
 
     template <typename T>
-    void Matrix<T>::operator=(Matrix other) {
+    void Matrix<T>::operator=(Matrix<T> other) {
         if (elements) {
             cudaFree(elements);
         }

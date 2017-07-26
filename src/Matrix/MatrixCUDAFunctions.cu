@@ -12,15 +12,15 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeRowMean(const T* A, float B, int numCols, int size, T* C) {
+    __global__ void computeRowMean(const T* A, float scaleFactor, int numCols, int size, T* C) {
         int col = blockIdx.x * blockDim.x + threadIdx.x;
         float mean = 0;
         if (col < numCols) {
-            for (int i = 0; i < size; i += numCols) {
-                mean += A[i + col] * B;
+            for (int i = col; i < size; i += numCols) {
+                mean += A[i] * scaleFactor;
             }
+            C[col] = mean;
         }
-        C[col] = mean;
     }
 
     template <typename T>
