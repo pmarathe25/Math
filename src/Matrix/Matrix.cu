@@ -5,9 +5,9 @@
 #include <typeinfo>
 // Include matrix functions.
 #include "MatrixCUDAFunctions.cu"
-#include "MatrixAccessFunctions.cpp"
-#include "MatrixModificationFunctions.cpp"
-#include "MatrixComputationFunctions.cpp"
+#include "MatrixAccessFunctions.cu"
+#include "MatrixModificationFunctions.cu"
+#include "MatrixComputationFunctions.cu"
 
 namespace math {
     template <typename T>

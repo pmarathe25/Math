@@ -3,6 +3,9 @@
 #include <vector>
 #include <iostream>
 
+const int BLOCK_DIM = 32;
+const int THREADS_PER_BLOCK = 1024;
+
 namespace math {
     int fibonacci(int n);
     double factorial(double operand);
@@ -10,18 +13,7 @@ namespace math {
     double multiply(double operand1, double operand2);
     double add(double operand1, double operand2);
     double subtract(double operand1, double operand2);
-    // Compute dot product.
-    template <typename T>
-    T innerProduct(const std::vector<T>& a, const std::vector<T>& b);
-    // Display a vector.
-    template <typename T>
-    void display(const std::vector<T>& toDisplay) {
-        for (typename std::vector<T>::const_iterator itVec = toDisplay.begin(); itVec != toDisplay.end(); ++itVec) {
-            std::cout << *itVec << " ";
-        }
-        std::cout << std::endl;
-    }
-
+    int ceilDivide(int x, int y);
 }
 
 #endif

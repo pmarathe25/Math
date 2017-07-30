@@ -3,7 +3,15 @@
 
 namespace math {
     template <typename T>
-    __global__ void computeTranspose(const T* original, int numRows, int numCols, T* transposed) {
+    __global__ void setCUDA(T* A, T setValue, int Asize) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            A[index] = setValue;
+        }
+    }
+
+    template <typename T>
+    __global__ void transposeCUDA(const T* original, int numRows, int numCols, T* transposed) {
         int x = blockIdx.y * BLOCK_DIM + threadIdx.x;
         int y = blockIdx.x * BLOCK_DIM + threadIdx.y;
         if (x < numCols && y < numRows) {
@@ -12,7 +20,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeRowMean(const T* A, float scaleFactor, int numCols, int size, T* C) {
+    __global__ void rowMeanCUDA(const T* A, float scaleFactor, int numCols, int size, T* C) {
         int col = blockIdx.x * blockDim.x + threadIdx.x;
         float mean = 0;
         if (col < numCols) {
@@ -24,8 +32,8 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeRowWiseDotProduct(const T* A, const T* B, int numRows, int numCols, T* C) {
-        // Each thread computes one row.
+    __global__ void rowWiseDotProductCUDA(const T* A, const T* B, int numRows, int numCols, T* C) {
+        // Each thread sCUDA one row.
         int row = blockIdx.x * blockDim.x + threadIdx.x;
         if (row < numRows) {
             T Cvalue = T();
@@ -38,7 +46,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeProduct(const T* A, const T* B, int numRowsA, int numColsA, int numColsB, int Asize, int Bsize, T* C) {
+    __global__ void productCUDA(const T* A, const T* B, int numRowsA, int numColsA, int numColsB, int Asize, int Bsize, T* C) {
        __shared__ T tileA[BLOCK_DIM][BLOCK_DIM + 1];
        __shared__ T tileB[BLOCK_DIM][BLOCK_DIM + 1];
        // Compute the coordinates of matrix C that this thread is responsible for.
@@ -75,7 +83,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeSum(const T* A, const T* B, int Asize, T* C) {
+    __global__ void sumCUDA(const T* A, const T* B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
             C[index] = A[index] + B[index];
@@ -83,7 +91,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeDifference(const T* A, const T* B, int size, T* C) {
+    __global__ void differenceCUDA(const T* A, const T* B, int size, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < size) {
             C[index] = A[index] - B[index];
@@ -91,7 +99,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeMatrixVectorRowSum(const T* A, const T* B, int numCols, int numRowsA, T* C) {
+    __global__ void matrixVectorRowSumCUDA(const T* A, const T* B, int numCols, int numRowsA, T* C) {
         __shared__ T tileB[BLOCK_DIM];
         // Compute the coordinates of matrix C that this thread is responsible for.
         int row = blockIdx.x * blockDim.x + threadIdx.x;
@@ -110,7 +118,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeMatrixVectorColumnSum(const T* A, const T* B, int numRows, int numColsA, T* C) {
+    __global__ void matrixVectorColumnSumCUDA(const T* A, const T* B, int numRows, int numColsA, T* C) {
         __shared__ T tileB[BLOCK_DIM];
         // Compute the coordinates of matrix C that this thread is responsible for.
         int row = blockIdx.x * blockDim.x + threadIdx.x;
@@ -129,7 +137,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeScalarProduct(const T* A, T B, int Asize, T* C) {
+    __global__ void scalarProductCUDA(const T* A, T B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
             C[index] = A[index] * B;
@@ -137,7 +145,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeScalarSum(const T* A, T B, int Asize, T* C) {
+    __global__ void scalarSumCUDA(const T* A, T B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
             C[index] = A[index] + B;
@@ -145,7 +153,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void computeHadamardProduct(const T* A, const T* B, int Asize, T* C) {
+    __global__ void hadamardProductCUDA(const T* A, const T* B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
             C[index] = A[index] * B[index];

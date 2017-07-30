@@ -44,8 +44,8 @@ $(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEPATH)/MathParser.hpp
 $(BUILDDIR)/Math.o: $(INCLUDEPATH)/Math.hpp $(SRCDIR)/Math.cu
 	$(CXX) $(CFLAGS) $(SRCDIR)/Math.cu -o $(BUILDDIR)/Math.o
 
-$(BUILDDIR)/Matrix.o: $(INCLUDEPATH)/Matrix.hpp $(INCLUDEPATH)/Math.hpp $(SRCDIR)/Matrix/Matrix.cu $(SRCDIR)/Matrix/MatrixComputationFunctions.cpp \
-	$(SRCDIR)/Matrix/MatrixCUDAFunctions.cu $(SRCDIR)/Matrix/MatrixModificationFunctions.cpp $(SRCDIR)/Matrix/MatrixAccessFunctions.cpp
+$(BUILDDIR)/Matrix.o: $(INCLUDEPATH)/Matrix.hpp $(INCLUDEPATH)/Math.hpp $(SRCDIR)/Matrix/Matrix.cu $(SRCDIR)/Matrix/MatrixComputationFunctions.cu \
+	$(SRCDIR)/Matrix/MatrixCUDAFunctions.cu $(SRCDIR)/Matrix/MatrixModificationFunctions.cu $(SRCDIR)/Matrix/MatrixAccessFunctions.cu
 	$(CXX) $(CFLAGS) $(SRCDIR)/Matrix/Matrix.cu -o $(BUILDDIR)/Matrix.o
 
 clean:

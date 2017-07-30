@@ -6,14 +6,14 @@ namespace math {
     Matrix<T> Matrix<T>::transpose() const {
         // For vectors, we only need to flip the dimensions.
         if (isVector()) {
-            Matrix<T> output = (*this);
+            Matrix<T> output(*this);
             output.reshape(numColumns(), numRows());
             return output;
         } else {
             Matrix<T> output(numColumns(), numRows());
-            dim3 blocks(std::ceil(numRows() / (float) BLOCK_DIM), std::ceil(numColumns() / (float) BLOCK_DIM));
+            dim3 blocks(ceilDivide(numRows(), BLOCK_DIM), ceilDivide(numColumns(), BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
-            computeTranspose<<<blocks, threads>>>(data(), numRows(), numColumns(), output.data());
+            transposeCUDA<<<blocks, threads>>>(data(), numRows(), numColumns(), output.data());
             cudaDeviceSynchronize();
             return output;
         }
@@ -26,9 +26,9 @@ namespace math {
         } else {
             Matrix<T> output(1, numColumns());
             float scaleFactor = 1 / (float) numRows();
-            dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+            dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeRowMean<<<blocks, threads>>>(data(), scaleFactor, numColumns(), size(), output.data());
+            rowMeanCUDA<<<blocks, threads>>>(data(), scaleFactor, numColumns(), size(), output.data());
             cudaDeviceSynchronize();
             return output;
         }
@@ -39,9 +39,9 @@ namespace math {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             Matrix<T> output(numRows(), 1);
             // Launch kernel where numThreads = numRows.
-            dim3 blocks(std::ceil(numRows() / (float) THREADS_PER_BLOCK));
+            dim3 blocks(ceilDivide(numRows(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeRowWiseDotProduct<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), output.data());
+            rowWiseDotProductCUDA<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), output.data());
             cudaDeviceSynchronize();
             return output;
         } else {
@@ -53,9 +53,9 @@ namespace math {
     Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
         if (numColumns() == other.numRows()) {
             Matrix<T> output(numRows(), other.numColumns());
-            dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
+            dim3 blocks(ceilDivide(output.numRows(), BLOCK_DIM), ceilDivide(output.numColumns(), BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
-            computeProduct<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), other.numColumns(), size(), other.size(), output.data());
+            productCUDA<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), other.numColumns(), size(), other.size(), output.data());
             cudaDeviceSynchronize();
             return output;
         } else {
@@ -66,9 +66,9 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::operator+(Matrix<T> other) const {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
-            dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+            dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeSum<<<blocks, threads>>>(data(), other.data(), size(), other.data());
+            sumCUDA<<<blocks, threads>>>(data(), other.data(), size(), other.data());
             cudaDeviceSynchronize();
             return other;
         } else {
@@ -79,9 +79,9 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::operator-(Matrix<T> other) const {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
-            dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+            dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeDifference<<<blocks, threads>>>(data(), other.data(), size(), other.data());
+            differenceCUDA<<<blocks, threads>>>(data(), other.data(), size(), other.data());
             cudaDeviceSynchronize();
             return other;
         } else {
@@ -92,9 +92,9 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::hadamard(Matrix<T> other) const {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
-            dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+            dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            computeHadamardProduct<<<blocks, threads>>>(data(), other.data(), size(), other.data());
+            hadamardProductCUDA<<<blocks, threads>>>(data(), other.data(), size(), other.data());
             cudaDeviceSynchronize();
             return other;
         } else {
@@ -106,12 +106,12 @@ namespace math {
     Matrix<T> Matrix<T>::addVector(const Matrix<T>& other) const {
         if (other.isVector() && (other.size() == numRows() || other.size() == numColumns())) {
             Matrix<T> output(numRows(), numColumns());
-            dim3 blocks(std::ceil(output.numRows() / (float) BLOCK_DIM), std::ceil(output.numColumns() / (float) BLOCK_DIM));
+            dim3 blocks(ceilDivide(output.numRows(), BLOCK_DIM), ceilDivide(output.numColumns(), BLOCK_DIM));
             dim3 threads(BLOCK_DIM, BLOCK_DIM);
             if (other.numRows() == 1) {
-                computeMatrixVectorRowSum<<<blocks, threads>>>(data(), other.data(), numColumns(), numRows(), output.data());
+                matrixVectorRowSumCUDA<<<blocks, threads>>>(data(), other.data(), numColumns(), numRows(), output.data());
             } else {
-                computeMatrixVectorColumnSum<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), output.data());
+                matrixVectorColumnSumCUDA<<<blocks, threads>>>(data(), other.data(), numRows(), numColumns(), output.data());
             }
             cudaDeviceSynchronize();
             return output;
@@ -123,9 +123,9 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::operator*(T other) const {
         Matrix<T> output(numRows(), numColumns());
-        dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+        dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
-        computeScalarProduct<<<blocks, threads>>>(data(), other, size(), output.data());
+        scalarProductCUDA<<<blocks, threads>>>(data(), other, size(), output.data());
         cudaDeviceSynchronize();
         return output;
     }
@@ -133,9 +133,9 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::operator+(T other) const {
         Matrix<T> output(numRows(), numColumns());
-        dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+        dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
-        computeScalarSum<<<blocks, threads>>>(data(), other, size(), output.data());
+        scalarSumCUDA<<<blocks, threads>>>(data(), other, size(), output.data());
         cudaDeviceSynchronize();
         return output;
     }
@@ -143,12 +143,13 @@ namespace math {
     template <typename T>
     Matrix<T> Matrix<T>::operator-(T other) const {
         Matrix<T> output(numRows(), numColumns());
-        dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
+        dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
-        computeScalarSum<<<blocks, threads>>>(data(), -other, size(), output.data());
+        scalarSumCUDA<<<blocks, threads>>>(data(), -other, size(), output.data());
         cudaDeviceSynchronize();
         return output;
     }
+
 }
 
 #endif

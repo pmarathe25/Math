@@ -6,15 +6,20 @@
 #include <chrono>
 #include <random>
 
-const int BLOCK_DIM = 32;
-const int THREADS_PER_BLOCK = 1024;
-
 namespace math {
     template <typename T, T func(T)>
-    __global__ void computeApplyFunction(T* A, int Asize, T* B) {
+    __global__ void computeApplyFunction(const T* A, int Asize, T* B) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
             B[index] = func(A[index]);
+        }
+    }
+
+    template <typename T>
+    __global__ void powerCUDA(const T* A, int exponent, int Asize, T* C) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            C[index] = powf(A[index], exponent);
         }
     }
 
@@ -55,6 +60,7 @@ namespace math {
             void read(std::ifstream& inFile);
             // In-place modification
             void reshape(int rows, int cols);
+            void set(T setValue);
             // Unary functions.
             Matrix transpose() const;
             Matrix rowMean() const;
@@ -72,7 +78,7 @@ namespace math {
             Matrix operator-(T other) const;
             // In place functions
             template <T func(T)>
-            Matrix applyFunction() {
+            Matrix applyFunction() const {
                 Matrix output(numRows(), numColumns());
                 dim3 blocks(std::ceil(size() / (float) THREADS_PER_BLOCK));
                 dim3 threads(THREADS_PER_BLOCK);
@@ -80,6 +86,14 @@ namespace math {
                 cudaDeviceSynchronize();
                 return output;
             }
+            // Static functions for Matrix creation.
+            static Matrix<T> randomNormal(int rows, int cols, double mean, double stdDev);
+            static Matrix<T> randomNormalLike(const Matrix<T>& like, double mean, double stdDev);
+            static Matrix<T> randomUniform(int rows, int cols, double lowerBound, double upperBound);
+            static Matrix<T> randomUniformLike(const Matrix<T>& like, double lowerBound, double upperBound);
+            static Matrix<T> ones(int rows, int cols);
+            static Matrix<T> zeros(int rows, int cols);
+            static Matrix<T> sequentialMatrix(int rows, int cols);
         protected:
             T* elements = NULL;
         private:
@@ -110,52 +124,19 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> randomNormal(int rows, int cols, double mean, double stdDev) {
-        Matrix<T> output(rows, cols);
-        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
-        std::default_random_engine generator(value.count());
-        std::normal_distribution<double> normalDistribution(mean, stdDev);
-        for (int i = 0; i < output.size(); ++i) {
-            output[i] = normalDistribution(generator);
-        }
+    Matrix<T> pow(const Matrix<T>& input, int exponent) {
+        Matrix<T> output(input.numRows(), input.numColumns());
+        dim3 blocks(ceilDivide(output.size(), THREADS_PER_BLOCK));
+        dim3 threads(THREADS_PER_BLOCK);
+        powerCUDA<<<blocks, threads>>>(input.data(), exponent, input.size(), output.data());
+        cudaDeviceSynchronize();
         return output;
     }
-
-    template <typename T>
-    Matrix<T> randomNormalLike(const Matrix<T>& like, double mean, double stdDev) {
-        Matrix<T> output(like.numRows(), like.numColumns());
-        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
-        std::default_random_engine generator(value.count());
-        std::normal_distribution<double> normalDistribution(mean, stdDev);
-        for (int i = 0; i < output.size(); ++i) {
-            output[i] = normalDistribution(generator);
-        }
-        return output;
-    }
-
-    template <typename T>
-    Matrix<T> randomUniform(int rows, int cols, double lowerBound, double upperBound) {
-        Matrix<T> output(rows, cols);
-        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
-        std::default_random_engine generator(value.count());
-        std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
-        for (int i = 0; i < output.size(); ++i) {
-            output[i] = uniformDistribution(generator);
-        }
-        return output;
-    }
-
-    template <typename T>
-    Matrix<T> randomUniformLike(const Matrix<T>& like, double lowerBound, double upperBound) {
-        Matrix<T> output(like.numRows(), like.numColumns());
-        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
-        std::default_random_engine generator(value.count());
-        std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
-        for (int i = 0; i < output.size(); ++i) {
-            output[i] = uniformDistribution(generator);
-        }
-        return output;
-    }
+    
 }
+
+typedef math::Matrix<int> Mat;
+typedef math::Matrix<float> MatF;
+typedef math::Matrix<double> MatD;
 
 #endif
