@@ -68,7 +68,7 @@ namespace math {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            sumCUDA<<<blocks, threads>>>(data(), other.data(), size(), other.data());
+            sumCUDA<<<blocks, threads>>>(data(), other.data(), size());
             cudaDeviceSynchronize();
             return other;
         } else {
@@ -81,7 +81,7 @@ namespace math {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            differenceCUDA<<<blocks, threads>>>(data(), other.data(), size(), other.data());
+            differenceCUDA<<<blocks, threads>>>(data(), other.data(), size());
             cudaDeviceSynchronize();
             return other;
         } else {
@@ -94,7 +94,7 @@ namespace math {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            hadamardProductCUDA<<<blocks, threads>>>(data(), other.data(), size(), other.data());
+            hadamardProductCUDA<<<blocks, threads>>>(data(), other.data(), size());
             cudaDeviceSynchronize();
             return other;
         } else {

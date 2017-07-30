@@ -83,18 +83,18 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void sumCUDA(const T* A, const T* B, int Asize, T* C) {
+    __global__ void sumCUDA(const T* A, T* B, int Asize) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
-            C[index] = A[index] + B[index];
+            B[index] = A[index] + B[index];
         }
     }
 
     template <typename T>
-    __global__ void differenceCUDA(const T* A, const T* B, int size, T* C) {
+    __global__ void differenceCUDA(const T* A, T* B, int size) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < size) {
-            C[index] = A[index] - B[index];
+            B[index] = A[index] - B[index];
         }
     }
 
@@ -153,10 +153,10 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void hadamardProductCUDA(const T* A, const T* B, int Asize, T* C) {
+    __global__ void hadamardProductCUDA(const T* A, T* B, int Asize) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
-            C[index] = A[index] * B[index];
+            B[index] = A[index] * B[index];
         }
     }
 }
