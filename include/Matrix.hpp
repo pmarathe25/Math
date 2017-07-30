@@ -132,11 +132,11 @@ namespace math {
         cudaDeviceSynchronize();
         return output;
     }
-    
+
 }
 
-typedef math::Matrix<int> Mat;
-typedef math::Matrix<float> MatF;
-typedef math::Matrix<double> MatD;
+typedef math::Matrix<int> Matrix;
+typedef math::Matrix<float> Matrix_F;
+typedef math::Matrix<double> Matrix_D;
 
 #endif
