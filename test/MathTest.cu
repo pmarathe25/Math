@@ -148,8 +148,10 @@ int testMatrixVectorArithmetic() {
 int testMatrixScalarArithmetic() {
     std::cout << "========================Testing Matrix-Scalar Arithmetic========================" << std::endl;
     std::cout << "10x10 Ones Matrix" << std::endl;
-    Matrix scalarArithmeticTest0 = Matrix::ones(10, 10);
+    Matrix_F scalarArithmeticTest0 = Matrix_F::ones(10, 10);
     scalarArithmeticTest0.display();
+    std::cout << "Division with Scalar 2 (Right)" << std::endl;
+    (scalarArithmeticTest0 / 2).display();
     std::cout << "Product with Scalar 2 (Right)" << std::endl;
     (scalarArithmeticTest0 * 2).display();
     std::cout << "Product with Scalar 2 (Left)" << std::endl;
@@ -213,7 +215,7 @@ int main() {
     // numFailed += testMatrixMultiplication();
     // numFailed += testMatrixArithmetic();
     // numFailed += testMatrixVectorArithmetic();
-    // numFailed += testMatrixScalarArithmetic();
+    numFailed += testMatrixScalarArithmetic();
     // numFailed += testMatrixHadamardProduct();
     // numFailed += testMatrixApplyFunction();
     // numFailed += testMatrixPower();

@@ -155,6 +155,16 @@ namespace math {
     }
 
     template <typename T>
+    Matrix<T> Matrix<T>::operator/(T other) const {
+        Matrix<T> output(numRows(), numColumns());
+        dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
+        dim3 threads(THREADS_PER_BLOCK);
+        scalarQuotientCUDA<<<blocks, threads>>>(data(), other, size(), output.data());
+        cudaDeviceSynchronize();
+        return output;
+    }
+
+    template <typename T>
     Matrix<T> Matrix<T>::operator+(T other) const {
         Matrix<T> output(numRows(), numColumns());
         dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));

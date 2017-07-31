@@ -153,6 +153,14 @@ namespace math {
     }
 
     template <typename T>
+    __global__ void scalarQuotientCUDA(const T* A, T B, int Asize, T* C) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            C[index] = A[index] / B;
+        }
+    }
+
+    template <typename T>
     __global__ void scalarSumCUDA(const T* A, T B, int Asize, T* C) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {

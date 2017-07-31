@@ -76,6 +76,7 @@ namespace math {
             Matrix addVector(const Matrix& other) const;
             // Matrix-Scalar Arithmetic
             Matrix operator*(T other) const;
+            Matrix operator/(T other) const;
             Matrix operator+(T other) const;
             Matrix operator-(T other) const;
             // In place functions
