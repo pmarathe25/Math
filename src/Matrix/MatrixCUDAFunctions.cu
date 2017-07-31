@@ -22,12 +22,12 @@ namespace math {
     template <typename T>
     __global__ void rowMeanCUDA(const T* A, float scaleFactor, int numCols, int size, T* C) {
         int col = blockIdx.x * blockDim.x + threadIdx.x;
-        float mean = 0;
+        float sum = 0;
         if (col < numCols) {
             for (int i = col; i < size; i += numCols) {
-                mean += A[i] * scaleFactor;
+                sum += A[i];
             }
-            C[col] = mean;
+            C[col] = sum * scaleFactor;
         }
     }
 

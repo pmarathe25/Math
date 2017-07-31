@@ -203,20 +203,20 @@ int testMatrixPower() {
 
 int main() {
     int numFailed = 0;
-    numFailed += testMatrixCreation();
-    numFailed += testMatrixCopy();
-    numFailed += testMatrixReshape();
-    numFailed += testMatrixTranspose();
-    numFailed += testMatrixRandomize();
+    // numFailed += testMatrixCreation();
+    // numFailed += testMatrixCopy();
+    // numFailed += testMatrixReshape();
+    // numFailed += testMatrixTranspose();
+    // numFailed += testMatrixRandomize();
     numFailed += testRowMean();
-    numFailed += testDotProduct();
-    numFailed += testMatrixMultiplication();
-    numFailed += testMatrixArithmetic();
-    numFailed += testMatrixVectorArithmetic();
-    numFailed += testMatrixScalarArithmetic();
-    numFailed += testMatrixHadamardProduct();
-    numFailed += testMatrixApplyFunction();
-    numFailed += testMatrixPower();
+    // numFailed += testDotProduct();
+    // numFailed += testMatrixMultiplication();
+    // numFailed += testMatrixArithmetic();
+    // numFailed += testMatrixVectorArithmetic();
+    // numFailed += testMatrixScalarArithmetic();
+    // numFailed += testMatrixHadamardProduct();
+    // numFailed += testMatrixApplyFunction();
+    // numFailed += testMatrixPower();
     if (numFailed == 0) {
         std::cout << "All Tests Passed." << std::endl;
     } else {
