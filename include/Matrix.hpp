@@ -31,7 +31,7 @@ namespace math {
             Matrix(T elem);
             Matrix(int rows, int cols);
             Matrix(const std::vector<T>& initialElements);
-            Matrix(const std::vector<T>& initialElements, int rows, int cols);
+            Matrix(const std::vector<T>& initialElements, int rows, int cols = -1);
             Matrix(const std::vector<std::vector<T> >& initialElements);
             Matrix(Matrix&& other);
             Matrix(const Matrix& other);
@@ -68,7 +68,9 @@ namespace math {
             Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;
             Matrix operator+(Matrix other) const;
+            void operator+=(const Matrix& other);
             Matrix operator-(Matrix other) const;
+            void operator-=(const Matrix& other);
             Matrix hadamard(Matrix other) const;
             // Matrix-Vector Arithmetic
             Matrix addVector(const Matrix& other) const;
@@ -87,13 +89,15 @@ namespace math {
                 return output;
             }
             // Static functions for Matrix creation.
-            static Matrix<T> randomNormal(int rows, int cols, double mean, double stdDev);
-            static Matrix<T> randomNormalLike(const Matrix<T>& like, double mean, double stdDev);
-            static Matrix<T> randomUniform(int rows, int cols, double lowerBound, double upperBound);
-            static Matrix<T> randomUniformLike(const Matrix<T>& like, double lowerBound, double upperBound);
-            static Matrix<T> ones(int rows, int cols);
-            static Matrix<T> zeros(int rows, int cols);
-            static Matrix<T> sequentialMatrix(int rows, int cols);
+            static Matrix randomNormal(int rows, int cols, double mean, double stdDev);
+            static Matrix randomNormalLike(const Matrix& like, double mean, double stdDev);
+            static Matrix randomUniform(int rows, int cols, double lowerBound, double upperBound);
+            static Matrix randomUniformLike(const Matrix& like, double lowerBound, double upperBound);
+            static Matrix ones(int rows, int cols);
+            static Matrix onesLike(const Matrix& like);
+            static Matrix zeros(int rows, int cols);
+            static Matrix zerosLike(const Matrix& like);
+            static Matrix sequentialMatrix(int rows, int cols);
         protected:
             T* elements = NULL;
         private:

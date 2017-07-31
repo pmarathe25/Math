@@ -34,7 +34,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::randomNormalLike(const Matrix<T>& like, double mean, double stdDev) {
+    Matrix<T> Matrix<T>::randomNormalLike(const Matrix& like, double mean, double stdDev) {
         Matrix<T> output(like.numRows(), like.numColumns());
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
@@ -58,7 +58,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::randomUniformLike(const Matrix<T>& like, double lowerBound, double upperBound) {
+    Matrix<T> Matrix<T>::randomUniformLike(const Matrix& like, double lowerBound, double upperBound) {
         Matrix<T> output(like.numRows(), like.numColumns());
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
@@ -77,8 +77,22 @@ namespace math {
     }
 
     template <typename T>
+    Matrix<T> Matrix<T>::onesLike(const Matrix& like) {
+        Matrix<T> output(like.numRows(), like.numColumns());
+        output.set(1);
+        return output;
+    }
+
+    template <typename T>
     Matrix<T> Matrix<T>::zeros(int rows, int cols) {
         Matrix<T> output(rows, cols);
+        output.set(0);
+        return output;
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::zerosLike(const Matrix& like) {
+        Matrix<T> output(like.numRows(), like.numColumns());
         output.set(0);
         return output;
     }

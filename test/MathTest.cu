@@ -105,7 +105,7 @@ int testMatrixMultiplication() {
 }
 
 int testMatrixArithmetic() {
-    std::cout << "========================Testing Matrix Arithmetic========================" << std::endl;
+    std::cout << "========================Testing Matrix-Matrix Arithmetic========================" << std::endl;
     std::cout << "10x10 Ones Matrix" << std::endl;
     Matrix_F arithmeticTest0 = Matrix_F::ones(10, 10);
     arithmeticTest0.display();
@@ -118,6 +118,12 @@ int testMatrixArithmetic() {
     std::cout << "Difference" << std::endl;
     Matrix_F difference = arithmeticTest0 - arithmeticTest1;
     difference.display();
+    std::cout << "Sum in place" << std::endl;
+    arithmeticTest0 += arithmeticTest1;
+    arithmeticTest0.display();
+    std::cout << "Difference in place" << std::endl;
+    arithmeticTest0 -= arithmeticTest1;
+    arithmeticTest0.display();
     return 0;
 }
 

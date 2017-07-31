@@ -50,7 +50,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
+    Matrix<T> Matrix<T>::operator*(const Matrix& other) const {
         if (numColumns() == other.numRows()) {
             Matrix<T> output(numRows(), other.numColumns());
             dim3 blocks(ceilDivide(output.numRows(), BLOCK_DIM), ceilDivide(output.numColumns(), BLOCK_DIM));
@@ -64,7 +64,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator+(Matrix<T> other) const {
+    Matrix<T> Matrix<T>::operator+(Matrix other) const {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
@@ -77,7 +77,18 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::operator-(Matrix<T> other) const {
+    void Matrix<T>::operator+=(const Matrix& other) {
+        if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
+            dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
+            dim3 threads(THREADS_PER_BLOCK);
+            sumCUDA<<<blocks, threads>>>(other.data(), data(), size());
+            cudaDeviceSynchronize();
+        } else {
+            throw std::invalid_argument("Incompatible matrices cannot be added.");
+        }
+    }
+    template <typename T>
+    Matrix<T> Matrix<T>::operator-(Matrix other) const {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
@@ -90,7 +101,20 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::hadamard(Matrix<T> other) const {
+    void Matrix<T>::operator-=(const Matrix& other) {
+        if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
+            dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
+            dim3 threads(THREADS_PER_BLOCK);
+            differenceInPlaceCUDA<<<blocks, threads>>>(other.data(), data(), size());
+            cudaDeviceSynchronize();
+        } else {
+            throw std::invalid_argument("Incompatible matrices cannot be added.");
+        }
+    }
+
+
+    template <typename T>
+    Matrix<T> Matrix<T>::hadamard(Matrix other) const {
         if (numRows() == other.numRows() && numColumns() == other.numColumns()) {
             dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
@@ -103,7 +127,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::addVector(const Matrix<T>& other) const {
+    Matrix<T> Matrix<T>::addVector(const Matrix& other) const {
         if (other.isVector() && (other.size() == numRows() || other.size() == numColumns())) {
             Matrix<T> output(numRows(), numColumns());
             dim3 blocks(ceilDivide(output.numRows(), BLOCK_DIM), ceilDivide(output.numColumns(), BLOCK_DIM));

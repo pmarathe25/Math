@@ -45,6 +45,7 @@ namespace math {
     template <typename T>
     Matrix<T>::Matrix(const std::vector<T>& initialElements, int rows, int cols) {
         // Initialize elements with size (rowsRaw, colsRaw).
+        cols = (cols == -1) ? initialElements.size() / rows : cols;
         init(rows, cols);
         if (size() != initialElements.size()) {
             throw std::invalid_argument("Matrix initialization dimension mismatch.");

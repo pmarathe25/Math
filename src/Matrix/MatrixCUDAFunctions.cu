@@ -86,7 +86,7 @@ namespace math {
     __global__ void sumCUDA(const T* A, T* B, int Asize) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
-            B[index] = A[index] + B[index];
+            B[index] += A[index];
         }
     }
 
@@ -95,6 +95,14 @@ namespace math {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < size) {
             B[index] = A[index] - B[index];
+        }
+    }
+
+    template <typename T>
+    __global__ void differenceInPlaceCUDA(const T* B, T* A, int size) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < size) {
+            A[index] -= B[index];
         }
     }
 
@@ -156,7 +164,7 @@ namespace math {
     __global__ void hadamardProductCUDA(const T* A, T* B, int Asize) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {
-            B[index] = A[index] * B[index];
+            B[index] *= A[index];
         }
     }
 }
