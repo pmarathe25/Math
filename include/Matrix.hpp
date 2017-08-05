@@ -55,6 +55,7 @@ namespace math {
             int numColumns() const;
             int size() const;
             bool isVector() const;
+            bool sizeMatches(const Matrix& other) const;
             // Display
             void display() const;
             // In-place modification

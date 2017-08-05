@@ -130,6 +130,11 @@ namespace math {
     }
 
     template <typename T>
+    bool Matrix<T>::sizeMatches(const Matrix<T>& other) const {
+        return numRows() == other.numRows() && numColumns() == other.numColumns();
+    }
+
+    template <typename T>
     void Matrix<T>::display() const {
         for (int i = 0; i < numRows(); ++i) {
             for (int j = 0; j < numColumns(); ++j) {
@@ -142,10 +147,9 @@ namespace math {
 
     template <typename T>
     void Matrix<T>::save(const std::string& filePath) const {
-        std::ofstream saveFile(filePath);
+        std::ofstream saveFile(filePath, std::ios::binary);
         if (saveFile.is_open()) {
             save(saveFile);
-            saveFile.close();
         } else {
             throw std::invalid_argument("Could not open file.");
         }
@@ -154,12 +158,17 @@ namespace math {
     template <typename T>
     void Matrix<T>::save(std::ofstream& outFile) const {
         if (outFile.is_open()) {
-            outFile << std::hex << numRows() << "\\" << numColumns() << '\n';
+            // Write metadata
+            int currentRows = rows, currentCols = cols;
+            outFile.write(reinterpret_cast<char*>(&currentRows), sizeof currentRows);
+            outFile.write(reinterpret_cast<char*>(&currentCols), sizeof currentCols);
             // Write elements
             for (int i = 0; i < size(); ++i) {
-                outFile << elements[i] << '\\';
+                // outFile << std::hexfloat << elements[i] << '\\';
+                outFile.write(reinterpret_cast<char*>(&elements[i]), sizeof elements[i]);
+                // outFile.write('\\');
             }
-            outFile << '\n';
+            // outFile << '\n';
         } else {
             throw std::invalid_argument("Could not open file.");
         }

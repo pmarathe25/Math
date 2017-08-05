@@ -208,12 +208,14 @@ int testMatrixFileIO() {
     std::string filePath = "./test/matrix";
     std::cout << "========================Testing Matrix File IO========================" << '\n';
     std::cout << "100x100 Random Normal Matrix" << '\n';
-    Matrix_D fileIOTest0 = Matrix_D::randomNormal(100, 100);
+    Matrix_D fileIOTest0 = Matrix_D::randomNormal(6, 8);
+    fileIOTest0.display();
     std::cout << "Writing matrix" << '\n';
     fileIOTest0.save(filePath);
     std::cout << "Loading matrix" << '\n';
     Matrix_D fileIOTest1(filePath);
     std::cout << "Loaded matrix of dimensions " << fileIOTest1.numRows() << "x" << fileIOTest1.numColumns() << '\n';
+    fileIOTest1.display();
     std::cout << '\n';
     return 0;
 }
