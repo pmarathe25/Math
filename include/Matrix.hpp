@@ -63,7 +63,7 @@ namespace math {
             void set(T setValue);
             // Unary functions.
             Matrix transpose() const;
-            Matrix rowMean() const;
+            Matrix weightedSum(float scaleFactor = 1.0) const;
             // Matrix-Matrix Arithmetic
             Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;

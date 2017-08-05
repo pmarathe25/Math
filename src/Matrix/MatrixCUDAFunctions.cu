@@ -20,9 +20,9 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void rowMeanCUDA(const T* A, float scaleFactor, int numCols, int size, T* C) {
+    __global__ void weightedSumCUDA(const T* A, float scaleFactor, int numCols, int size, T* C) {
         int col = blockIdx.x * blockDim.x + threadIdx.x;
-        float sum = 0;
+        T sum = T();
         if (col < numCols) {
             for (int i = col; i < size; i += numCols) {
                 sum += A[i];

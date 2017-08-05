@@ -20,15 +20,14 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::rowMean() const {
+    Matrix<T> Matrix<T>::weightedSum(float scaleFactor) const {
         if (numRows() == 1) {
             return (*this);
         } else {
             Matrix<T> output(1, numColumns());
-            float scaleFactor = 1 / (float) numRows();
-            dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
+            dim3 blocks(ceilDivide(output.size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            rowMeanCUDA<<<blocks, threads>>>(data(), scaleFactor, numColumns(), size(), output.data());
+            weightedSumCUDA<<<blocks, threads>>>(data(), scaleFactor, numColumns(), size(), output.data());
             cudaDeviceSynchronize();
             return output;
         }

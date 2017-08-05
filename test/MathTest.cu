@@ -72,13 +72,15 @@ int testMatrixRandomize() {
     return 0;
 }
 
-int testRowMean() {
-    std::cout << "========================Testing Matrix Row Mean========================" << '\n';
+int testWeightedSum() {
+    std::cout << "========================Testing Matrix Weighted Sum========================" << '\n';
     std::cout << "5x30 Sequential Matrix" << '\n';
-    Matrix rowMeanTest0 = Matrix::sequentialMatrix(5, 30);
-    rowMeanTest0.display();
+    Matrix weightedSumTest0 = Matrix::sequentialMatrix(5, 30);
+    weightedSumTest0.display();
     std::cout << "Row Mean" << '\n';
-    rowMeanTest0.rowMean().display();
+    weightedSumTest0.weightedSum(1 / (float) weightedSumTest0.numRows()).display();
+    std::cout << "Row Sum" << '\n';
+    weightedSumTest0.weightedSum().display();
     return 0;
 }
 
@@ -222,21 +224,21 @@ int testMatrixFileIO() {
 
 int main() {
     int numFailed = 0;
-    numFailed += testMatrixCreation();
-    numFailed += testMatrixCopy();
-    numFailed += testMatrixReshape();
-    numFailed += testMatrixTranspose();
-    numFailed += testMatrixRandomize();
-    numFailed += testRowMean();
-    numFailed += testDotProduct();
-    numFailed += testMatrixMultiplication();
-    numFailed += testMatrixArithmetic();
-    numFailed += testMatrixVectorArithmetic();
-    numFailed += testMatrixScalarArithmetic();
-    numFailed += testMatrixHadamardProduct();
-    numFailed += testMatrixApplyFunction();
-    numFailed += testMatrixPower();
-    numFailed += testMatrixFileIO();
+    // numFailed += testMatrixCreation();
+    // numFailed += testMatrixCopy();
+    // numFailed += testMatrixReshape();
+    // numFailed += testMatrixTranspose();
+    // numFailed += testMatrixRandomize();
+    numFailed += testWeightedSum();
+    // numFailed += testDotProduct();
+    // numFailed += testMatrixMultiplication();
+    // numFailed += testMatrixArithmetic();
+    // numFailed += testMatrixVectorArithmetic();
+    // numFailed += testMatrixScalarArithmetic();
+    // numFailed += testMatrixHadamardProduct();
+    // numFailed += testMatrixApplyFunction();
+    // numFailed += testMatrixPower();
+    // numFailed += testMatrixFileIO();
     if (numFailed == 0) {
         std::cout << "All Tests Passed." << '\n';
     } else {
