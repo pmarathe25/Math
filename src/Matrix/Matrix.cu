@@ -1,5 +1,4 @@
 #include "Matrix.hpp"
-#include "strmanip.hpp"
 #include <iostream>
 #include <iomanip>
 #include <typeinfo>
@@ -17,6 +16,11 @@ namespace math {
         this -> cols = cols;
         this -> matrixSize = rows * cols;
         cudaMallocManaged(&elements, matrixSize * sizeof(T));
+    }
+
+    template <typename T>
+    Matrix<T>::Matrix(const std::string& filePath) {
+        (*this) = load(filePath);
     }
 
     template <typename T>
@@ -131,50 +135,31 @@ namespace math {
             for (int j = 0; j < numColumns(); ++j) {
                 std::cout << elements[i * numColumns() + j] << " ";
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
-        std::cout << std::endl;
+        std::cout << '\n';
     }
 
     template <typename T>
-    void Matrix<T>::write(std::ofstream& outFile) const {
-        if (outFile.is_open()) {
-            outFile << numRows() << "," << numColumns() << std::endl;
-            // Set precision
-            int precision = 1;
-            if (typeid(T) == typeid(double)) {
-                precision = 15;
-            } else if (typeid(T) == typeid(float)) {
-                precision = 7;
-            }
-            // Write elements
-            for (int i = 0; i < size(); ++i) {
-                outFile << std::fixed << std::setprecision(precision) << elements[i] << ",";
-            }
-            outFile << std::endl;
+    void Matrix<T>::save(const std::string& filePath) const {
+        std::ofstream saveFile(filePath);
+        if (saveFile.is_open()) {
+            save(saveFile);
+            saveFile.close();
         } else {
             throw std::invalid_argument("Could not open file.");
         }
     }
 
     template <typename T>
-    void Matrix<T>::read(std::ifstream& inFile) {
-        if (inFile.is_open()) {
-            // Declare temp variables.
-            std::vector<std::string> tempElements (1);
-            // Get size information.
-            inFile >> tempElements[0];
-            tempElements = strmanip::split(tempElements[0], ',');
-            int rows = std::stoi(tempElements[0]);
-            int cols = std::stoi(tempElements[1]);
-            init(rows, cols);
-            // Get elements.
-            inFile >> tempElements[0];
-            tempElements = strmanip::split(tempElements[0], ',');
-            // Modify this matrix.
+    void Matrix<T>::save(std::ofstream& outFile) const {
+        if (outFile.is_open()) {
+            outFile << std::hex << numRows() << "\\" << numColumns() << '\n';
+            // Write elements
             for (int i = 0; i < size(); ++i) {
-                elements[i] = (T) std::stod(tempElements[i]);
+                outFile << elements[i] << '\\';
             }
+            outFile << '\n';
         } else {
             throw std::invalid_argument("Could not open file.");
         }

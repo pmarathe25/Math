@@ -2,6 +2,7 @@
 #define MATRIX_H
 #include "Math.hpp"
 #include <fstream>
+#include <string>
 #include <vector>
 #include <chrono>
 #include <random>
@@ -28,6 +29,7 @@ namespace math {
         public:
             void init(int rows, int cols);
             Matrix() {}
+            Matrix(const std::string& filePath);
             Matrix(T elem);
             Matrix(int rows, int cols);
             Matrix(const std::vector<T>& initialElements);
@@ -55,9 +57,6 @@ namespace math {
             bool isVector() const;
             // Display
             void display() const;
-            // File I/O.
-            void write(std::ofstream& outFile) const;
-            void read(std::ifstream& inFile);
             // In-place modification
             void reshape(int rows, int cols);
             void set(T setValue);
@@ -89,20 +88,26 @@ namespace math {
                 cudaDeviceSynchronize();
                 return output;
             }
+            // File I/O.
+            void save(const std::string& filePath) const;
+            void save(std::ofstream& outFile) const;
             // Static functions for Matrix creation.
-            static Matrix randomNormal(int rows, int cols, double mean, double stdDev);
-            static Matrix randomNormalLike(const Matrix& like, double mean, double stdDev);
-            static Matrix randomUniform(int rows, int cols, double lowerBound, double upperBound);
-            static Matrix randomUniformLike(const Matrix& like, double lowerBound, double upperBound);
+            static Matrix randomNormal(int rows, int cols, double mean = 0, double stdDev = 1);
+            static Matrix randomNormalLike(const Matrix& like, double mean = 0, double stdDev = 1);
+            static Matrix randomUniform(int rows, int cols, double lowerBound = 0, double upperBound = 1);
+            static Matrix randomUniformLike(const Matrix& like, double lowerBound = 0, double upperBound = 1);
             static Matrix ones(int rows, int cols);
             static Matrix onesLike(const Matrix& like);
             static Matrix zeros(int rows, int cols);
             static Matrix zerosLike(const Matrix& like);
             static Matrix sequentialMatrix(int rows, int cols);
+            // Loading from file.
+            static Matrix load(const std::string& filePath);
+            static Matrix load(std::ifstream& inFile);
         protected:
             T* elements = NULL;
         private:
-            int rows, cols, matrixSize;
+            int rows = 0, cols = 0, matrixSize = 0;
             bool isVec = false;
             void copy(const Matrix& other) {
                 if (elements) {

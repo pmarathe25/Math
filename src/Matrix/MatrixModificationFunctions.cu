@@ -105,6 +105,44 @@ namespace math {
         }
         return output;
     }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::load(const std::string& filePath) {
+        std::ifstream saveFile(filePath);
+        if (saveFile.is_open()) {
+            Matrix<T> output = load(saveFile);
+            saveFile.close();
+            return output;
+        } else {
+            throw std::invalid_argument("Could not open file.");
+        }
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::load(std::ifstream& inFile) {
+        if (inFile.is_open()) {
+            // Get size information.
+            std::string elements, currentElement;
+            inFile >> elements;
+            int delimPos = elements.find_first_of('\\');
+            int rows = std::stod("0x" + elements.substr(0, delimPos));
+            int cols = std::stod("0x" + elements.substr(delimPos + 1, std::string::npos));
+            Matrix<T> output(rows, cols);
+            // Get matrix data.
+            inFile >> elements;
+            for (int i = 0, index = 0; i < elements.size(); ++i) {
+                if (elements[i] == '\\') {
+                    output[index++] = std::stod(currentElement);
+                    currentElement = "";
+                } else {
+                    currentElement += elements[i];
+                }
+            }
+            return output;
+        } else {
+            throw std::invalid_argument("Could not open file.");
+        }
+    }
 }
 
 #endif
