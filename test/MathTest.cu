@@ -205,7 +205,7 @@ int testMatrixPower() {
 }
 
 int testMatrixFileIO() {
-    std::string filePath = "./test/matrix";
+    std::string filePath = "./test/matrix.bin";
     std::cout << "========================Testing Matrix File IO========================" << '\n';
     std::cout << "100x100 Random Normal Matrix" << '\n';
     Matrix_D fileIOTest0 = Matrix_D::randomNormal(6, 8);
