@@ -98,9 +98,18 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::sequentialMatrix(int rows, int cols) {
+    Matrix<T> Matrix<T>::sequential(int rows, int cols, int start) {
         Matrix<T> output(rows, cols);
-        for (int i = 0; i < output.size(); ++i) {
+        for (int i = start; i < output.size() + start; ++i) {
+            output[i] = i;
+        }
+        return output;
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::sequentialLike(const Matrix& like, int start) {
+        Matrix<T> output(like.numRows(), like.numColumns());
+        for (int i = start; i < output.size() + start; ++i) {
             output[i] = i;
         }
         return output;

@@ -34,7 +34,6 @@ namespace math {
             Matrix(int rows, int cols);
             Matrix(const std::vector<T>& initialElements);
             Matrix(const std::vector<T>& initialElements, int rows, int cols = -1);
-            Matrix(const std::vector<std::vector<T> >& initialElements);
             Matrix(Matrix&& other);
             Matrix(const Matrix& other);
             void operator=(Matrix other);
@@ -101,7 +100,8 @@ namespace math {
             static Matrix onesLike(const Matrix& like);
             static Matrix zeros(int rows, int cols);
             static Matrix zerosLike(const Matrix& like);
-            static Matrix sequentialMatrix(int rows, int cols);
+            static Matrix sequential(int rows, int cols, int start = 0);
+            static Matrix sequentialLike(const Matrix& like, int start = 0);
             // Loading from file.
             static Matrix load(const std::string& filePath);
             static Matrix load(std::ifstream& inFile);
@@ -110,13 +110,6 @@ namespace math {
         private:
             int rows = 0, cols = 0, matrixSize = 0;
             bool isVec = false;
-            void copy(const Matrix& other) {
-                if (elements) {
-                    cudaFree(elements);
-                }
-                init(other.numRows(), other.numColumns());
-                std::copy(other.data(), other.data() + size(), elements);
-            }
     };
 
     template <typename T, typename O>

@@ -6,7 +6,7 @@
 int testMatrixCreation() {
     std::cout << "========================Testing Matrix Creation.========================" << '\n';
     std::cout << "Vector of Vectors Creation 2x3" << '\n';
-    Matrix_F creationTest0 = Matrix_F({{0, 1, 0}, {0, 2, 3}});
+    Matrix_F creationTest0 = Matrix_F({0, 1, 0, 0, 2, 3}, 2);
     creationTest0.display();
     std::cout << "Vector Creation 2x3" << '\n';
     Matrix_F creationTest1 = Matrix_F({0, 1, 2, 3, 4, 5}, 2, 3);
@@ -15,10 +15,10 @@ int testMatrixCreation() {
     Matrix_D creationTest2 = Matrix_D::ones(40, 40);
     creationTest2.display();
     std::cout << "Empty Initialization with Assignment 5x30" << '\n';
-    Matrix_F creationTest3 = Matrix_F::sequentialMatrix(5, 30);
+    Matrix_F creationTest3 = Matrix_F::sequential(5, 30);
     creationTest3.display();
     std::cout << "Empty Initialization with Assignment 15x5" << '\n';
-    Matrix_F creationTest4 = Matrix_F::sequentialMatrix(15, 5);
+    Matrix_F creationTest4 = Matrix_F::sequential(15, 5);
     creationTest4.display();
     return 0;
 }
@@ -26,7 +26,7 @@ int testMatrixCreation() {
 int testMatrixCopy() {
     std::cout << "========================Testing Matrix Copy========================" << '\n';
     std::cout << "Copying Matrices of the same type" << '\n';
-    Matrix_F copyTest0 = Matrix_F::sequentialMatrix(2, 10);
+    Matrix_F copyTest0 = Matrix_F::sequential(2, 10);
     Matrix_F copyTest1 = copyTest0;
     std::cout << "Original" << '\n';
     copyTest0.display();
@@ -43,7 +43,7 @@ int testMatrixCopy() {
 
 int testMatrixReshape() {
     std::cout << "========================Testing Matrix Reshape========================" << '\n';
-    Matrix_F reshapeTest0 = Matrix_F::sequentialMatrix(5, 30);
+    Matrix_F reshapeTest0 = Matrix_F::sequential(5, 30);
     reshapeTest0.display();
     std::cout << "Reshaping 5x30 Matrix into 10x15" << '\n';
     reshapeTest0.reshape(10, 15);
@@ -53,7 +53,7 @@ int testMatrixReshape() {
 
 int testMatrixTranspose() {
     std::cout << "========================Testing Matrix Transpose========================" << '\n';
-    Matrix_F transposeTest0 = Matrix_F::sequentialMatrix(5, 30);
+    Matrix_F transposeTest0 = Matrix_F::sequential(5, 30);
     transposeTest0.display();
     std::cout << "Transpose" << '\n';
     transposeTest0.transpose().display();
@@ -63,7 +63,7 @@ int testMatrixTranspose() {
 int testMatrixRandomize() {
     std::cout << "========================Testing Matrix Randomize========================" << '\n';
     std::cout << "Normal Randomization | Mean 0 | Standard Deviation 1" << '\n';
-    Matrix_F randomizeTest0 = Matrix_F::sequentialMatrix(5, 30);
+    Matrix_F randomizeTest0 = Matrix_F::sequential(5, 30);
     randomizeTest0 = Matrix_F::randomNormalLike(randomizeTest0, 0.0, 1.0);
     randomizeTest0.display();
     std::cout << "Uniform Randomization | Range [0, 1]" << '\n';
@@ -75,7 +75,7 @@ int testMatrixRandomize() {
 int testWeightedSum() {
     std::cout << "========================Testing Matrix Weighted Sum========================" << '\n';
     std::cout << "5x30 Sequential Matrix" << '\n';
-    Matrix weightedSumTest0 = Matrix::sequentialMatrix(5, 30);
+    Matrix weightedSumTest0 = Matrix::sequential(5, 30);
     weightedSumTest0.display();
     std::cout << "Row Mean" << '\n';
     weightedSumTest0.weightedSum(1 / (float) weightedSumTest0.numRows()).display();
@@ -100,7 +100,7 @@ int testMatrixMultiplication() {
     Matrix multiplicationTest0 = Matrix::ones(10, 5);
     multiplicationTest0.display();
     std::cout << "5x5 Sequential Matrix" << '\n';
-    Matrix multiplicationTest1 = Matrix::sequentialMatrix(5, 5);
+    Matrix multiplicationTest1 = Matrix::sequential(5, 5);
     multiplicationTest1.display();
     std::cout << "Product" << '\n';
     (multiplicationTest0 * multiplicationTest1).display();
@@ -113,7 +113,7 @@ int testMatrixArithmetic() {
     Matrix_F arithmeticTest0 = Matrix_F::ones(10, 10);
     arithmeticTest0.display();
     std::cout << "10x10 Sequential Matrix" << '\n';
-    Matrix_F arithmeticTest1 = Matrix_F::sequentialMatrix(10, 10);
+    Matrix_F arithmeticTest1 = Matrix_F::sequential(10, 10);
     arithmeticTest1.display();
     std::cout << "Sum" << '\n';
     Matrix_F sum = arithmeticTest0 + arithmeticTest1;
@@ -136,12 +136,12 @@ int testMatrixVectorArithmetic() {
     Matrix vectorArithmeticTest0 = Matrix::ones(10, 10);
     vectorArithmeticTest0.display();
     std::cout << "1x10 Sequential Column Vector" << '\n';
-    Matrix vectorArithmeticTest1 = Matrix::sequentialMatrix(10, 1);
+    Matrix vectorArithmeticTest1 = Matrix::sequential(10, 1);
     vectorArithmeticTest1.display();
     std::cout << "Matrix-Column Vector Addition" << '\n';
     vectorArithmeticTest0.addVector(vectorArithmeticTest1).display();
     std::cout << "1x10 Sequential Row Vector" << '\n';
-    Matrix vectorArithmeticTest2 = Matrix::sequentialMatrix(1, 10);
+    Matrix vectorArithmeticTest2 = Matrix::sequential(1, 10);
     vectorArithmeticTest2.display();
     std::cout << "Matrix-Row Vector Addition" << '\n';
     vectorArithmeticTest0.addVector(vectorArithmeticTest2).display();
@@ -173,7 +173,7 @@ int testMatrixScalarArithmetic() {
 int testMatrixHadamardProduct() {
     std::cout << "========================Testing Matrix Hadamard Product========================" << '\n';
     std::cout << "10x10 Sequential Matrix" << '\n';
-    Matrix hadamardProductTest0 = Matrix::sequentialMatrix(10, 10);
+    Matrix hadamardProductTest0 = Matrix::sequential(10, 10);
     hadamardProductTest0.display();
     std::cout << "Matrix Hadamard Product with itself" << '\n';
     hadamardProductTest0.hadamard(hadamardProductTest0).display();
@@ -187,7 +187,7 @@ __device__ double sigmoid(double a) {
 int testMatrixApplyFunction() {
     std::cout << "========================Testing Matrix Apply Function========================" << '\n';
     std::cout << "10x10 Sequential Matrix" << '\n';
-    Matrix_D applyFunctionTest0 = Matrix_D::sequentialMatrix(10, 10) - 50;
+    Matrix_D applyFunctionTest0 = Matrix_D::sequential(10, 10) - 50;
     applyFunctionTest0.display();
     std::cout << "Applying sigmoid function" << '\n';
     applyFunctionTest0.applyFunction<sigmoid>().display();
@@ -197,7 +197,7 @@ int testMatrixApplyFunction() {
 int testMatrixPower() {
     std::cout << "========================Testing Matrix Power========================" << '\n';
     std::cout << "10x10 Sequential Matrix" << '\n';
-    Matrix_D powerTest0 = Matrix_D::sequentialMatrix(10, 10);
+    Matrix_D powerTest0 = Matrix_D::sequential(10, 10);
     powerTest0.display();
     std::cout << "Computing square" << '\n';
     math::pow(powerTest0, 2).display();
@@ -224,21 +224,21 @@ int testMatrixFileIO() {
 
 int main() {
     int numFailed = 0;
-    // numFailed += testMatrixCreation();
-    // numFailed += testMatrixCopy();
-    // numFailed += testMatrixReshape();
-    // numFailed += testMatrixTranspose();
-    // numFailed += testMatrixRandomize();
+    numFailed += testMatrixCreation();
+    numFailed += testMatrixCopy();
+    numFailed += testMatrixReshape();
+    numFailed += testMatrixTranspose();
+    numFailed += testMatrixRandomize();
     numFailed += testWeightedSum();
-    // numFailed += testDotProduct();
-    // numFailed += testMatrixMultiplication();
-    // numFailed += testMatrixArithmetic();
-    // numFailed += testMatrixVectorArithmetic();
-    // numFailed += testMatrixScalarArithmetic();
-    // numFailed += testMatrixHadamardProduct();
-    // numFailed += testMatrixApplyFunction();
-    // numFailed += testMatrixPower();
-    // numFailed += testMatrixFileIO();
+    numFailed += testDotProduct();
+    numFailed += testMatrixMultiplication();
+    numFailed += testMatrixArithmetic();
+    numFailed += testMatrixVectorArithmetic();
+    numFailed += testMatrixScalarArithmetic();
+    numFailed += testMatrixHadamardProduct();
+    numFailed += testMatrixApplyFunction();
+    numFailed += testMatrixPower();
+    numFailed += testMatrixFileIO();
     if (numFailed == 0) {
         std::cout << "All Tests Passed." << '\n';
     } else {

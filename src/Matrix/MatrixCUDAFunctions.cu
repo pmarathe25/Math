@@ -3,6 +3,14 @@
 
 namespace math {
     template <typename T>
+    __global__ void copyCUDA(T* A, const T* B, int Asize) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            A[index] = B[index];
+        }
+    }
+
+    template <typename T>
     __global__ void setCUDA(T* A, T setValue, int Asize) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {

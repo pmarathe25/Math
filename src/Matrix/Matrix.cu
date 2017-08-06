@@ -41,9 +41,7 @@ namespace math {
         if (size() != initialElements.size()) {
             throw std::invalid_argument("Matrix initialization dimension mismatch.");
         }
-        for (int i = 0; i < matrixSize; ++i) {
-            elements[i] = initialElements[i];
-        }
+        std::copy(initialElements.data(), initialElements.data() + size(), elements);
     }
 
     template <typename T>
@@ -54,21 +52,7 @@ namespace math {
         if (size() != initialElements.size()) {
             throw std::invalid_argument("Matrix initialization dimension mismatch.");
         }
-        for (int i = 0; i < matrixSize; ++i) {
-            elements[i] = initialElements[i];
-        }
-    }
-
-    template <typename T>
-    Matrix<T>::Matrix(const std::vector<std::vector<T> >& initialElements) {
-        this -> rows = initialElements.size();
-        this -> cols = initialElements.at(0).size();
-        init(rows, cols);
-        for (int row = 0; row < rows; ++row) {
-            for (int col = 0; col < cols; ++col) {
-                elements[row * cols + col] = initialElements[row][col];
-            }
-        }
+        std::copy(initialElements.data(), initialElements.data() + size(), elements);
     }
 
     template <typename T>
@@ -86,7 +70,11 @@ namespace math {
 
     template <typename T>
     Matrix<T>::Matrix(const Matrix<T>& other) {
-        copy(other);
+        init(other.numRows(), other.numColumns());
+        dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
+        dim3 threads(THREADS_PER_BLOCK);
+        copyCUDA<<<blocks, threads>>>(data(), other.data(), size());
+        cudaDeviceSynchronize();
     }
 
     template <typename T>
