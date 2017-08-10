@@ -56,7 +56,7 @@ namespace math {
             bool isVector() const;
             bool sizeMatches(const Matrix& other) const;
             // Display
-            void display() const;
+            void display(const std::string& title) const;
             // In-place modification
             void reshape(int rows, int cols);
             void set(T setValue);

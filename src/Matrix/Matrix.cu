@@ -123,7 +123,8 @@ namespace math {
     }
 
     template <typename T>
-    void Matrix<T>::display() const {
+    void Matrix<T>::display(const std::string& title) const {
+        std::cout << title << '\n';
         for (int i = 0; i < numRows(); ++i) {
             for (int j = 0; j < numColumns(); ++j) {
                 std::cout << elements[i * numColumns() + j] << " ";
