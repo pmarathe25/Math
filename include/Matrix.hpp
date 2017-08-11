@@ -17,14 +17,6 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void powerCUDA(const T* A, int exponent, int Asize, T* C) {
-        int index = blockIdx.x * blockDim.x + threadIdx.x;
-        if (index < Asize) {
-            C[index] = powf(A[index], exponent);
-        }
-    }
-
-    template <typename T>
     class Matrix {
         public:
             void init(int rows, int cols);
@@ -91,6 +83,8 @@ namespace math {
             // File I/O.
             void save(const std::string& filePath) const;
             void save(std::ofstream& outFile) const;
+            // Static operators.
+            static Matrix pow(const Matrix& input, int exponent);
             // Static functions for Matrix creation.
             static Matrix randomNormal(int rows, int cols, double mean = 0, double stdDev = 1);
             static Matrix randomNormalLike(const Matrix& like, double mean = 0, double stdDev = 1);
@@ -108,6 +102,7 @@ namespace math {
         protected:
             T* elements = NULL;
         private:
+            static int ceilDivide(int x, int y);
             int rows = 0, cols = 0, matrixSize = 0;
             bool isVec = false;
     };
@@ -126,17 +121,6 @@ namespace math {
     Matrix<T> operator+(O other, const Matrix<T>& A) {
         return A + other;
     }
-
-    template <typename T>
-    Matrix<T> pow(const Matrix<T>& input, int exponent) {
-        Matrix<T> output(input.numRows(), input.numColumns());
-        dim3 blocks(ceilDivide(output.size(), THREADS_PER_BLOCK));
-        dim3 threads(THREADS_PER_BLOCK);
-        powerCUDA<<<blocks, threads>>>(input.data(), exponent, input.size(), output.data());
-        cudaDeviceSynchronize();
-        return output;
-    }
-
 }
 
 typedef math::Matrix<int> Matrix;

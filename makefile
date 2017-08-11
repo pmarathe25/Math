@@ -9,7 +9,7 @@ EXECOBJS = $(BUILDDIR)/MathParse.o
 # Libs
 LIBDIR = $(CURDIR)/lib/
 INCLUDEPATH = include/
-INCLUDEDIR = -I$(INCLUDEPATH)
+INCLUDEDIR = -I$(INCLUDEPATH) -I/home/pranav/C++/Text/include/
 # Compiler settings
 CXX = nvcc
 CFLAGS = -arch=sm_35 -Xcompiler -fPIC -Wno-deprecated-gpu-targets -c -std=c++11 $(INCLUDEDIR)
@@ -41,7 +41,7 @@ $(BUILDDIR)/MathParser.o: $(SRCDIR)/MathParser.cpp $(INCLUDEPATH)/MathParser.hpp
 $(BUILDDIR)/Math.o: $(INCLUDEPATH)/Math.hpp $(SRCDIR)/Math.cu
 	$(CXX) $(CFLAGS) $(SRCDIR)/Math.cu -o $(BUILDDIR)/Math.o
 
-$(BUILDDIR)/Matrix.o: $(INCLUDEPATH)/Matrix.hpp $(INCLUDEPATH)/Math.hpp $(SRCDIR)/Matrix/Matrix.cu $(SRCDIR)/Matrix/MatrixComputationFunctions.cu \
+$(BUILDDIR)/Matrix.o: $(INCLUDEPATH)/Matrix.hpp $(SRCDIR)/Matrix/Matrix.cu $(SRCDIR)/Matrix/MatrixComputationFunctions.cu \
 	$(SRCDIR)/Matrix/MatrixCUDAFunctions.cu $(SRCDIR)/Matrix/MatrixModificationFunctions.cu $(SRCDIR)/Matrix/MatrixAccessFunctions.cu
 	$(CXX) $(CFLAGS) $(SRCDIR)/Matrix/Matrix.cu -o $(BUILDDIR)/Matrix.o
 

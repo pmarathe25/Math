@@ -44,8 +44,4 @@ namespace math {
     double subtract(double operand1, double operand2) {
         return (operand1 - operand2);
     }
-
-    int ceilDivide(int x, int y) {
-        return 1 + ((x - 1) / y);
-    }
 }

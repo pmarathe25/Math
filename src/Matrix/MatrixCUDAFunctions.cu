@@ -183,6 +183,14 @@ namespace math {
             B[index] *= A[index];
         }
     }
+
+    template <typename T>
+    __global__ void powerCUDA(const T* A, int exponent, int Asize, T* C) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            C[index] = powf(A[index], exponent);
+        }
+    }
 }
 
 #endif

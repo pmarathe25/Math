@@ -154,8 +154,8 @@ int testMatrixPower() {
     std::cout << "========================Testing Matrix Power========================" << '\n';
     Matrix_D powerTest0 = Matrix_D::sequential(10, 10);
     powerTest0.display("10x10 Sequential Matrix");
-    math::pow(powerTest0, 2).display("Computing square");
-    math::pow(powerTest0, 3).display("Computing cube");
+    Matrix_D::pow(powerTest0, 2).display("Computing square");
+    Matrix_D::pow(powerTest0, 3).display("Computing cube");
     return 0;
 }
 

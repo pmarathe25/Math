@@ -59,6 +59,11 @@ namespace math {
     const T* Matrix<T>::data() const {
         return elements;
     }
+
+    template <typename T>
+    int Matrix<T>::ceilDivide(int x, int y) {
+        return 1 + ((x - 1) / y);
+    }
 }
 
 #endif

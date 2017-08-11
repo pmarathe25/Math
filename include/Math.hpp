@@ -13,7 +13,6 @@ namespace math {
     double multiply(double operand1, double operand2);
     double add(double operand1, double operand2);
     double subtract(double operand1, double operand2);
-    int ceilDivide(int x, int y);
 }
 
 #endif
