@@ -184,11 +184,11 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::pow(const Matrix<T>& input, int exponent) {
-        Matrix<T> output(input.numRows(), input.numColumns());
+    Matrix<T> Matrix<T>::pow(int exponent) {
+        Matrix<T> output(numRows(), numColumns());
         dim3 blocks(ceilDivide(output.size(), THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
-        powerCUDA<<<blocks, threads>>>(input.data(), exponent, input.size(), output.data());
+        powerCUDA<<<blocks, threads>>>(data(), exponent, size(), output.data());
         cudaDeviceSynchronize();
         return output;
     }

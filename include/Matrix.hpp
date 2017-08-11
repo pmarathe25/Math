@@ -70,6 +70,7 @@ namespace math {
             Matrix operator/(T other) const;
             Matrix operator+(T other) const;
             Matrix operator-(T other) const;
+            Matrix pow(int exponent);
             // In place functions
             template <T func(T)>
             Matrix applyFunction() const {
@@ -83,8 +84,6 @@ namespace math {
             // File I/O.
             void save(const std::string& filePath) const;
             void save(std::ofstream& outFile) const;
-            // Static operators.
-            static Matrix pow(const Matrix& input, int exponent);
             // Static functions for Matrix creation.
             static Matrix randomNormal(int rows, int cols, double mean = 0, double stdDev = 1);
             static Matrix randomNormalLike(const Matrix& like, double mean = 0, double stdDev = 1);
