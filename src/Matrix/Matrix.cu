@@ -152,12 +152,7 @@ namespace math {
             outFile.write(reinterpret_cast<char*>(&currentRows), sizeof currentRows);
             outFile.write(reinterpret_cast<char*>(&currentCols), sizeof currentCols);
             // Write elements
-            for (int i = 0; i < size(); ++i) {
-                // outFile << std::hexfloat << elements[i] << '\\';
-                outFile.write(reinterpret_cast<char*>(&elements[i]), sizeof elements[i]);
-                // outFile.write('\\');
-            }
-            // outFile << '\n';
+            outFile.write(reinterpret_cast<const char*>(&elements[0]), sizeof(T) * size());
         } else {
             throw std::invalid_argument("Could not open file.");
         }

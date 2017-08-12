@@ -134,9 +134,7 @@ namespace math {
             inFile.read(reinterpret_cast<char*>(&cols), sizeof cols);
             Matrix<T> output(rows, cols);
             // Get matrix data.
-            for (int i = 0; i < output.size(); ++i) {
-                inFile.read(reinterpret_cast<char*>(&output[i]), sizeof output[i]);
-            }
+            inFile.read(reinterpret_cast<char*>(&output[0]), sizeof(T) * output.size());
             return output;
         } else {
             throw std::invalid_argument("Could not open file.");
