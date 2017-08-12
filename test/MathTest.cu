@@ -175,11 +175,13 @@ int testMatrixFileIO() {
 int testMatrixTypeCasting() {
     std::cout << "========================Testing Matrix Type Casting========================" << '\n';
     Matrix_D typeCastingTest0 = Matrix_D::randomNormal(4, 4);
-    typeCastingTest0.display("4x4 Random Normal Matrix (Double)");
+    typeCastingTest0.display("4x4 Random Normal Matrix (double)");
     Matrix typeCastingTest1 = typeCastingTest0.asType<int>();
-    typeCastingTest1.display("4x4 Random Normal Matrix (Int)");
+    typeCastingTest1.display("4x4 Random Normal Matrix (int)");
     Matrix_F typeCastingTest2 = typeCastingTest0.asType<float>();
-    typeCastingTest2.display("4x4 Random Normal Matrix (Float)");
+    typeCastingTest2.display("4x4 Random Normal Matrix (float)");
+    Matrix_C typeCastingTest3 = typeCastingTest0.asType<char>();
+    typeCastingTest3.display("4x4 Random Normal Matrix (char)");
     return 0;
 }
 
