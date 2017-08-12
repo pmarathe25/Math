@@ -19,6 +19,7 @@ namespace math {
     template <typename T>
     class Matrix {
         public:
+            void init();
             void init(int rows, int cols);
             Matrix() {}
             Matrix(const std::string& filePath);
@@ -84,6 +85,8 @@ namespace math {
             // File I/O.
             void save(const std::string& filePath) const;
             void save(std::ofstream& outFile) const;
+            void load(const std::string& filePath);
+            void load(std::ifstream& inFile);
             // Static functions for Matrix creation.
             static Matrix randomNormal(int rows, int cols, double mean = 0, double stdDev = 1);
             static Matrix randomNormalLike(const Matrix& like, double mean = 0, double stdDev = 1);
@@ -95,9 +98,6 @@ namespace math {
             static Matrix zerosLike(const Matrix& like);
             static Matrix sequential(int rows, int cols, int start = 0);
             static Matrix sequentialLike(const Matrix& like, int start = 0);
-            // Loading from file.
-            static Matrix load(const std::string& filePath);
-            static Matrix load(std::ifstream& inFile);
         protected:
             T* elements = NULL;
         private:

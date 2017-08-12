@@ -10,6 +10,13 @@
 
 namespace math {
     template <typename T>
+    void Matrix<T>::init() {
+        isVec = (rows == 1) || (cols == 1);
+        this -> matrixSize = rows * cols;
+        cudaMallocManaged(&elements, matrixSize * sizeof(T));
+    }
+
+    template <typename T>
     void Matrix<T>::init(int rows, int cols) {
         isVec = (rows == 1) || (cols == 1);
         this -> rows = rows;
@@ -20,7 +27,7 @@ namespace math {
 
     template <typename T>
     Matrix<T>::Matrix(const std::string& filePath) {
-        (*this) = load(filePath);
+        load(filePath);
     }
 
     template <typename T>
@@ -153,6 +160,30 @@ namespace math {
             outFile.write(reinterpret_cast<char*>(&currentCols), sizeof currentCols);
             // Write elements
             outFile.write(reinterpret_cast<const char*>(&elements[0]), sizeof(T) * size());
+        } else {
+            throw std::invalid_argument("Could not open file.");
+        }
+    }
+
+    template <typename T>
+    void Matrix<T>::load(const std::string& filePath) {
+        std::ifstream saveFile(filePath, std::ios::binary);
+        if (saveFile.is_open()) {
+            load(saveFile);
+        } else {
+            throw std::invalid_argument("Could not open file.");
+        }
+    }
+
+    template <typename T>
+    void Matrix<T>::load(std::ifstream& inFile) {
+        if (inFile.is_open()) {
+            // Get metadata and initialize.
+            inFile.read(reinterpret_cast<char*>(&rows), sizeof rows);
+            inFile.read(reinterpret_cast<char*>(&cols), sizeof cols);
+            init();
+            // Get matrix data.
+            inFile.read(reinterpret_cast<char*>(&elements[0]), sizeof(T) * size());
         } else {
             throw std::invalid_argument("Could not open file.");
         }

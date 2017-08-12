@@ -115,31 +115,6 @@ namespace math {
         return output;
     }
 
-    template <typename T>
-    Matrix<T> Matrix<T>::load(const std::string& filePath) {
-        std::ifstream saveFile(filePath, std::ios::binary);
-        if (saveFile.is_open()) {
-            return load(saveFile);
-        } else {
-            throw std::invalid_argument("Could not open file.");
-        }
-    }
-
-    template <typename T>
-    Matrix<T> Matrix<T>::load(std::ifstream& inFile) {
-        if (inFile.is_open()) {
-            // Get metadata.
-            int rows, cols;
-            inFile.read(reinterpret_cast<char*>(&rows), sizeof rows);
-            inFile.read(reinterpret_cast<char*>(&cols), sizeof cols);
-            Matrix<T> output(rows, cols);
-            // Get matrix data.
-            inFile.read(reinterpret_cast<char*>(&output[0]), sizeof(T) * output.size());
-            return output;
-        } else {
-            throw std::invalid_argument("Could not open file.");
-        }
-    }
 }
 
 #endif
