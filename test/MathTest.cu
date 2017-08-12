@@ -177,11 +177,11 @@ int testMatrixTypeCasting() {
     Matrix_D typeCastingTest0 = Matrix_D::randomNormal(4, 4);
     typeCastingTest0.display("4x4 Random Normal Matrix (double)");
     Matrix typeCastingTest1 = typeCastingTest0.asType<int>();
-    typeCastingTest1.display("4x4 Random Normal Matrix (int)");
-    Matrix_F typeCastingTest2 = typeCastingTest0.asType<float>();
-    typeCastingTest2.display("4x4 Random Normal Matrix (float)");
-    Matrix_C typeCastingTest3 = typeCastingTest0.asType<char>();
-    typeCastingTest3.display("4x4 Random Normal Matrix (char)");
+    typeCastingTest1.display("Above Matrix as type int");
+    Matrix_C typeCastingTest2 = Matrix_C::randomUniform(4, 4, 0, 255);
+    typeCastingTest2.display("4x4 Random Uniform Matrix (char)");
+    Matrix_F typeCastingTest3 = typeCastingTest2.asType<float>();
+    typeCastingTest3.display("Above Matrix as type float");
     return 0;
 }
 
