@@ -15,6 +15,10 @@ int testMatrixCreation() {
     creationTest3.display("Empty Initialization with Assignment 5x30");
     Matrix_F creationTest4 = Matrix_F::sequential(15, 5);
     creationTest4.display("Empty Initialization with Assignment 15x5");
+    Matrix_F creationTest5(15, 5);
+    creationTest5.display("Empty Initialization 15x5");
+    Matrix_C creationTest6(30, 10);
+    creationTest6.display("Empty Initialization 15x5");
     return 0;
 }
 
@@ -178,10 +182,12 @@ int testMatrixTypeCasting() {
     typeCastingTest0.display("4x4 Random Normal Matrix (double)");
     Matrix typeCastingTest1 = typeCastingTest0.asType<int>();
     typeCastingTest1.display("Above Matrix as type int");
-    Matrix_C typeCastingTest2 = Matrix_C::randomUniform(4, 4, 0, 255);
+    Matrix_C typeCastingTest2 = Matrix_C::randomUniform(4, 4, 65, 91);
     typeCastingTest2.display("4x4 Random Uniform Matrix (char)");
     Matrix_F typeCastingTest3 = typeCastingTest2.asType<float>();
     typeCastingTest3.display("Above Matrix as type float");
+    Matrix typeCastingTest4 = typeCastingTest2.asType<int>();
+    typeCastingTest4.display("Above Matrix as type int");
     return 0;
 }
 

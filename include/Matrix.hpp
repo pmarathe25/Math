@@ -51,8 +51,8 @@ namespace math {
             // Display
             void display(const std::string& title = "") const;
             // In-place modification
-            void reshape(int rows, int cols);
-            void set(T setValue);
+            Matrix& reshape(int rows, int cols);
+            Matrix& set(T setValue);
             // Unary functions.
             Matrix transpose() const;
             Matrix weightedSum(float scaleFactor = 1.0) const;
@@ -133,6 +133,7 @@ namespace math {
 
 typedef math::Matrix<int> Matrix;
 typedef math::Matrix<char> Matrix_C;
+typedef math::Matrix<unsigned char> Matrix_UC;
 typedef math::Matrix<float> Matrix_F;
 typedef math::Matrix<double> Matrix_D;
 
