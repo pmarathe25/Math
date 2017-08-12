@@ -4,6 +4,7 @@
 namespace math {
     template <typename T>
     Matrix<T>& Matrix<T>::reshape(int rows, int cols) {
+        cols = (cols == -1) ? size() / rows : cols;
         if (rows * cols == size()) {
             this -> rows = rows;
             this -> cols = cols;

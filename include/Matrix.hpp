@@ -51,7 +51,7 @@ namespace math {
             // Display
             void display(const std::string& title = "") const;
             // In-place modification
-            Matrix& reshape(int rows, int cols);
+            Matrix& reshape(int rows, int cols = -1);
             Matrix& set(T setValue);
             // Unary functions.
             Matrix transpose() const;
