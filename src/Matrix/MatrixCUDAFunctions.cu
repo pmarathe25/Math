@@ -177,6 +177,14 @@ namespace math {
     }
 
     template <typename T>
+    __global__ void scalarDifferenceCUDA(const T* A, T B, int Asize, T* C) {
+        int index = blockIdx.x * blockDim.x + threadIdx.x;
+        if (index < Asize) {
+            C[index] = A[index] - B;
+        }
+    }
+
+    template <typename T>
     __global__ void hadamardProductCUDA(const T* A, T* B, int Asize) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Asize) {

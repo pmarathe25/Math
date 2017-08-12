@@ -72,6 +72,15 @@ namespace math {
             Matrix operator+(T other) const;
             Matrix operator-(T other) const;
             Matrix pow(int exponent);
+            // Type conversion.
+            template <typename O>
+            Matrix<O> asType() const {
+                Matrix<O> output(numRows(), numColumns());
+                for (int i = 0; i < size(); ++i) {
+                    output[i] = (O)(*this)[i];
+                }
+                return output;
+            }
             // In place functions
             template <T func(T)>
             Matrix applyFunction() const {
@@ -123,6 +132,7 @@ namespace math {
 }
 
 typedef math::Matrix<int> Matrix;
+typedef math::Matrix<char> Matrix_C;
 typedef math::Matrix<float> Matrix_F;
 typedef math::Matrix<double> Matrix_D;
 

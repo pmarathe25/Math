@@ -163,12 +163,23 @@ int testMatrixFileIO() {
     std::string filePath = "./test/matrix.bin";
     std::cout << "========================Testing Matrix File IO========================" << '\n';
     Matrix_D fileIOTest0 = Matrix_D::randomNormal(6, 8);
-    fileIOTest0.display("100x100 Random Normal Matrix");
+    fileIOTest0.display("6x8 Random Normal Matrix");
     std::cout << "Writing matrix" << '\n';
     fileIOTest0.save(filePath);
     std::cout << "Loading matrix" << '\n';
     Matrix_D fileIOTest1(filePath);
     fileIOTest1.display("Loaded matrix of dimensions " + std::to_string(fileIOTest1.numRows()) + "x" + std::to_string(fileIOTest1.numColumns()));
+    return 0;
+}
+
+int testMatrixTypeCasting() {
+    std::cout << "========================Testing Matrix Type Casting========================" << '\n';
+    Matrix_D typeCastingTest0 = Matrix_D::randomNormal(4, 4);
+    typeCastingTest0.display("4x4 Random Normal Matrix (Double)");
+    Matrix typeCastingTest1 = typeCastingTest0.asType<int>();
+    typeCastingTest1.display("4x4 Random Normal Matrix (Int)");
+    Matrix_F typeCastingTest2 = typeCastingTest0.asType<float>();
+    typeCastingTest2.display("4x4 Random Normal Matrix (Float)");
     return 0;
 }
 
@@ -189,6 +200,7 @@ int main() {
     numFailed += testMatrixApplyFunction();
     numFailed += testMatrixPower();
     numFailed += testMatrixFileIO();
+    numFailed += testMatrixTypeCasting();
     std::cout << '\n';
     if (numFailed == 0) {
         std::cout << "All Tests Passed." << '\n';

@@ -178,7 +178,7 @@ namespace math {
         Matrix<T> output(numRows(), numColumns());
         dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
-        scalarSumCUDA<<<blocks, threads>>>(data(), -other, size(), output.data());
+        scalarDifferenceCUDA<<<blocks, threads>>>(data(), other, size(), output.data());
         cudaDeviceSynchronize();
         return output;
     }
