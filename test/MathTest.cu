@@ -63,12 +63,12 @@ int testMatrixRandomize() {
     return 0;
 }
 
-int testWeightedSum() {
-    std::cout << "========================Testing Matrix Weighted Sum========================" << '\n';
-    Matrix weightedSumTest0 = Matrix::sequential(5, 30);
-    weightedSumTest0.display("5x30 Sequential Matrix");
-    weightedSumTest0.weightedSum(1 / (float) weightedSumTest0.numRows()).display("Row Mean");
-    weightedSumTest0.weightedSum().display("Row Sum");
+int testWeightedRowSum() {
+    std::cout << "========================Testing Matrix Weighted Row Sum========================" << '\n';
+    Matrix weightedRowSumTest0 = Matrix::sequential(5, 30);
+    weightedRowSumTest0.display("5x30 Sequential Matrix");
+    weightedRowSumTest0.rowMean().display("Row Mean");
+    weightedRowSumTest0.weightedRowSum().display("Row Sum");
     return 0;
 }
 
@@ -198,7 +198,7 @@ int main() {
     numFailed += testMatrixReshape();
     numFailed += testMatrixTranspose();
     numFailed += testMatrixRandomize();
-    numFailed += testWeightedSum();
+    numFailed += testWeightedRowSum();
     numFailed += testDotProduct();
     numFailed += testMatrixMultiplication();
     numFailed += testMatrixArithmetic();

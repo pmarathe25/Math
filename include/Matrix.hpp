@@ -55,7 +55,8 @@ namespace math {
             Matrix& set(T setValue);
             // Unary functions.
             Matrix transpose() const;
-            Matrix weightedSum(float scaleFactor = 1.0) const;
+            Matrix weightedRowSum(float scaleFactor = 1.0) const;
+            Matrix rowMean() const;
             // Matrix-Matrix Arithmetic
             Matrix dot(const Matrix& other) const;
             Matrix operator*(const Matrix& other) const;

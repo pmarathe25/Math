@@ -20,17 +20,22 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::weightedSum(float scaleFactor) const {
+    Matrix<T> Matrix<T>::weightedRowSum(float scaleFactor) const {
         if (numRows() == 1) {
             return (*this);
         } else {
             Matrix<T> output(1, numColumns());
             dim3 blocks(ceilDivide(output.size(), THREADS_PER_BLOCK));
             dim3 threads(THREADS_PER_BLOCK);
-            weightedSumCUDA<<<blocks, threads>>>(data(), scaleFactor, numColumns(), size(), output.data());
+            weightedRowSumCUDA<<<blocks, threads>>>(data(), scaleFactor, numColumns(), size(), output.data());
             cudaDeviceSynchronize();
             return output;
         }
+    }
+
+    template <typename T>
+    Matrix<T> Matrix<T>::rowMean() const {
+        return weightedRowSum(1 / (float) numRows());
     }
 
     template <typename T>

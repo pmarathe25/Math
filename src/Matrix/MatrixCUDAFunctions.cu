@@ -28,7 +28,7 @@ namespace math {
     }
 
     template <typename T>
-    __global__ void weightedSumCUDA(const T* A, float scaleFactor, int numCols, int size, T* C) {
+    __global__ void weightedRowSumCUDA(const T* A, float scaleFactor, int numCols, int size, T* C) {
         int col = blockIdx.x * blockDim.x + threadIdx.x;
         T sum = T();
         if (col < numCols) {
