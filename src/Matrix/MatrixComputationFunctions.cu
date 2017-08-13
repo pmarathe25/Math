@@ -58,7 +58,8 @@ namespace math {
             cudaDeviceSynchronize();
             return output;
         } else {
-            throw std::invalid_argument("Incompatible matrices cannot be multiplied.");
+            throw std::invalid_argument("Cannot multiply matrices of dimensions " + std::to_string(numRows()) + "x"
+                + std::to_string(numColumns()) + " and " + std::to_string(other.numRows()) + "x" + std::to_string(other.numColumns()));
         }
     }
 
@@ -71,7 +72,8 @@ namespace math {
             cudaDeviceSynchronize();
             return other;
         } else {
-            throw std::invalid_argument("Incompatible matrices cannot be added.");
+            throw std::invalid_argument("Cannot add matrices of dimensions " + std::to_string(numRows()) + "x"
+                + std::to_string(numColumns()) + " and " + std::to_string(other.numRows()) + "x" + std::to_string(other.numColumns()));
         }
     }
 
@@ -83,7 +85,8 @@ namespace math {
             sumCUDA<<<blocks, threads>>>(other.data(), data(), size());
             cudaDeviceSynchronize();
         } else {
-            throw std::invalid_argument("Incompatible matrices cannot be added.");
+            throw std::invalid_argument("Cannot add matrices of dimensions " + std::to_string(numRows()) + "x"
+                + std::to_string(numColumns()) + " and " + std::to_string(other.numRows()) + "x" + std::to_string(other.numColumns()));
         }
     }
     template <typename T>
@@ -95,7 +98,8 @@ namespace math {
             cudaDeviceSynchronize();
             return other;
         } else {
-            throw std::invalid_argument("Incompatible matrices cannot be added.");
+            throw std::invalid_argument("Cannot subtract matrices of dimensions " + std::to_string(numRows()) + "x"
+                + std::to_string(numColumns()) + " and " + std::to_string(other.numRows()) + "x" + std::to_string(other.numColumns()));
         }
     }
 
@@ -107,7 +111,8 @@ namespace math {
             differenceInPlaceCUDA<<<blocks, threads>>>(other.data(), data(), size());
             cudaDeviceSynchronize();
         } else {
-            throw std::invalid_argument("Incompatible matrices cannot be added.");
+            throw std::invalid_argument("Cannot subtract matrices of dimensions " + std::to_string(numRows()) + "x"
+                + std::to_string(numColumns()) + " and " + std::to_string(other.numRows()) + "x" + std::to_string(other.numColumns()));
         }
     }
 
@@ -121,7 +126,8 @@ namespace math {
             cudaDeviceSynchronize();
             return other;
         } else {
-            throw std::invalid_argument("Cannot find the Hadamard product of incompatible matrices.");
+            throw std::invalid_argument("Cannot find the hadamard product of matrices of dimensions " + std::to_string(numRows()) + "x"
+                + std::to_string(numColumns()) + " and " + std::to_string(other.numRows()) + "x" + std::to_string(other.numColumns()));
         }
     }
 

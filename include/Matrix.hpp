@@ -30,7 +30,7 @@ namespace math {
             Matrix(Matrix&& other);
             Matrix(const Matrix& other);
             void operator=(Matrix other);
-            ~Matrix();
+            virtual ~Matrix();
             // Indexing functions.
             T& at(int row, int col);
             const T& at(int row, int col) const;
@@ -107,9 +107,8 @@ namespace math {
             static Matrix zerosLike(const Matrix& like);
             static Matrix sequential(int rows, int cols, int start = 0);
             static Matrix sequentialLike(const Matrix& like, int start = 0);
-        protected:
-            T* elements = NULL;
         private:
+            T* elements = NULL;
             static int ceilDivide(int x, int y);
             int rows = 0, cols = 0, matrixSize = 0;
             bool isVec = false;
