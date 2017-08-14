@@ -62,13 +62,30 @@ namespace StealthMath {
     }
 
     template <typename T>
-    StealthMatrix<T> StealthMatrix<T>::argmax(int axis) {
+    StealthMatrix<int> StealthMatrix<T>::argmax(int axis) {
         switch (axis) {
             case 1: {
-                StealthMatrix<T> output(numRows(), 1);
+                StealthMatrix<int> output(numRows(), 1);
                 dim3 blocks(ceilDivide(output.numRows(), THREADS_PER_BLOCK));
                 dim3 threads(THREADS_PER_BLOCK);
                 argmaxRowCUDA<<<blocks, threads>>>(data(), numRows(), numColumns(), output.data());
+                cudaDeviceSynchronize();
+                return output;
+            } default: {
+                return StealthMatrix<int>();
+            }
+
+        }
+    }
+
+    template <typename T>
+    StealthMatrix<T> StealthMatrix<T>::maxMask(int axis) {
+        switch (axis) {
+            case 1: {
+                StealthMatrix<T> output(numRows(), numColumns());
+                dim3 blocks(ceilDivide(output.numRows(), THREADS_PER_BLOCK));
+                dim3 threads(THREADS_PER_BLOCK);
+                maxMaskRowCUDA<<<blocks, threads>>>(data(), numRows(), numColumns(), output.data());
                 cudaDeviceSynchronize();
                 return output;
             } default: {

@@ -53,7 +53,7 @@ namespace StealthMath {
     }
 
     template <typename T>
-    __global__ void argmaxRowCUDA(const T* A, int numRows, int numCols,  T* C) {
+    __global__ void argmaxRowCUDA(const T* A, int numRows, int numCols,  int* C) {
         int row = blockIdx.x * blockDim.x + threadIdx.x;
         if (row < numRows) {
             T max = T();
@@ -66,6 +66,23 @@ namespace StealthMath {
                 }
             }
             C[row] = maxIndex;
+        }
+    }
+
+    template <typename T>
+    __global__ void maxMaskRowCUDA(const T* A, int numRows, int numCols,  T* C) {
+        int row = blockIdx.x * blockDim.x + threadIdx.x;
+        if (row < numRows) {
+            T max = T();
+            int maxIndex = 0;
+            for (int i = 0; i < numCols; ++i) {
+                int index = row * numCols + i;
+                if (A[index] > max) {
+                    max = A[index];
+                    maxIndex = i;
+                }
+            }
+            C[row * numCols + maxIndex] = 1;
         }
     }
 
