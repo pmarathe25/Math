@@ -58,6 +58,7 @@ namespace StealthMath {
             StealthMatrix transpose() const;
             StealthMatrix weightedRowSum(float scaleFactor = 1.0) const;
             StealthMatrix rowMean() const;
+            StealthMatrix argmax(int axis = 1);
             // StealthMatrix-StealthMatrix Arithmetic
             StealthMatrix dot(const StealthMatrix& other) const;
             StealthMatrix operator*(const StealthMatrix& other) const;

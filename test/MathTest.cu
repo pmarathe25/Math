@@ -191,6 +191,13 @@ int testStealthMatrixTypeCasting() {
     return 0;
 }
 
+int testStealthMatrixArgmax() {
+    std::cout << "========================Testing StealthMatrix Argmax========================" << '\n';
+    StealthMatrix_F argmaxTest0 = StealthMatrix_F::sequential(10, 10);
+    argmaxTest0.argmax().display("Sequential Matrix Argmax");
+    return 0;
+}
+
 int main() {
     int numFailed = 0;
     numFailed += testStealthMatrixCreation();
@@ -209,6 +216,7 @@ int main() {
     numFailed += testStealthMatrixPower();
     numFailed += testStealthMatrixFileIO();
     numFailed += testStealthMatrixTypeCasting();
+    numFailed += testStealthMatrixArgmax();
     std::cout << '\n';
     if (numFailed == 0) {
         std::cout << "All Tests Passed." << '\n';

@@ -40,6 +40,23 @@ namespace StealthMath {
     }
 
     template <typename T>
+    __global__ void argmaxRowCUDA(const T* A, int numCols, int numRows, T* C) {
+        int row = blockIdx.x * blockDim.x + threadIdx.x;
+        if (row < numRows) {
+            T max = T();
+            T maxIndex = T();
+            for (int i = 0; i < numCols; ++i) {
+                int index = row * numCols + i;
+                if (A[index] > max) {
+                    max = A[index];
+                    maxIndex = i;
+                }
+            }
+            C[row] = maxIndex;
+        }
+    }
+
+    template <typename T>
     __global__ void rowWiseDotProductCUDA(const T* A, const T* B, int numRows, int numCols, T* C) {
         // Each thread sCUDA one row.
         int row = blockIdx.x * blockDim.x + threadIdx.x;
