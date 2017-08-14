@@ -17,8 +17,8 @@ LFLAGS = -shared -Wno-deprecated-gpu-targets
 TESTLFLAGS = -Wno-deprecated-gpu-targets
 EXECLFLAGS = -Wno-deprecated-gpu-targets
 
-$(LIBDIR)/libmatrix.so: $(BUILDDIR)/StealthMatrix.o
-	$(CXX) $(LFLAGS) $(BUILDDIR)/StealthMatrix.o -o $(LIBDIR)/libmatrix.so
+$(LIBDIR)/libstealthmat.so: $(BUILDDIR)/StealthMatrix.o
+	$(CXX) $(LFLAGS) $(BUILDDIR)/StealthMatrix.o -o $(LIBDIR)/libstealthmat.so
 
 $(LIBDIR)/libmath.so: $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o
 	$(CXX) $(LFLAGS) $(BUILDDIR)/MathParser.o $(BUILDDIR)/Math.o -o $(LIBDIR)/libmath.so
@@ -29,8 +29,8 @@ $(BINDIR)/MathParse: $(EXECOBJS) $(LIBDIR)/libmath.so
 $(BUILDDIR)/MathParse.o: $(SRCDIR)/MathParse.cpp $(LIBDIR)/libmath.so
 	$(CXX) $(CFLAGS) $(SRCDIR)/MathParse.cpp -o $(BUILDDIR)/MathParse.o
 
-$(TESTDIR)/MathTest: $(TESTOBJS) $(LIBDIR)/libmath.so $(LIBDIR)/libmatrix.so
-	$(CXX) $(TESTLFLAGS) $(TESTOBJS) $(LIBDIR)/libmath.so $(LIBDIR)/libmatrix.so -o $(TESTDIR)/MathTest
+$(TESTDIR)/MathTest: $(TESTOBJS) $(LIBDIR)/libmath.so $(LIBDIR)/libstealthmat.so
+	$(CXX) $(TESTLFLAGS) $(TESTOBJS) $(LIBDIR)/libmath.so $(LIBDIR)/libstealthmat.so -o $(TESTDIR)/MathTest
 
 $(BUILDDIR)/MathTest.o: $(TESTDIR)/MathTest.cu $(INCLUDEPATH)/StealthMatrix.hpp $(LIBDIR)/libmath.so
 	$(CXX) $(CFLAGS) $(TESTDIR)/MathTest.cu -o $(BUILDDIR)/MathTest.o
@@ -46,13 +46,13 @@ $(BUILDDIR)/StealthMatrix.o: $(INCLUDEPATH)/StealthMatrix.hpp $(SRCDIR)/StealthM
 	$(CXX) $(CFLAGS) $(SRCDIR)/StealthMatrix/StealthMatrix.cu -o $(BUILDDIR)/StealthMatrix.o
 
 clean:
-	rm $(OBJS) $(TESTOBJS) $(LIBDIR)/libmath.so $(TESTDIR)/MathTest
+	rm $(OBJS) $(TESTOBJS) $(LIBDIR)/libmath.so $(LIBDIR)/libstealthmat.so $(TESTDIR)/MathTest
 
 test: $(TESTDIR)/MathTest
 	$(TESTDIR)/MathTest
 
 exec: $(BINDIR)/MathParse
 
-libmatrix: $(LIBDIR)/libmatrix.so
+libstealthmat: $(LIBDIR)/libstealthmat.so
 
 libmath: $(LIBDIR)/libmath.so
