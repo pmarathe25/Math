@@ -56,8 +56,9 @@ namespace StealthMath {
             StealthMatrix& set(T setValue);
             // Unary functions.
             StealthMatrix transpose() const;
-            StealthMatrix weightedRowSum(float scaleFactor = 1.0) const;
+            StealthMatrix weightedSum(int axis = 1, float scaleFactor = 1.0) const;
             StealthMatrix rowMean() const;
+            StealthMatrix columnMean() const;
             StealthMatrix argmax(int axis = 1);
             // StealthMatrix-StealthMatrix Arithmetic
             StealthMatrix dot(const StealthMatrix& other) const;

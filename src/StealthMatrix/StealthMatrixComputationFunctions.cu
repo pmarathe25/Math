@@ -20,22 +20,45 @@ namespace StealthMath {
     }
 
     template <typename T>
-    StealthMatrix<T> StealthMatrix<T>::weightedRowSum(float scaleFactor) const {
-        if (numRows() == 1) {
-            return (*this);
-        } else {
-            StealthMatrix<T> output(1, numColumns());
-            dim3 blocks(ceilDivide(output.numColumns(), THREADS_PER_BLOCK));
-            dim3 threads(THREADS_PER_BLOCK);
-            weightedRowSumCUDA<<<blocks, threads>>>(data(), scaleFactor, numColumns(), size(), output.data());
-            cudaDeviceSynchronize();
-            return output;
+    StealthMatrix<T> StealthMatrix<T>::weightedSum(int axis, float scaleFactor) const {
+        switch (axis) {
+            case 0: {
+                if (numColumns() == 1) {
+                    return (*this);
+                } else {
+                    StealthMatrix<T> output(numRows(), 1);
+                    dim3 blocks(ceilDivide(output.numRows(), THREADS_PER_BLOCK));
+                    dim3 threads(THREADS_PER_BLOCK);
+                    weightedColSumCUDA<<<blocks, threads>>>(data(), scaleFactor, numRows(), numColumns(), output.data());
+                    cudaDeviceSynchronize();
+                    return output;
+                }
+            }
+            case 1: {
+                if (numRows() == 1) {
+                    return (*this);
+                } else {
+                    StealthMatrix<T> output(1, numColumns());
+                    dim3 blocks(ceilDivide(output.numColumns(), THREADS_PER_BLOCK));
+                    dim3 threads(THREADS_PER_BLOCK);
+                    weightedRowSumCUDA<<<blocks, threads>>>(data(), scaleFactor, numColumns(), size(), output.data());
+                    cudaDeviceSynchronize();
+                    return output;
+                }
+            } default: {
+                return StealthMatrix<T>();
+            }
         }
     }
 
     template <typename T>
     StealthMatrix<T> StealthMatrix<T>::rowMean() const {
-        return weightedRowSum(1 / (float) numRows());
+        return weightedSum(1, 1 / (float) numRows());
+    }
+
+    template <typename T>
+    StealthMatrix<T> StealthMatrix<T>::columnMean() const {
+        return weightedSum(0, 1 / (float) numRows());
     }
 
     template <typename T>
@@ -45,7 +68,7 @@ namespace StealthMath {
                 StealthMatrix<T> output(numRows(), 1);
                 dim3 blocks(ceilDivide(output.numRows(), THREADS_PER_BLOCK));
                 dim3 threads(THREADS_PER_BLOCK);
-                argmaxRowCUDA<<<blocks, threads>>>(data(), numColumns(), numRows(), output.data());
+                argmaxRowCUDA<<<blocks, threads>>>(data(), numRows(), numColumns(), output.data());
                 cudaDeviceSynchronize();
                 return output;
             } default: {

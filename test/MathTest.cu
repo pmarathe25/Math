@@ -63,12 +63,14 @@ int testStealthMatrixRandomize() {
     return 0;
 }
 
-int testWeightedRowSum() {
+int testweightedSum() {
     std::cout << "========================Testing StealthMatrix Weighted Row Sum========================" << '\n';
-    StealthMatrix weightedRowSumTest0 = StealthMatrix::sequential(5, 30);
-    weightedRowSumTest0.display("5x30 Sequential StealthMatrix");
-    weightedRowSumTest0.rowMean().display("Row Mean");
-    weightedRowSumTest0.weightedRowSum().display("Row Sum");
+    StealthMatrix weightedSumTest0 = StealthMatrix::sequential(5, 30);
+    weightedSumTest0.display("5x30 Sequential StealthMatrix");
+    weightedSumTest0.rowMean().display("Row Mean");
+    weightedSumTest0.weightedSum().display("Row Sum");
+    weightedSumTest0.weightedSum(0).display("Column Sum");
+    weightedSumTest0.columnMean().display("Column Mean");
     return 0;
 }
 
@@ -200,23 +202,23 @@ int testStealthMatrixArgmax() {
 
 int main() {
     int numFailed = 0;
-    numFailed += testStealthMatrixCreation();
-    numFailed += testStealthMatrixCopy();
-    numFailed += testStealthMatrixReshape();
-    numFailed += testStealthMatrixTranspose();
-    numFailed += testStealthMatrixRandomize();
-    numFailed += testWeightedRowSum();
-    numFailed += testDotProduct();
-    numFailed += testStealthMatrixMultiplication();
-    numFailed += testStealthMatrixArithmetic();
-    numFailed += testStealthMatrixVectorArithmetic();
-    numFailed += testStealthMatrixScalarArithmetic();
-    numFailed += testStealthMatrixHadamardProduct();
-    numFailed += testStealthMatrixApplyFunction();
-    numFailed += testStealthMatrixPower();
-    numFailed += testStealthMatrixFileIO();
-    numFailed += testStealthMatrixTypeCasting();
-    numFailed += testStealthMatrixArgmax();
+    // numFailed += testStealthMatrixCreation();
+    // numFailed += testStealthMatrixCopy();
+    // numFailed += testStealthMatrixReshape();
+    // numFailed += testStealthMatrixTranspose();
+    // numFailed += testStealthMatrixRandomize();
+    numFailed += testweightedSum();
+    // numFailed += testDotProduct();
+    // numFailed += testStealthMatrixMultiplication();
+    // numFailed += testStealthMatrixArithmetic();
+    // numFailed += testStealthMatrixVectorArithmetic();
+    // numFailed += testStealthMatrixScalarArithmetic();
+    // numFailed += testStealthMatrixHadamardProduct();
+    // numFailed += testStealthMatrixApplyFunction();
+    // numFailed += testStealthMatrixPower();
+    // numFailed += testStealthMatrixFileIO();
+    // numFailed += testStealthMatrixTypeCasting();
+    // numFailed += testStealthMatrixArgmax();
     std::cout << '\n';
     if (numFailed == 0) {
         std::cout << "All Tests Passed." << '\n';

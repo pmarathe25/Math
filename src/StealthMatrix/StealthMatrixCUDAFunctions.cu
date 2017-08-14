@@ -40,7 +40,20 @@ namespace StealthMath {
     }
 
     template <typename T>
-    __global__ void argmaxRowCUDA(const T* A, int numCols, int numRows, T* C) {
+    __global__ void weightedColSumCUDA(const T* A, float scaleFactor, int numRows, int numCols, T* C) {
+        int row = blockIdx.x * blockDim.x + threadIdx.x;
+        T sum = T();
+        if (row < numRows) {
+            for (int i = 0; i < numCols; ++i) {
+                int index = row * numCols + i;
+                sum += A[index];
+            }
+            C[row] = sum * scaleFactor;
+        }
+    }
+
+    template <typename T>
+    __global__ void argmaxRowCUDA(const T* A, int numRows, int numCols,  T* C) {
         int row = blockIdx.x * blockDim.x + threadIdx.x;
         if (row < numRows) {
             T max = T();
