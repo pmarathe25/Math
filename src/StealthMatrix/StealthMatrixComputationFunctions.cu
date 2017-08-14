@@ -62,7 +62,7 @@ namespace StealthMath {
     }
 
     template <typename T>
-    StealthMatrix<int> StealthMatrix<T>::argmax(int axis) {
+    StealthMatrix<int> StealthMatrix<T>::argmax(int axis) const {
         switch (axis) {
             case 1: {
                 StealthMatrix<int> output(numRows(), 1);
@@ -79,7 +79,7 @@ namespace StealthMath {
     }
 
     template <typename T>
-    StealthMatrix<T> StealthMatrix<T>::maxMask(int axis) {
+    StealthMatrix<T> StealthMatrix<T>::maxMask(int axis) const {
         switch (axis) {
             case 1: {
                 StealthMatrix<T> output(numRows(), numColumns());
