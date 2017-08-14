@@ -209,22 +209,22 @@ int testStealthMatrixMaxMask() {
 
 int main() {
     int numFailed = 0;
-    // numFailed += testStealthMatrixCreation();
-    // numFailed += testStealthMatrixCopy();
-    // numFailed += testStealthMatrixReshape();
-    // numFailed += testStealthMatrixTranspose();
-    // numFailed += testStealthMatrixRandomize();
+    numFailed += testStealthMatrixCreation();
+    numFailed += testStealthMatrixCopy();
+    numFailed += testStealthMatrixReshape();
+    numFailed += testStealthMatrixTranspose();
+    numFailed += testStealthMatrixRandomize();
     numFailed += testweightedSum();
-    // numFailed += testDotProduct();
-    // numFailed += testStealthMatrixMultiplication();
-    // numFailed += testStealthMatrixArithmetic();
-    // numFailed += testStealthMatrixVectorArithmetic();
-    // numFailed += testStealthMatrixScalarArithmetic();
-    // numFailed += testStealthMatrixHadamardProduct();
-    // numFailed += testStealthMatrixApplyFunction();
-    // numFailed += testStealthMatrixPower();
-    // numFailed += testStealthMatrixFileIO();
-    // numFailed += testStealthMatrixTypeCasting();
+    numFailed += testDotProduct();
+    numFailed += testStealthMatrixMultiplication();
+    numFailed += testStealthMatrixArithmetic();
+    numFailed += testStealthMatrixVectorArithmetic();
+    numFailed += testStealthMatrixScalarArithmetic();
+    numFailed += testStealthMatrixHadamardProduct();
+    numFailed += testStealthMatrixApplyFunction();
+    numFailed += testStealthMatrixPower();
+    numFailed += testStealthMatrixFileIO();
+    numFailed += testStealthMatrixTypeCasting();
     numFailed += testStealthMatrixArgmax();
     numFailed += testStealthMatrixMaxMask();
     std::cout << '\n';

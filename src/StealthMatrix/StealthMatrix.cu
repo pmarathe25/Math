@@ -158,16 +158,12 @@ namespace StealthMath {
 
     template <typename T>
     void StealthMatrix<T>::save(std::ofstream& outFile) const {
-        if (outFile.is_open()) {
-            // Write metadata
-            int currentRows = rows, currentCols = cols;
-            outFile.write(reinterpret_cast<char*>(&currentRows), sizeof currentRows);
-            outFile.write(reinterpret_cast<char*>(&currentCols), sizeof currentCols);
-            // Write elements
-            outFile.write(reinterpret_cast<const char*>(&elements[0]), sizeof(T) * size());
-        } else {
-            throw std::invalid_argument("Could not open file.");
-        }
+        // Write metadata
+        int currentRows = rows, currentCols = cols;
+        outFile.write(reinterpret_cast<char*>(&currentRows), sizeof currentRows);
+        outFile.write(reinterpret_cast<char*>(&currentCols), sizeof currentCols);
+        // Write elements
+        outFile.write(reinterpret_cast<const char*>(&elements[0]), sizeof(T) * size());
     }
 
     template <typename T>
@@ -182,16 +178,12 @@ namespace StealthMath {
 
     template <typename T>
     void StealthMatrix<T>::load(std::ifstream& inFile) {
-        if (inFile.is_open()) {
-            // Get metadata and initialize.
-            inFile.read(reinterpret_cast<char*>(&rows), sizeof rows);
-            inFile.read(reinterpret_cast<char*>(&cols), sizeof cols);
-            init();
-            // Get matrix data.
-            inFile.read(reinterpret_cast<char*>(&elements[0]), sizeof(T) * size());
-        } else {
-            throw std::invalid_argument("Could not open file.");
-        }
+        // Get metadata and initialize.
+        inFile.read(reinterpret_cast<char*>(&rows), sizeof rows);
+        inFile.read(reinterpret_cast<char*>(&cols), sizeof cols);
+        init();
+        // Get matrix data.
+        inFile.read(reinterpret_cast<char*>(&elements[0]), sizeof(T) * size());
     }
 
     template class StealthMatrix<int>;
