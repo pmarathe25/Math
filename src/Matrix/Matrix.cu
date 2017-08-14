@@ -31,6 +31,11 @@ namespace math {
     }
 
     template <typename T>
+    Matrix<T>::Matrix(std::ifstream& file) {
+        load(file);
+    }
+
+    template <typename T>
     Matrix<T>::Matrix(T elem) {
         init(1, 1);
         elements[0] = elem;

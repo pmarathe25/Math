@@ -23,6 +23,7 @@ namespace math {
             void init(int rows, int cols);
             Matrix() {}
             Matrix(const std::string& filePath);
+            Matrix(std::ifstream& file);
             Matrix(T elem);
             Matrix(int rows, int cols);
             Matrix(const std::vector<T>& initialElements);
