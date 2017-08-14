@@ -1,10 +1,10 @@
 #ifndef MATRIX_ACCESS_FUNCTIONS
 #define MATRIX_ACCESS_FUNCTIONS
 
-namespace math {
+namespace StealthMath {
     // Indexing Functions.
     template <typename T>
-    T& Matrix<T>::at(int row, int col) {
+    T& StealthMatrix<T>::at(int row, int col) {
         if (row < numRows() && col < numColumns()) {
             return elements[row * numColumns() + col];
         } else {
@@ -13,7 +13,7 @@ namespace math {
     }
 
     template <typename T>
-    const T& Matrix<T>::at(int row, int col) const {
+    const T& StealthMatrix<T>::at(int row, int col) const {
         if (row < numRows() && col < numColumns()) {
             return elements[row * numColumns() + col];
         } else {
@@ -22,7 +22,7 @@ namespace math {
     }
 
     template <typename T>
-    T& Matrix<T>::at(int index) {
+    T& StealthMatrix<T>::at(int index) {
         if (index < size()) {
             return elements[index];
         } else {
@@ -31,7 +31,7 @@ namespace math {
     }
 
     template <typename T>
-    const T& Matrix<T>::at(int index) const {
+    const T& StealthMatrix<T>::at(int index) const {
         if (index < size()) {
             return elements[index];
         } else {
@@ -41,27 +41,27 @@ namespace math {
 
     // Unsafe indexing functions.
     template <typename T>
-    T& Matrix<T>::operator[](int index) {
+    T& StealthMatrix<T>::operator[](int index) {
         return elements[index];
     }
 
     template <typename T>
-    const T& Matrix<T>::operator[](int index) const {
+    const T& StealthMatrix<T>::operator[](int index) const {
         return elements[index];
     }
 
     template <typename T>
-    T* Matrix<T>::data() {
+    T* StealthMatrix<T>::data() {
         return elements;
     }
 
     template <typename T>
-    const T* Matrix<T>::data() const {
+    const T* StealthMatrix<T>::data() const {
         return elements;
     }
 
     template <typename T>
-    int Matrix<T>::ceilDivide(int x, int y) {
+    int StealthMatrix<T>::ceilDivide(int x, int y) {
         return 1 + ((x - 1) / y);
     }
 }

@@ -1,72 +1,72 @@
-#include "Matrix.hpp"
+#include "StealthMatrix.hpp"
 #include <string>
 #include <iostream>
 #include <chrono>
 
-int testMatrixCreation() {
-    std::cout << "========================Testing Matrix Creation.========================" << '\n';
-    Matrix_F creationTest0 = Matrix_F({0, 1, 0, 0, 2, 3}, 2);
+int testStealthMatrixCreation() {
+    std::cout << "========================Testing StealthMatrix Creation.========================" << '\n';
+    StealthMatrix_F creationTest0 = StealthMatrix_F({0, 1, 0, 0, 2, 3}, 2);
     creationTest0.display("Vector Creation 2x3 (Implicit columns)");
-    Matrix_F creationTest1 = Matrix_F({0, 1, 2, 3, 4, 5}, 2, 3);
+    StealthMatrix_F creationTest1 = StealthMatrix_F({0, 1, 2, 3, 4, 5}, 2, 3);
     creationTest1.display("Vector Creation 2x3");
-    Matrix_D creationTest2 = Matrix_D::ones(40, 40);
+    StealthMatrix_D creationTest2 = StealthMatrix_D::ones(40, 40);
     creationTest2.display("Empty Initialization with Assignment 40x40");
-    Matrix_F creationTest3 = Matrix_F::sequential(5, 30);
+    StealthMatrix_F creationTest3 = StealthMatrix_F::sequential(5, 30);
     creationTest3.display("Empty Initialization with Assignment 5x30");
-    Matrix_F creationTest4 = Matrix_F::sequential(15, 5);
+    StealthMatrix_F creationTest4 = StealthMatrix_F::sequential(15, 5);
     creationTest4.display("Empty Initialization with Assignment 15x5");
-    Matrix_F creationTest5(15, 5);
+    StealthMatrix_F creationTest5(15, 5);
     creationTest5.display("Empty Initialization 15x5");
-    Matrix_C creationTest6(30, 10);
+    StealthMatrix_C creationTest6(30, 10);
     creationTest6.display("Empty Initialization 15x5");
     return 0;
 }
 
-int testMatrixCopy() {
-    std::cout << "========================Testing Matrix Copy========================" << '\n';
+int testStealthMatrixCopy() {
+    std::cout << "========================Testing StealthMatrix Copy========================" << '\n';
     std::cout << "Copying Matrices of the same type" << '\n';
-    Matrix_F copyTest0 = Matrix_F::sequential(2, 10);
-    Matrix_F copyTest1 = copyTest0;
+    StealthMatrix_F copyTest0 = StealthMatrix_F::sequential(2, 10);
+    StealthMatrix_F copyTest1 = copyTest0;
     copyTest0.display("Original");
     copyTest1.display("Copy");
-    std::cout << "Modifying First Matrix (Should not affect second)" << '\n';
+    std::cout << "Modifying First StealthMatrix (Should not affect second)" << '\n';
     copyTest0.at(0) = 4056;
     copyTest0.display("Original");
     copyTest1.display("Copy");
     return 0;
 }
 
-int testMatrixReshape() {
-    std::cout << "========================Testing Matrix Reshape========================" << '\n';
-    Matrix_F reshapeTest0 = Matrix_F::sequential(5, 30);
-    reshapeTest0.display("5x30 Sequential Matrix");
+int testStealthMatrixReshape() {
+    std::cout << "========================Testing StealthMatrix Reshape========================" << '\n';
+    StealthMatrix_F reshapeTest0 = StealthMatrix_F::sequential(5, 30);
+    reshapeTest0.display("5x30 Sequential StealthMatrix");
     reshapeTest0.reshape(10, 15);
-    reshapeTest0.display("Reshaping 5x30 Matrix into 10x15");
+    reshapeTest0.display("Reshaping 5x30 StealthMatrix into 10x15");
     return 0;
 }
 
-int testMatrixTranspose() {
-    std::cout << "========================Testing Matrix Transpose========================" << '\n';
-    Matrix_F transposeTest0 = Matrix_F::sequential(5, 30);
-    transposeTest0.display("5x30 Sequential Matrix");
+int testStealthMatrixTranspose() {
+    std::cout << "========================Testing StealthMatrix Transpose========================" << '\n';
+    StealthMatrix_F transposeTest0 = StealthMatrix_F::sequential(5, 30);
+    transposeTest0.display("5x30 Sequential StealthMatrix");
     transposeTest0.transpose().display("Transpose");
     return 0;
 }
 
-int testMatrixRandomize() {
-    std::cout << "========================Testing Matrix Randomize========================" << '\n';
-    Matrix_F randomizeTest0 = Matrix_F::sequential(5, 30);
-    randomizeTest0 = Matrix_F::randomNormalLike(randomizeTest0, 0.0, 1.0);
+int testStealthMatrixRandomize() {
+    std::cout << "========================Testing StealthMatrix Randomize========================" << '\n';
+    StealthMatrix_F randomizeTest0 = StealthMatrix_F::sequential(5, 30);
+    randomizeTest0 = StealthMatrix_F::randomNormalLike(randomizeTest0, 0.0, 1.0);
     randomizeTest0.display("Normal Randomization | Mean 0 | Standard Deviation 1");
-    randomizeTest0 = Matrix_F::randomUniformLike(randomizeTest0, 0.0, 1.0);
+    randomizeTest0 = StealthMatrix_F::randomUniformLike(randomizeTest0, 0.0, 1.0);
     randomizeTest0.display("Uniform Randomization | Range [0, 1]");
     return 0;
 }
 
 int testWeightedRowSum() {
-    std::cout << "========================Testing Matrix Weighted Row Sum========================" << '\n';
-    Matrix weightedRowSumTest0 = Matrix::sequential(5, 30);
-    weightedRowSumTest0.display("5x30 Sequential Matrix");
+    std::cout << "========================Testing StealthMatrix Weighted Row Sum========================" << '\n';
+    StealthMatrix weightedRowSumTest0 = StealthMatrix::sequential(5, 30);
+    weightedRowSumTest0.display("5x30 Sequential StealthMatrix");
     weightedRowSumTest0.rowMean().display("Row Mean");
     weightedRowSumTest0.weightedRowSum().display("Row Sum");
     return 0;
@@ -74,31 +74,31 @@ int testWeightedRowSum() {
 
 int testDotProduct() {
     std::cout << "========================Testing Row-Wise Dot Product========================" << '\n';
-    Matrix dotTest0 = Matrix::ones(30, 5);
-    dotTest0.display("30x5 Ones Matrix");
-    dotTest0.dot(dotTest0).display("Row-Wise Dot Product of Matrix with itself");
+    StealthMatrix dotTest0 = StealthMatrix::ones(30, 5);
+    dotTest0.display("30x5 Ones StealthMatrix");
+    dotTest0.dot(dotTest0).display("Row-Wise Dot Product of StealthMatrix with itself");
     return 0;
 }
 
-int testMatrixMultiplication() {
-    std::cout << "========================Testing Matrix Multiplication========================" << '\n';
-    Matrix multiplicationTest0 = Matrix::ones(10, 5);
-    multiplicationTest0.display("10x5 Ones Matrix");
-    Matrix multiplicationTest1 = Matrix::sequential(5, 5);
-    multiplicationTest1.display("5x5 Sequential Matrix");
+int testStealthMatrixMultiplication() {
+    std::cout << "========================Testing StealthMatrix Multiplication========================" << '\n';
+    StealthMatrix multiplicationTest0 = StealthMatrix::ones(10, 5);
+    multiplicationTest0.display("10x5 Ones StealthMatrix");
+    StealthMatrix multiplicationTest1 = StealthMatrix::sequential(5, 5);
+    multiplicationTest1.display("5x5 Sequential StealthMatrix");
     (multiplicationTest0 * multiplicationTest1).display("Product");
     return 0;
 }
 
-int testMatrixArithmetic() {
-    std::cout << "========================Testing Matrix-Matrix Arithmetic========================" << '\n';
-    Matrix_F arithmeticTest0 = Matrix_F::ones(10, 10);
-    arithmeticTest0.display("10x10 Ones Matrix");
-    Matrix_F arithmeticTest1 = Matrix_F::sequential(10, 10);
-    arithmeticTest1.display("10x10 Sequential Matrix");
-    Matrix_F sum = arithmeticTest0 + arithmeticTest1;
+int testStealthMatrixArithmetic() {
+    std::cout << "========================Testing StealthMatrix-StealthMatrix Arithmetic========================" << '\n';
+    StealthMatrix_F arithmeticTest0 = StealthMatrix_F::ones(10, 10);
+    arithmeticTest0.display("10x10 Ones StealthMatrix");
+    StealthMatrix_F arithmeticTest1 = StealthMatrix_F::sequential(10, 10);
+    arithmeticTest1.display("10x10 Sequential StealthMatrix");
+    StealthMatrix_F sum = arithmeticTest0 + arithmeticTest1;
     sum.display("Sum");
-    Matrix_F difference = arithmeticTest0 - arithmeticTest1;
+    StealthMatrix_F difference = arithmeticTest0 - arithmeticTest1;
     difference.display("Difference");
     arithmeticTest0 += arithmeticTest1;
     arithmeticTest0.display("Sum in place");
@@ -107,23 +107,23 @@ int testMatrixArithmetic() {
     return 0;
 }
 
-int testMatrixVectorArithmetic() {
-    std::cout << "========================Testing Matrix-Vector Arithmetic========================" << '\n';
-    Matrix vectorArithmeticTest0 = Matrix::ones(10, 10);
-    vectorArithmeticTest0.display("10x10 Ones Matrix");
-    Matrix vectorArithmeticTest1 = Matrix::sequential(10, 1);
+int testStealthMatrixVectorArithmetic() {
+    std::cout << "========================Testing StealthMatrix-Vector Arithmetic========================" << '\n';
+    StealthMatrix vectorArithmeticTest0 = StealthMatrix::ones(10, 10);
+    vectorArithmeticTest0.display("10x10 Ones StealthMatrix");
+    StealthMatrix vectorArithmeticTest1 = StealthMatrix::sequential(10, 1);
     vectorArithmeticTest1.display("1x10 Sequential Column Vector");
-    vectorArithmeticTest0.addVector(vectorArithmeticTest1).display("Matrix-Column Vector Addition");
-    Matrix vectorArithmeticTest2 = Matrix::sequential(1, 10);
+    vectorArithmeticTest0.addVector(vectorArithmeticTest1).display("StealthMatrix-Column Vector Addition");
+    StealthMatrix vectorArithmeticTest2 = StealthMatrix::sequential(1, 10);
     vectorArithmeticTest2.display("1x10 Sequential Row Vector");
-    vectorArithmeticTest0.addVector(vectorArithmeticTest2).display("Matrix-Row Vector Addition");
+    vectorArithmeticTest0.addVector(vectorArithmeticTest2).display("StealthMatrix-Row Vector Addition");
     return 0;
 }
 
-int testMatrixScalarArithmetic() {
-    std::cout << "========================Testing Matrix-Scalar Arithmetic========================" << '\n';
-    Matrix_F scalarArithmeticTest0 = Matrix_F::ones(10, 10);
-    scalarArithmeticTest0.display("10x10 Ones Matrix");
+int testStealthMatrixScalarArithmetic() {
+    std::cout << "========================Testing StealthMatrix-Scalar Arithmetic========================" << '\n';
+    StealthMatrix_F scalarArithmeticTest0 = StealthMatrix_F::ones(10, 10);
+    scalarArithmeticTest0.display("10x10 Ones StealthMatrix");
     (scalarArithmeticTest0 / 2).display("Division with Scalar 2 (Right)");
     (scalarArithmeticTest0 * 2).display("Product with Scalar 2 (Right)");
     (2 * scalarArithmeticTest0).display("Product with Scalar 2 (Left)");
@@ -134,11 +134,11 @@ int testMatrixScalarArithmetic() {
     return 0;
 }
 
-int testMatrixHadamardProduct() {
-    std::cout << "========================Testing Matrix Hadamard Product========================" << '\n';
-    Matrix hadamardProductTest0 = Matrix::sequential(10, 10);
-    hadamardProductTest0.display("10x10 Sequential Matrix");
-    hadamardProductTest0.hadamard(hadamardProductTest0).display("Matrix Hadamard Product with itself");
+int testStealthMatrixHadamardProduct() {
+    std::cout << "========================Testing StealthMatrix Hadamard Product========================" << '\n';
+    StealthMatrix hadamardProductTest0 = StealthMatrix::sequential(10, 10);
+    hadamardProductTest0.display("10x10 Sequential StealthMatrix");
+    hadamardProductTest0.hadamard(hadamardProductTest0).display("StealthMatrix Hadamard Product with itself");
     return 0;
 }
 
@@ -146,69 +146,69 @@ __device__ double sigmoid(double a) {
     return 1 / (1 + exp(-a));
 }
 
-int testMatrixApplyFunction() {
-    std::cout << "========================Testing Matrix Apply Function========================" << '\n';
-    Matrix_D applyFunctionTest0 = Matrix_D::sequential(10, 10) - 50;
-    applyFunctionTest0.display("10x10 Sequential Matrix");
+int testStealthMatrixApplyFunction() {
+    std::cout << "========================Testing StealthMatrix Apply Function========================" << '\n';
+    StealthMatrix_D applyFunctionTest0 = StealthMatrix_D::sequential(10, 10) - 50;
+    applyFunctionTest0.display("10x10 Sequential StealthMatrix");
     applyFunctionTest0.applyFunction<sigmoid>().display("Applying sigmoid function");
     return 0;
 }
 
-int testMatrixPower() {
-    std::cout << "========================Testing Matrix Power========================" << '\n';
-    Matrix_D powerTest0 = Matrix_D::sequential(10, 10);
-    powerTest0.display("10x10 Sequential Matrix");
+int testStealthMatrixPower() {
+    std::cout << "========================Testing StealthMatrix Power========================" << '\n';
+    StealthMatrix_D powerTest0 = StealthMatrix_D::sequential(10, 10);
+    powerTest0.display("10x10 Sequential StealthMatrix");
     powerTest0.pow(2).display("Computing square");
     powerTest0.pow(3).display("Computing cube");
     return 0;
 }
 
-int testMatrixFileIO() {
+int testStealthMatrixFileIO() {
     std::string filePath = "./test/matrix.bin";
-    std::cout << "========================Testing Matrix File IO========================" << '\n';
-    Matrix_D fileIOTest0 = Matrix_D::randomNormal(6, 8);
-    fileIOTest0.display("6x8 Random Normal Matrix");
+    std::cout << "========================Testing StealthMatrix File IO========================" << '\n';
+    StealthMatrix_D fileIOTest0 = StealthMatrix_D::randomNormal(6, 8);
+    fileIOTest0.display("6x8 Random Normal StealthMatrix");
     std::cout << "Writing matrix" << '\n';
     fileIOTest0.save(filePath);
     std::cout << "Loading matrix" << '\n';
-    Matrix_D fileIOTest1(filePath);
+    StealthMatrix_D fileIOTest1(filePath);
     fileIOTest1.display("Loaded matrix of dimensions " + std::to_string(fileIOTest1.numRows()) + "x" + std::to_string(fileIOTest1.numColumns()));
     return 0;
 }
 
-int testMatrixTypeCasting() {
-    std::cout << "========================Testing Matrix Type Casting========================" << '\n';
-    Matrix_D typeCastingTest0 = Matrix_D::randomNormal(4, 4);
-    typeCastingTest0.display("4x4 Random Normal Matrix (double)");
-    Matrix typeCastingTest1 = typeCastingTest0.asType<int>();
-    typeCastingTest1.display("Above Matrix as type int");
-    Matrix_C typeCastingTest2 = Matrix_C::randomUniform(4, 4, 65, 91);
-    typeCastingTest2.display("4x4 Random Uniform Matrix (char)");
-    Matrix_F typeCastingTest3 = typeCastingTest2.asType<float>();
-    typeCastingTest3.display("Above Matrix as type float");
-    Matrix typeCastingTest4 = typeCastingTest2.asType<int>();
-    typeCastingTest4.display("Above Matrix as type int");
+int testStealthMatrixTypeCasting() {
+    std::cout << "========================Testing StealthMatrix Type Casting========================" << '\n';
+    StealthMatrix_D typeCastingTest0 = StealthMatrix_D::randomNormal(4, 4);
+    typeCastingTest0.display("4x4 Random Normal StealthMatrix (double)");
+    StealthMatrix typeCastingTest1 = typeCastingTest0.asType<int>();
+    typeCastingTest1.display("Above StealthMatrix as type int");
+    StealthMatrix_C typeCastingTest2 = StealthMatrix_C::randomUniform(4, 4, 65, 91);
+    typeCastingTest2.display("4x4 Random Uniform StealthMatrix (char)");
+    StealthMatrix_F typeCastingTest3 = typeCastingTest2.asType<float>();
+    typeCastingTest3.display("Above StealthMatrix as type float");
+    StealthMatrix typeCastingTest4 = typeCastingTest2.asType<int>();
+    typeCastingTest4.display("Above StealthMatrix as type int");
     return 0;
 }
 
 int main() {
     int numFailed = 0;
-    numFailed += testMatrixCreation();
-    numFailed += testMatrixCopy();
-    numFailed += testMatrixReshape();
-    numFailed += testMatrixTranspose();
-    numFailed += testMatrixRandomize();
+    numFailed += testStealthMatrixCreation();
+    numFailed += testStealthMatrixCopy();
+    numFailed += testStealthMatrixReshape();
+    numFailed += testStealthMatrixTranspose();
+    numFailed += testStealthMatrixRandomize();
     numFailed += testWeightedRowSum();
     numFailed += testDotProduct();
-    numFailed += testMatrixMultiplication();
-    numFailed += testMatrixArithmetic();
-    numFailed += testMatrixVectorArithmetic();
-    numFailed += testMatrixScalarArithmetic();
-    numFailed += testMatrixHadamardProduct();
-    numFailed += testMatrixApplyFunction();
-    numFailed += testMatrixPower();
-    numFailed += testMatrixFileIO();
-    numFailed += testMatrixTypeCasting();
+    numFailed += testStealthMatrixMultiplication();
+    numFailed += testStealthMatrixArithmetic();
+    numFailed += testStealthMatrixVectorArithmetic();
+    numFailed += testStealthMatrixScalarArithmetic();
+    numFailed += testStealthMatrixHadamardProduct();
+    numFailed += testStealthMatrixApplyFunction();
+    numFailed += testStealthMatrixPower();
+    numFailed += testStealthMatrixFileIO();
+    numFailed += testStealthMatrixTypeCasting();
     std::cout << '\n';
     if (numFailed == 0) {
         std::cout << "All Tests Passed." << '\n';

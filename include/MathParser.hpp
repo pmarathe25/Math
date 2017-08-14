@@ -6,7 +6,7 @@
 #include "Math.hpp"
 #include "strmanip.hpp"
 
-namespace math {
+namespace StealthMath {
     class MathParser {
         public:
             MathParser();
@@ -31,8 +31,8 @@ namespace math {
             // Order of operations.
             std::vector<std::string> operatorPrecedenceList = {"!", "/", "*", "+", "-"};
             // Operator functions.
-            std::map<std::string, double (*)(double, double)> binaryOperatorFunctions = {{"/", &math::divide}, {"*", &math::multiply}, {"+", &math::add}, {"-", &math::subtract}};
-            std::map<std::string, double (*)(double)> unaryOperatorFunctions = {{"!", &math::factorial}};
+            std::map<std::string, double (*)(double, double)> binaryOperatorFunctions = {{"/", &StealthMath::divide}, {"*", &StealthMath::multiply}, {"+", &StealthMath::add}, {"-", &StealthMath::subtract}};
+            std::map<std::string, double (*)(double)> unaryOperatorFunctions = {{"!", &StealthMath::factorial}};
             // Methods.
             double parseClean(const std::string& expression);
             BinaryOperands findBinaryOperands(const std::string& expression, const std::string& op, int operatorLocation);

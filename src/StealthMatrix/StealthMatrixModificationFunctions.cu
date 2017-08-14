@@ -1,9 +1,9 @@
 #ifndef MATRIX_MODIFICATION_FUNCTIONS
 #define MATRIX_MODIFICATION_FUNCTIONS
 
-namespace math {
+namespace StealthMath {
     template <typename T>
-    Matrix<T>& Matrix<T>::reshape(int rows, int cols) {
+    StealthMatrix<T>& StealthMatrix<T>::reshape(int rows, int cols) {
         cols = (cols == -1) ? size() / rows : cols;
         if (rows * cols == size()) {
             this -> rows = rows;
@@ -16,7 +16,7 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T>& Matrix<T>::set(T setValue) {
+    StealthMatrix<T>& StealthMatrix<T>::set(T setValue) {
         dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
         dim3 threads(THREADS_PER_BLOCK);
         setCUDA<<<blocks, threads>>>(data(), setValue, size());
@@ -25,8 +25,8 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::randomNormal(int rows, int cols, double mean, double stdDev) {
-        Matrix<T> output(rows, cols);
+    StealthMatrix<T> StealthMatrix<T>::randomNormal(int rows, int cols, double mean, double stdDev) {
+        StealthMatrix<T> output(rows, cols);
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
         std::normal_distribution<double> normalDistribution(mean, stdDev);
@@ -37,8 +37,8 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::randomNormalLike(const Matrix& like, double mean, double stdDev) {
-        Matrix<T> output(like.numRows(), like.numColumns());
+    StealthMatrix<T> StealthMatrix<T>::randomNormalLike(const StealthMatrix& like, double mean, double stdDev) {
+        StealthMatrix<T> output(like.numRows(), like.numColumns());
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
         std::normal_distribution<double> normalDistribution(mean, stdDev);
@@ -49,8 +49,8 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::randomUniform(int rows, int cols, double lowerBound, double upperBound) {
-        Matrix<T> output(rows, cols);
+    StealthMatrix<T> StealthMatrix<T>::randomUniform(int rows, int cols, double lowerBound, double upperBound) {
+        StealthMatrix<T> output(rows, cols);
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
         std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
@@ -61,8 +61,8 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::randomUniformLike(const Matrix& like, double lowerBound, double upperBound) {
-        Matrix<T> output(like.numRows(), like.numColumns());
+    StealthMatrix<T> StealthMatrix<T>::randomUniformLike(const StealthMatrix& like, double lowerBound, double upperBound) {
+        StealthMatrix<T> output(like.numRows(), like.numColumns());
         auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
         std::default_random_engine generator(value.count());
         std::uniform_real_distribution<double> uniformDistribution(lowerBound, upperBound);
@@ -73,36 +73,36 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::ones(int rows, int cols) {
-        Matrix<T> output(rows, cols);
+    StealthMatrix<T> StealthMatrix<T>::ones(int rows, int cols) {
+        StealthMatrix<T> output(rows, cols);
         output.set(1);
         return output;
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::onesLike(const Matrix& like) {
-        Matrix<T> output(like.numRows(), like.numColumns());
+    StealthMatrix<T> StealthMatrix<T>::onesLike(const StealthMatrix& like) {
+        StealthMatrix<T> output(like.numRows(), like.numColumns());
         output.set(1);
         return output;
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::zeros(int rows, int cols) {
-        Matrix<T> output(rows, cols);
+    StealthMatrix<T> StealthMatrix<T>::zeros(int rows, int cols) {
+        StealthMatrix<T> output(rows, cols);
         output.set(0);
         return output;
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::zerosLike(const Matrix& like) {
-        Matrix<T> output(like.numRows(), like.numColumns());
+    StealthMatrix<T> StealthMatrix<T>::zerosLike(const StealthMatrix& like) {
+        StealthMatrix<T> output(like.numRows(), like.numColumns());
         output.set(0);
         return output;
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::sequential(int rows, int cols, int start) {
-        Matrix<T> output(rows, cols);
+    StealthMatrix<T> StealthMatrix<T>::sequential(int rows, int cols, int start) {
+        StealthMatrix<T> output(rows, cols);
         for (int i = start; i < output.size() + start; ++i) {
             output[i] = i;
         }
@@ -110,8 +110,8 @@ namespace math {
     }
 
     template <typename T>
-    Matrix<T> Matrix<T>::sequentialLike(const Matrix& like, int start) {
-        Matrix<T> output(like.numRows(), like.numColumns());
+    StealthMatrix<T> StealthMatrix<T>::sequentialLike(const StealthMatrix& like, int start) {
+        StealthMatrix<T> output(like.numRows(), like.numColumns());
         for (int i = start; i < output.size() + start; ++i) {
             output[i] = i;
         }

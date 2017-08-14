@@ -1,7 +1,7 @@
 #include "MathParser.hpp"
 #include <algorithm>
 
-namespace math {
+namespace StealthMath {
     MathParser::MathParser() {
 
     }

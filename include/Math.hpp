@@ -6,7 +6,7 @@
 const int BLOCK_DIM = 32;
 const int THREADS_PER_BLOCK = 1024;
 
-namespace math {
+namespace StealthMath {
     int fibonacci(int n);
     double factorial(double operand);
     double divide(double operand1, double operand2);

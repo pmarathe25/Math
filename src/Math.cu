@@ -2,7 +2,7 @@
 #include <typeinfo>
 #include <memory>
 
-namespace math {
+namespace StealthMath {
     int fibonacci(int n) {
         if (n < 2) {
             return n;

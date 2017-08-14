@@ -1,7 +1,7 @@
 #ifndef MATRIX_CUDA_FUNCTIONS
 #define MATRIX_CUDA_FUNCTIONS
 
-namespace math {
+namespace StealthMath {
     template <typename T>
     __global__ void copyCUDA(T* A, const T* B, int Asize) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;

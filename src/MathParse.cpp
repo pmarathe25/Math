@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-    math::MathParser parser = math::MathParser();
+    StealthMath::MathParser parser = StealthMath::MathParser();
     std::string arg;
     for (int i = 1; i < argc; ++i) {
         arg += argv[i];
