@@ -6,6 +6,12 @@ namespace StealthMath {
     template <typename Derived, typename ScalarType, int rows, int cols>
     class StealthMatrixBase {
         public:
+            enum {
+                Rows = rows,
+                Columns = cols,
+                Size = rows * cols
+            };
+
             CUDA_CALLABLE StealthMatrixBase() {
 
             }

@@ -7,22 +7,22 @@ namespace StealthMath {
     class StealthMatrix : public StealthMatrixBase<StealthMatrix, ScalarType, rows, cols> {
         public:
             CUDA_CALLABLE StealthMatrix() {
-
+                cudaMallocManaged(&elements, rows * cols * sizeof(ScalarType));
             }
 
             template <typename OtherDerived>
             CUDA_CALLABLE void operator=(const StealthMatrixBase<OtherDerived, rows, cols>& other) {
-
+                
             }
         private:
             ScalarType* elements;
     };
 
-    template <typename T>
-    __global__ void copy(const T* A, const T* B, int Asize, T* C) {
+    template <typename Matrix>
+    __global__ void copy(Matrix* A, const Matrix* B) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
-        if (index < Asize) {
-            C[index] = A[index] + B[index];
+        if (index < A::Size) {
+            A[index] = B[index];
         }
     }
 } /* StealthMath */
