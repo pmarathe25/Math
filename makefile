@@ -8,7 +8,7 @@ TESTOBJS = $(BUILDDIR)/MathTest.o
 # Headers
 INCLUDEPATH = include/
 INCLUDE = -I$(INCLUDEPATH)
-HEADERS = $(addprefix $(INCLUDEPATH)/, StealthMatrix.hpp)
+HEADERS = $(addprefix $(INCLUDEPATH)/, StealthMatrixBase.hpp)
 # Compiler settings
 CXX = nvcc
 CFLAGS = -arch=sm_35 -Xcompiler -fPIC -Wno-deprecated-gpu-targets -c -std=c++11 -D_GLIBCXX_USE_C99 $(INCLUDE)
