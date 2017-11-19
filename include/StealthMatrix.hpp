@@ -12,7 +12,10 @@ namespace StealthMath {
 
             template <typename OtherDerived>
             CUDA_CALLABLE void operator=(const StealthMatrixBase<OtherDerived, rows, cols>& other) {
-                
+                dim3 blocks(ceilDivide(size(), THREADS_PER_BLOCK));
+                dim3 threads(THREADS_PER_BLOCK);
+                sumCUDA<<<blocks, threads>>>(data(), other.data(), size());
+                cudaDeviceSynchronize();
             }
         private:
             ScalarType* elements;
