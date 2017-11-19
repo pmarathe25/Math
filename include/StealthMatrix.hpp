@@ -6,10 +6,12 @@ namespace StealthMath {
     template <typename ScalarType, int rows, int cols>
     class StealthMatrix : public StealthMatrixBase<StealthMatrix, ScalarType, rows, cols> {
         public:
-            CUDA_CALLABLE
+            CUDA_CALLABLE StealthMatrix() {
+
+            }
 
             template <typename OtherDerived>
-            CUDA_CALLABLE operator=(const StealthMatrixBase<OtherDerived, rows, cols>& other) {
+            CUDA_CALLABLE void operator=(const StealthMatrixBase<OtherDerived, rows, cols>& other) {
 
             }
         private:
