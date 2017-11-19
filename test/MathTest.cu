@@ -207,9 +207,21 @@
 //     return 0;
 // }
 
+int testStealthMatrixCreation() {
+    StealthMath::StealthMatrix<float, 10, 10> mat{};
+    mat.at(0, 0) = 1.5;
+
+    StealthMath::StealthMatrix<float, 10, 10> mat2{};
+    mat2 = mat;
+
+    display(mat, "This matrix should equal...");
+    display(mat2, "...this one");
+    return 0;
+}
+
 int main() {
     int numFailed = 0;
-    // numFailed += testStealthMatrixCreation();
+    numFailed += testStealthMatrixCreation();
     // numFailed += testStealthMatrixCopy();
     // numFailed += testStealthMatrixReshape();
     // numFailed += testStealthMatrixTranspose();
@@ -227,7 +239,7 @@ int main() {
     // numFailed += testStealthMatrixTypeCasting();
     // numFailed += testStealthMatrixArgmax();
     // numFailed += testStealthMatrixMaxMask();
-    
+
     std::cout << '\n';
     if (numFailed == 0) {
         std::cout << "All Tests Passed." << '\n';
