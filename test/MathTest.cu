@@ -1,4 +1,4 @@
-#include "StealthMatrix.hpp"
+#include "StealthMath.hpp"
 #include <string>
 #include <iostream>
 #include <chrono>
@@ -222,9 +222,33 @@ int testStealthMatrixCreation() {
     return 0;
 }
 
+int testStealthMatrixSum() {
+    StealthMath::StealthMatrix<float, 3, 3> mat{};
+    mat.at(0, 0) = 1.5;
+
+    display(mat, "This matrix should equal...");
+
+    StealthMath::StealthMatrix<float, 3, 3> mat2{};
+    mat2 = mat;
+
+    display(mat2, "...this one");
+
+    StealthMath::StealthMatrix<float, 3, 3> mat3{};
+    mat3 = mat2 + mat;
+
+    display(mat3, "And here's their sum");
+
+    auto test = mat2 + mat;
+
+    display(test, "And here's what it should be");
+
+    return 0;
+}
+
 int main() {
     int numFailed = 0;
-    numFailed += testStealthMatrixCreation();
+    // numFailed += testStealthMatrixCreation();
+    numFailed += testStealthMatrixSum();
     // numFailed += testStealthMatrixCopy();
     // numFailed += testStealthMatrixReshape();
     // numFailed += testStealthMatrixTranspose();
