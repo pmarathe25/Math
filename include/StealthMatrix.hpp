@@ -15,17 +15,11 @@ namespace StealthMath {
             };
         };
     } /* internal */
-    
+
     template <typename type, int rowsAtCompileTime, int colsAtCompileTime, int sizeAtCompileTime>
     class StealthMatrix : public StealthMatrixView<StealthMatrix<type, rowsAtCompileTime, colsAtCompileTime>> {
         public:
             typedef type ScalarType;
-
-            enum {
-                rows = rowsAtCompileTime,
-                cols = colsAtCompileTime,
-                size = sizeAtCompileTime
-            };
 
             StealthMatrix() {
                 cudaMallocManaged(&elements, sizeAtCompileTime * sizeof(ScalarType));

@@ -3,8 +3,15 @@
 #include "ForwardDeclarations.hpp"
 
 namespace StealthMath {
-    template <typename Derived, int newRows, bool Transposed = false>
+    template <typename Derived, bool Transposed, int newRows>
     class StealthMatrixView {
+
+        enum {
+            rows = rowsAtCompileTime,
+            cols = colsAtCompileTime,
+            size = sizeAtCompileTime
+        };
+
 
     };
 } /* StealthMath */
