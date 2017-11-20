@@ -38,8 +38,6 @@ namespace StealthMath {
                 // Allocate dev_ptr
                 cudaMalloc((void**) &dev_ptr, sizeof(this));
                 cudaMemcpy(dev_ptr, this, sizeof(this), cudaMemcpyHostToDevice);
-                dev_lhs = lhs -> deviceData();
-                dev_rhs = rhs -> deviceData();
             }
 
             ~CWiseBinaryOp() {
@@ -55,21 +53,15 @@ namespace StealthMath {
             }
 
             CUDA_CALLABLE ScalarType operator[] (int i) {
-                return op((*(lhs -> deviceData()))[i], (*(rhs -> deviceData()))[i]);
                 // return op((*dev_lhs)[i], (*dev_rhs)[i]);
+                return op((*(dev_ptr -> lhs))[i], (*(dev_ptr -> rhs))[i]);
+                // return op((*lhs)[i], (*rhs)[i]);
             }
 
-            // CUDA_CALLABLE const ScalarType operator[] (int i) const {
-            //     printf("Calling add [] operator\n");
-            //     return op((*dev_lhs)[i], (*dev_rhs)[i]);
-            //     // return op(1.0, 1.0);
-            // }
-            //
             CUDA_CALLABLE const ScalarType operator[] (int i) const {
                 printf("Calling add [] operator\n");
-                return op((*(lhs -> deviceData()))[i], (*(rhs -> deviceData()))[i]);
-                // return op((*dev_lhs)[i], (*dev_rhs)[i]);
                 // return op((*lhs)[i], (*rhs)[i]);
+                return op((*(dev_ptr -> lhs))[i], (*(dev_ptr -> rhs))[i]);
                 // return op(1.0, 1.0);
             }
 
@@ -80,9 +72,6 @@ namespace StealthMath {
         private:
             const LHS* lhs;
             const RHS* rhs;
-
-            const LHS* dev_lhs;
-            const RHS* dev_rhs;
             CWiseBinaryOp* dev_ptr;
     };
 

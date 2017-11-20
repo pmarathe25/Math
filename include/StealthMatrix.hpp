@@ -92,7 +92,7 @@ namespace StealthMath {
                 // Launch kernel
                 dim3 blocks(ceilDivide<StealthMatrix::size, THREADS_PER_BLOCK>());
                 dim3 threads(THREADS_PER_BLOCK);
-                copy<<<blocks, threads>>>((*this).deviceData(), other.deviceData());
+                copy<<<blocks, threads>>>(dev_ptr, other.deviceData());
                 cudaDeviceSynchronize();
             }
 
