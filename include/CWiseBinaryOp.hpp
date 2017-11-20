@@ -55,7 +55,8 @@ namespace StealthMath {
             }
 
             CUDA_CALLABLE ScalarType operator[] (int i) {
-                return op((*dev_lhs)[i], (*dev_rhs)[i]);
+                return op((*(lhs -> deviceData()))[i], (*(rhs -> deviceData()))[i]);
+                // return op((*dev_lhs)[i], (*dev_rhs)[i]);
             }
 
             // CUDA_CALLABLE const ScalarType operator[] (int i) const {
@@ -66,7 +67,8 @@ namespace StealthMath {
             //
             CUDA_CALLABLE const ScalarType operator[] (int i) const {
                 printf("Calling add [] operator\n");
-                return op((*dev_lhs)[i], (*dev_rhs)[i]);
+                return op((*(lhs -> deviceData()))[i], (*(rhs -> deviceData()))[i]);
+                // return op((*dev_lhs)[i], (*dev_rhs)[i]);
                 // return op((*lhs)[i], (*rhs)[i]);
                 // return op(1.0, 1.0);
             }
