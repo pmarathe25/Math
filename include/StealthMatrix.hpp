@@ -3,7 +3,7 @@
 #include "StealtMatrixView.hpp"
 
 namespace StealthMath {
-    template <typename type, int rowsAtCompileTime, int colsAtCompileTime, int sizeAtCompileTime = rowsAtCompileTime * colsAtCompileTime>
+    template <typename type, int rowsAtCompileTime, int colsAtCompileTime, int sizeAtCompileTime>
     class StealthMatrix : public StealthMatrixView<StealthMatrix<type, rowsAtCompileTime, colsAtCompileTime>> {
         public:
             typedef type ScalarType;
