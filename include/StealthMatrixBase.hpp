@@ -1,7 +1,8 @@
 #ifndef STEALTH_MATRIX_BASE_H
 #define STEALTH_MATRIX_BASE_H
+#define CUDA_CALLABLE __host__ __device__
 #define THREADS_PER_BLOCK 1024
-#define CUDA_CALLABLE __device__ __host__
+#include "ForwardDeclarations.hpp"
 #include <iostream>
 
 namespace StealthMath {
@@ -10,19 +11,18 @@ namespace StealthMath {
         return 1 + ((numerator - 1) / denominator);
     }
 
-    template <typename Derived, typename type, int rowsAtCompileTime, int colsAtCompileTime,
-        int sizeAtCompileTime = rowsAtCompileTime * colsAtCompileTime>
+    template <typename Derived>
     class StealthMatrixBase {
         public:
-            typedef type ScalarType;
+            typedef typename internal::traits<Derived>::ScalarType ScalarType;
 
             enum {
-                rows = rowsAtCompileTime,
-                cols = colsAtCompileTime,
-                size = sizeAtCompileTime
+                rows = internal::traits<Derived>::rows,
+                cols = internal::traits<Derived>::cols,
+                size = internal::traits<Derived>::size
             };
 
-            CUDA_CALLABLE StealthMatrixBase() {
+            StealthMatrixBase() {
 
             }
 
@@ -31,14 +31,38 @@ namespace StealthMath {
             }
 
             CUDA_CALLABLE const ScalarType& operator[](int i) const {
+                return static_cast<const Derived*>(this) -> operator[](i);
+            }
+
+            ScalarType& at(int i) {
+                if (i >= size) {
+                    throw std::out_of_range("Index out of bounds");
+                }
                 return static_cast<Derived*>(this) -> operator[](i);
             }
 
-            CUDA_CALLABLE ScalarType& at(int i, int j) {
+            const ScalarType& at(int i) const {
+                if (i >= size) {
+                    throw std::out_of_range("Index out of bounds");
+                }
+                return static_cast<const Derived*>(this) -> operator[](i);
+            }
+
+            ScalarType& at(int i, int j) {
+                if (i >= rows) {
+                    throw std::out_of_range("Row index out of bounds");
+                } else if (j >= cols) {
+                    throw std::out_of_range("Columns index out of bounds");
+                }
                 return static_cast<Derived*>(this) -> operator[](i * cols + j);
             }
 
-            CUDA_CALLABLE const ScalarType& at(int i, int j) const {
+            const ScalarType& at(int i, int j) const {
+                if (i >= rows) {
+                    throw std::out_of_range("Row index out of bounds");
+                } else if (j >= cols) {
+                    throw std::out_of_range("Columns index out of bounds");
+                }
                 return static_cast<const Derived*>(this) -> operator[](i * cols + j);
             }
     };
@@ -53,6 +77,7 @@ void display(Matrix& mat, const std::string& title = "") {
         }
         std::cout << '\n';
     }
+    std::cout << '\n';
 }
 
 #endif

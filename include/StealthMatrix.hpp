@@ -3,28 +3,51 @@
 #include "StealthMatrixBase.hpp"
 
 namespace StealthMath {
+    namespace internal {
+        template <typename type, int rowsAtCompileTime, int colsAtCompileTime, int sizeAtCompileTime>
+        struct traits<StealthMatrix<type, rowsAtCompileTime, colsAtCompileTime, sizeAtCompileTime>> {
+            typedef type ScalarType;
 
-    template <typename Matrix>
-    __global__ void copy(Matrix* A, const Matrix* B) {
+            enum {
+                rows = rowsAtCompileTime,
+                cols = colsAtCompileTime,
+                size = sizeAtCompileTime
+            };
+        };
+    } /* internal */
+
+    template <typename Matrix, typename OtherMatrix>
+    __global__ void copy(Matrix A, const OtherMatrix& B) {
         int index = blockIdx.x * blockDim.x + threadIdx.x;
         if (index < Matrix::size) {
+            printf("Index: %d\n", index);
+            // A[index] = B -> operator[](index);
             A[index] = B[index];
+            // A[index] = B.operator[](index);
         }
     }
 
-    template <typename ScalarType, int rows, int cols>
-    class StealthMatrix : public StealthMatrixBase<StealthMatrix<ScalarType, rows, cols>, ScalarType, rows, cols> {
+    template <typename type, int rowsAtCompileTime, int colsAtCompileTime, int sizeAtCompileTime>
+    class StealthMatrix : public StealthMatrixBase<StealthMatrix<type, rowsAtCompileTime, colsAtCompileTime>> {
         public:
+            typedef type ScalarType;
+
             StealthMatrix() {
-                cudaMallocManaged(&elements, rows * cols * sizeof(ScalarType));
+                cudaMallocManaged(&elements, StealthMatrix::size * sizeof(ScalarType));
             }
 
             template <typename OtherDerived>
-            CUDA_CALLABLE void operator=(const StealthMatrixBase<OtherDerived, ScalarType, rows, cols>& other) {
-                dim3 blocks(ceilDivide<StealthMatrix::size, THREADS_PER_BLOCK>());
-                dim3 threads(THREADS_PER_BLOCK);
-                copy<<<blocks, threads>>>(this, &other);
-                cudaDeviceSynchronize();
+            StealthMatrix(const StealthMatrixBase<OtherDerived>& other) {
+                *this = other;
+            }
+
+            void operator=(const StealthMatrix& other) {
+                set(other);
+            }
+
+            template <typename OtherDerived>
+            void operator=(const StealthMatrixBase<OtherDerived>& other) {
+                set(other);
             }
 
             CUDA_CALLABLE ScalarType& operator[] (int i) {
@@ -34,7 +57,18 @@ namespace StealthMath {
             CUDA_CALLABLE const ScalarType& operator[] (int i) const {
                 return elements[i];
             }
+
         private:
+            template <typename OtherDerived>
+            void set(const StealthMatrixBase<OtherDerived>& other) {
+                std::cout << "Calling Copy Kernel" << '\n';
+
+                dim3 blocks(ceilDivide<StealthMatrix::size, THREADS_PER_BLOCK>());
+                dim3 threads(THREADS_PER_BLOCK);
+                copy<<<blocks, threads>>>(*this, other);
+                cudaDeviceSynchronize();
+            }
+
             ScalarType* elements;
     };
 

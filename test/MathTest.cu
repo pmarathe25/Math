@@ -208,11 +208,14 @@
 // }
 
 int testStealthMatrixCreation() {
-    StealthMath::StealthMatrix<float, 10, 10> mat{};
+    StealthMath::StealthMatrix<float, 3, 3> mat{};
     mat.at(0, 0) = 1.5;
 
-    StealthMath::StealthMatrix<float, 10, 10> mat2{};
+    StealthMath::StealthMatrix<float, 3, 3> mat2{};
     mat2 = mat;
+
+    // std::cout << mat[100] << '\n';
+    // std::cout << mat.at(10, 10) << '\n';
 
     display(mat, "This matrix should equal...");
     display(mat2, "...this one");
