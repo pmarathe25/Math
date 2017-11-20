@@ -26,7 +26,7 @@
 //
 int testMatrixCreation() {
     std::cout << "========================Testing Matrix Creation.========================" << std::endl;
-    math::Matrix<float> creationTest0 = math::Matrix<float, 3, 3>();
+    StealthMath::StealthMatrix<float, 3, 3> creationTest0{};
     // creationTest0.display();
     return 0;
 }
