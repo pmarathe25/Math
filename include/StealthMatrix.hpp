@@ -42,11 +42,11 @@ namespace StealthMath {
                 cudaFree(dev_ptr);
             }
 
-            StealthMatrix* deviceData() {
+            CUDA_CALLABLE StealthMatrix* deviceData() {
                 return dev_ptr;
             }
 
-            const StealthMatrix* deviceData() const {
+            CUDA_CALLABLE const StealthMatrix* deviceData() const {
                 return dev_ptr;
             }
 
@@ -64,16 +64,16 @@ namespace StealthMath {
                 set(other);
             }
 
-            CUDA_CALLABLE ScalarType operator[] (int i) {
+            CUDA_CALLABLE inline ScalarType operator[] (int i) {
                 return elements[i];
             }
 
-            CUDA_CALLABLE const ScalarType operator[] (int i) const {
-                // printf("Calling [] operator\n");
+            CUDA_CALLABLE inline const ScalarType operator[] (int i) const {
+                printf("Calling StealthMatrix [] operator\n");
                 return elements[i];
             }
 
-            CUDA_CALLABLE void setValue(int index, ScalarType value) {
+            CUDA_CALLABLE inline void setValue(int index, ScalarType value) {
                 elements[index] = value;
             }
 

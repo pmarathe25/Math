@@ -23,20 +23,20 @@ namespace StealthMath {
 
             StealthMatrixBase() {  }
 
-            Derived* deviceData() {
+            CUDA_CALLABLE Derived* deviceData() {
                 return static_cast<Derived*>(this) -> deviceData();
             }
 
-            const Derived* deviceData() const {
+            CUDA_CALLABLE const Derived* deviceData() const {
                 return static_cast<const Derived*>(this) -> deviceData();
             }
 
             // Access Functions
-            CUDA_CALLABLE ScalarType operator[](int i) {
+            CUDA_CALLABLE inline ScalarType operator[](int i) {
                 return static_cast<Derived*>(this) -> operator[](i);
             }
 
-            CUDA_CALLABLE const ScalarType operator[](int i) const {
+            CUDA_CALLABLE inline const ScalarType operator[](int i) const {
                 return static_cast<const Derived*>(this) -> operator[](i);
             }
 

@@ -33,8 +33,9 @@ namespace StealthMath {
             typedef LHSType ScalarType;
 
             CWiseBinaryOp(const StealthMatrixBase<LHS>* lhs, const StealthMatrixBase<RHS>* rhs) :
-                lhs(static_cast<const LHS*>(lhs)), rhs(static_cast<const RHS*>(rhs)) {
-                std::cout << "Constructing Binary OP" << '\n';
+                lhs(static_cast<const LHS*>(lhs)), rhs(static_cast<const RHS*>(rhs)),
+                dev_lhs(static_cast<const LHS*>(lhs) -> deviceData()), dev_rhs(static_cast<const RHS*>(rhs) -> deviceData()) {
+                std::cout << "Constructing Binary OP with matrices of size " << LHS::size << " and " << RHS::size << '\n';
                 // Allocate dev_ptr
                 cudaMalloc((void**) &dev_ptr, sizeof(this));
                 cudaMemcpy(dev_ptr, this, sizeof(this), cudaMemcpyHostToDevice);
@@ -44,24 +45,25 @@ namespace StealthMath {
                 cudaFree(dev_ptr);
             }
 
-            CWiseBinaryOp* deviceData() {
+            CUDA_CALLABLE CWiseBinaryOp* deviceData() {
                 return dev_ptr;
             }
 
-            const CWiseBinaryOp* deviceData() const {
+            CUDA_CALLABLE const CWiseBinaryOp* deviceData() const {
                 return dev_ptr;
             }
 
-            CUDA_CALLABLE ScalarType operator[] (int i) {
+            CUDA_CALLABLE inline ScalarType operator[] (int i) {
                 // return op((*dev_lhs)[i], (*dev_rhs)[i]);
-                return op((*(dev_ptr -> lhs))[i], (*(dev_ptr -> rhs))[i]);
-                // return op((*lhs)[i], (*rhs)[i]);
+                // return op((*(dev_ptr -> lhs))[i], (*(dev_ptr -> rhs))[i]);
+                return op((*lhs)[i], (*rhs)[i]);
             }
 
-            CUDA_CALLABLE const ScalarType operator[] (int i) const {
-                printf("Calling add [] operator\n");
+            CUDA_CALLABLE inline const ScalarType operator[] (int i) const {
+                printf("Calling CWiseBinaryOp [] operator\n");
                 // return op((*lhs)[i], (*rhs)[i]);
-                return op((*(dev_ptr -> lhs))[i], (*(dev_ptr -> rhs))[i]);
+                return op((*dev_lhs)[i], (*dev_rhs)[i]);
+                // return op((*(dev_ptr -> dev_lhs))[i], (*(dev_ptr -> dev_rhs))[i]);
                 // return op(1.0, 1.0);
             }
 
@@ -70,8 +72,8 @@ namespace StealthMath {
             }
 
         private:
-            const LHS* lhs;
-            const RHS* rhs;
+            const LHS* lhs, *dev_lhs;
+            const RHS* rhs, *dev_rhs;
             CWiseBinaryOp* dev_ptr;
     };
 
