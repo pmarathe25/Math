@@ -8,6 +8,12 @@ namespace StealthMath {
         public:
             typedef type ScalarType;
 
+            enum {
+                rows = rowsAtCompileTime,
+                cols = colsAtCompileTime,
+                size = sizeAtCompileTime
+            };
+
             StealthMatrix() {
                 cudaMallocManaged(&elements, sizeAtCompileTime * sizeof(ScalarType));
             }
