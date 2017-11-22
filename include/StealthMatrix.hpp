@@ -16,18 +16,32 @@ namespace StealthMath {
             };
         } /* internal */
 
-
     template <typename type, int rowsAtCompileTime, int colsAtCompileTime, int sizeAtCompileTime>
     class StealthMatrix : public StealthMatrixView<StealthMatrix<type, rowsAtCompileTime, colsAtCompileTime>> {
         public:
             typedef type ScalarType;
 
-            StealthMatrix() : StealthMatrixView<StealthMatrix<type, rowsAtCompileTime, colsAtCompileTime>>(elements) {
+            enum {
+                rows = rowsAtCompileTime,
+                cols = colsAtCompileTime,
+                size = sizeAtCompileTime
+            };
+
+            StealthMatrix() : StealthMatrixView<StealthMatrix>() {
                 cudaMallocManaged(&elements, sizeAtCompileTime * sizeof(ScalarType));
+                StealthMatrixView<StealthMatrix>::setViewAddress(elements);
             }
 
             ~StealthMatrix() {
                 cudaFree(elements);
+            }
+
+            CUDA_CALLABLE ScalarType& at(int row, int col) {
+                return elements[row * cols + col];
+            }
+
+            CUDA_CALLABLE const ScalarType& at(int row, int col) const {
+                return elements[row * cols + col];
             }
 
         private:

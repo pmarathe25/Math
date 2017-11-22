@@ -25,9 +25,22 @@
 // }
 //
 int testMatrixCreation() {
-    std::cout << "========================Testing Matrix Creation.========================" << std::endl;
     StealthMath::StealthMatrix<float, 3, 3> creationTest0{};
-    // creationTest0.display();
+    creationTest0.at(1, 1) = 3.14159;
+    StealthMath::display(creationTest0, "========================Testing Matrix Creation.========================");
+    return 0;
+}
+
+int testMatrixTranspose() {
+    StealthMath::StealthMatrix<float, 2, 3> transposeTest0{};
+    transposeTest0.at(0, 0) = 1;
+    transposeTest0.at(0, 1) = 2;
+    transposeTest0.at(0, 2) = 3;
+    transposeTest0.at(1, 0) = 4;
+    transposeTest0.at(1, 1) = 5;
+    transposeTest0.at(1, 2) = 6;
+    StealthMath::display(transposeTest0, "========================Testing Matrix Transpose.========================\nOriginal");
+    StealthMath::display(transposeTest0.transpose(), "Transpose");
     return 0;
 }
 //
@@ -191,6 +204,7 @@ int testMatrixCreation() {
 int main() {
     int numFailed = 0;
     numFailed += testMatrixCreation();
+    numFailed += testMatrixTranspose();
     // numFailed += testMatrixCopy();
     // numFailed += testMatrixReshape();
     // numFailed += testMatrixTranspose();
