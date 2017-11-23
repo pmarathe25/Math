@@ -10,9 +10,7 @@ namespace StealthMath {
 
     // Forward Declarations
     // MatrixBase
-    template <typename MatrixType, int rowsAtCompileTime = internal::traits<MatrixType>::rows,
-        int colsAtCompileTime = internal::traits<MatrixType>::size / rowsAtCompileTime,
-        bool Transposed = false> class StealthMatrixView;
+    template <typename type, int rowsAtCompileTime, int colsAtCompileTime, bool Transposed = false> class StealthMatrixView;
     // Matrix
     template <typename type, int rowsAtCompileTime, int colsAtCompileTime, int sizeAtCompileTime =
         rowsAtCompileTime * colsAtCompileTime> class StealthMatrix;

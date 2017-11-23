@@ -17,7 +17,7 @@ namespace StealthMath {
         } /* internal */
 
     template <typename type, int rowsAtCompileTime, int colsAtCompileTime, int sizeAtCompileTime>
-    class StealthMatrix : public StealthMatrixView<StealthMatrix<type, rowsAtCompileTime, colsAtCompileTime>> {
+    class StealthMatrix : public StealthMatrixView<type, rowsAtCompileTime, colsAtCompileTime, false> {
         public:
             typedef type ScalarType;
 
@@ -27,9 +27,9 @@ namespace StealthMath {
                 size = sizeAtCompileTime
             };
 
-            StealthMatrix() : StealthMatrixView<StealthMatrix>() {
+            StealthMatrix() : StealthMatrixView<ScalarType, rowsAtCompileTime, colsAtCompileTime, false>() {
                 cudaMallocManaged(&elements, sizeAtCompileTime * sizeof(ScalarType));
-                StealthMatrixView<StealthMatrix>::setViewAddress(elements);
+                StealthMatrixView<ScalarType, rowsAtCompileTime, colsAtCompileTime, false>::setViewAddress(elements);
             }
 
             ~StealthMatrix() {
