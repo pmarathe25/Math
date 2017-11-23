@@ -27,7 +27,7 @@ namespace StealthMath {
                 size = sizeAtCompileTime
             };
 
-            StealthMatrix() : StealthMatrixView<ScalarType, rowsAtCompileTime, colsAtCompileTime, false>() {
+            StealthMatrix() {
                 cudaMallocManaged(&elements, sizeAtCompileTime * sizeof(ScalarType));
                 StealthMatrixView<ScalarType, rowsAtCompileTime, colsAtCompileTime, false>::setViewAddress(elements);
             }

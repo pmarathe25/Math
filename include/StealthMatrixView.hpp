@@ -34,7 +34,7 @@ namespace StealthMath {
                 size = rows * cols
             };
 
-            StealthMatrixView(const ScalarType* elementsView = 0) : elementsView(elementsView) {  }
+            StealthMatrixView(const ScalarType* elementsView = 0) : elementsView(elementsView) { }
 
             CUDA_CALLABLE const ScalarType& at(int row, int col) const {
                 if (!Transposed) {
