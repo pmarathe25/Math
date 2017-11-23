@@ -40,7 +40,23 @@ int testMatrixTranspose() {
     transposeTest0.at(1, 1) = 5;
     transposeTest0.at(1, 2) = 6;
     StealthMath::display(transposeTest0, "========================Testing Matrix Transpose.========================\nOriginal");
-    StealthMath::display(transposeTest0.transpose(), "Transpose");
+    // StealthMath::display(transposeTest0.transpose(), "Transpose");
+    StealthMath::display(StealthMath::transpose(transposeTest0), "Transpose");
+    return 0;
+}
+
+int testMatrixReshape() {
+    StealthMath::StealthMatrix<float, 2, 3> reshapeTest0{};
+    reshapeTest0.at(0, 0) = 1;
+    reshapeTest0.at(0, 1) = 2;
+    reshapeTest0.at(0, 2) = 3;
+    reshapeTest0.at(1, 0) = 4;
+    reshapeTest0.at(1, 1) = 5;
+    reshapeTest0.at(1, 2) = 6;
+    StealthMath::display(reshapeTest0, "========================Testing Matrix Reshape.========================\nOriginal");
+    StealthMath::display(StealthMath::reshape<1, 6>(reshapeTest0), "Reshape 1x6");
+    StealthMath::display(StealthMath::reshape<3, 2>(reshapeTest0), "Reshape 3x2");
+    // StealthMath::display(StealthMath::reshape<4, 2>(reshapeTest0), "Reshape 4x2?");
     return 0;
 }
 //
@@ -205,6 +221,7 @@ int main() {
     int numFailed = 0;
     numFailed += testMatrixCreation();
     numFailed += testMatrixTranspose();
+    numFailed += testMatrixReshape();
     // numFailed += testMatrixCopy();
     // numFailed += testMatrixReshape();
     // numFailed += testMatrixTranspose();

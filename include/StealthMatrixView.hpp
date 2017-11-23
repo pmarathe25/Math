@@ -16,9 +16,8 @@ namespace StealthMath {
             typedef typename internal::traits<MatrixType>::ScalarType ScalarType;
 
             enum {
-                rows = (rowsAtCompileTime == -1) ? internal::traits<MatrixType>::rows : rowsAtCompileTime,
-                cols = (rowsAtCompileTime == -1) ? internal::traits<MatrixType>::cols :
-                    ((colsAtCompileTime == -1) ? internal::traits<MatrixType>::size / rowsAtCompileTime : colsAtCompileTime),
+                rows = rowsAtCompileTime,
+                cols = colsAtCompileTime,
                 size = rows * cols
             };
         };
@@ -30,9 +29,9 @@ namespace StealthMath {
             typedef typename internal::traits<StealthMatrixView>::ScalarType ScalarType;
 
             enum {
-                rows = internal::traits<StealthMatrixView>::rows,
-                cols = internal::traits<StealthMatrixView>::cols,
-                size = internal::traits<StealthMatrixView>::size
+                rows = rowsAtCompileTime,
+                cols = colsAtCompileTime,
+                size = rows * cols
             };
 
             StealthMatrixView(const ScalarType* elementsView = 0) : elementsView(elementsView) {  }
@@ -45,10 +44,9 @@ namespace StealthMath {
                 }
             }
 
-            StealthMatrixView<MatrixType, cols, rows, !Transposed> transpose() const {
-                return StealthMatrixView<MatrixType, cols, rows, !Transposed>{elementsView};
+            const ScalarType* data() const {
+                return elementsView;
             }
-
         protected:
             void setViewAddress(const ScalarType* newAddress) {
                 elementsView = newAddress;
@@ -58,8 +56,22 @@ namespace StealthMath {
             const ScalarType* elementsView;
     };
 
+
+    template <typename MatrixType, int rowsAtCompileTime, int colsAtCompileTime, bool Transposed>
+    inline StealthMatrixView<MatrixType, colsAtCompileTime, rowsAtCompileTime, !Transposed>
+        transpose(const StealthMatrixView<MatrixType, rowsAtCompileTime, colsAtCompileTime, Transposed>& mat) {
+        return StealthMatrixView<MatrixType, colsAtCompileTime, rowsAtCompileTime, !Transposed>{mat.data()};
+    }
+
+    template <int newRows, int newCols = -1, typename MatrixType, int rowsAtCompileTime, int colsAtCompileTime, bool Transposed>
+    inline StealthMatrixView<MatrixType, newRows, MatrixType::size / newRows, Transposed>
+        reshape(const StealthMatrixView<MatrixType, rowsAtCompileTime, colsAtCompileTime, Transposed>& mat) {
+        static_assert(newRows * (MatrixType::size / newRows) == rowsAtCompileTime * colsAtCompileTime, "Cannot reshape to incompatible dimensions.");
+        return StealthMatrixView<MatrixType, newRows, MatrixType::size / newRows, Transposed>{mat.data()};
+    }
+
     template <typename MatrixType>
-    void display(const MatrixType& mat, const std::string& title = "") {
+    inline void display(const MatrixType& mat, const std::string& title = "") {
         std::cout << title << '\n';
         for (int i = 0; i < MatrixType::rows; ++i) {
             for (int j = 0; j < MatrixType::cols; ++j) {
