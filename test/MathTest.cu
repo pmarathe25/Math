@@ -60,20 +60,6 @@ int testMatrixReshape() {
     return 0;
 }
 
-int testMatrixCast() {
-    StealthMath::StealthMatrix<float, 2, 3> castTest0{};
-    castTest0.at(0, 0) = 1;
-    castTest0.at(0, 1) = 2;
-    castTest0.at(0, 2) = 3;
-    castTest0.at(1, 0) = 4;
-    castTest0.at(1, 1) = 5;
-    castTest0.at(1, 2) = 6;
-    StealthMath::display(castTest0, "========================Testing Matrix Cast.========================\nOriginal");
-    StealthMath::display(StealthMath::cast<int>(castTest0), "Cast int");
-    StealthMath::display(StealthMath::cast<double>(castTest0), "Cast double");
-    // StealthMath::display(StealthMath::reshape<4, 2>(reshapeTest0), "Reshape 4x2?");
-    return 0;
-}
 //
 // int testMatrixCopy() {
 //     std::cout << "========================Testing Matrix Copy========================" << std::endl;
@@ -237,7 +223,6 @@ int main() {
     numFailed += testMatrixCreation();
     numFailed += testMatrixTranspose();
     numFailed += testMatrixReshape();
-    numFailed += testMatrixCast();
     // numFailed += testMatrixCopy();
     // numFailed += testMatrixReshape();
     // numFailed += testMatrixTranspose();
